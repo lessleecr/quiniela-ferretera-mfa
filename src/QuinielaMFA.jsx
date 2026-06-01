@@ -157,7 +157,7 @@ export default function QuinielaMFA() {
       const d = await r.json();
       const name = d.nombre || d.nombreLegal || "";
       if (!name) throw new Error();
-      setHardwareName(name); setCommercialName(name);
+      setHardwareName(name);
       setHaciendaOk("Empresa encontrada.");
     } catch { setError("No se encontró la empresa. Revisa la cédula jurídica e intenta nuevamente."); }
     finally { setIsConsulting(false); }
