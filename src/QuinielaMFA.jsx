@@ -171,7 +171,7 @@ export default function QuinielaMFA() {
       const { data:u, error:e } = await supabase.from("usuarios").select("*").eq("email",email.trim().toLowerCase()).eq("password",password.trim()).maybeSingle();
       if (e) throw new Error(e.message);
       if (!u) { setError("Correo o contraseña incorrectos."); setIsLoading(false); return; }
-      setUser({ name:u.nombre_comercial, legalName:u.razon_social, cedula:u.cedula, contact:u.contacto, email:u.email, province:u.provincia, canton:u.canton, district:u.distrito, phone:u.whatsapp_usuario });
+      setUser({ name:u.nombre_comercial, legalName:u.razon_social, cedula:u.cedula, contact:u.contacto, email:u.email, province:u.provincia, canton:u.canton, district:u.distrito, phone:u.whatsapp_usuario, firstName:u.nombre, lastName1:u.primer_apellido, lastName2:u.segundo_apellido });
     } catch(err) { setError(err.message||"Error al iniciar sesión."); }
     finally { setIsLoading(false); }
   };
@@ -196,7 +196,7 @@ export default function QuinielaMFA() {
         nombre:firstName, primer_apellido:lastName1, segundo_apellido:lastName2, cedula_personal:cedulaPersonal,
       });
       if (ie) throw new Error(ie.message);
-      setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp });
+      setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp, firstName, lastName1, lastName2 });
     } catch(err) { setError(err.message||"Error al crear el usuario."); }
     finally { setIsLoading(false); }
   };
@@ -500,8 +500,9 @@ function ResultsView({ matches, predictions, calcPoints }) {
 }
 
 function StandingsView({ matches, predictions, calcPoints, user }) {
+  const fullName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.name || "Mi ferretería";
   const users = [
-    { name:user.name||"Mi ferretería", province:user.province||"San José", predMap:predictions },
+    { name:fullName, province:user.province||"San José", predMap:predictions },
   ].map(u=>({...u,pts:matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(u.predMap[m.id]||{},m.result),0),preds:matches.filter(m=>{const p=u.predMap[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length})).sort((a,b)=>b.pts-a.pts);
   return (
     <div>
