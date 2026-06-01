@@ -570,12 +570,32 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   const [loadingUsers, setLoadingUsers] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [search, setSearch] = React.useState("");
+  const [userPredictions, setUserPredictions] = React.useState([]);
+  const [loadingPredictions, setLoadingPredictions] = React.useState(false);
 
   const loadUsers = async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
     if (data) setDbUsers(data);
     setLoadingUsers(false);
+  };
+
+  const loadUserPredictions = async (email) => {
+    if (!email) return;
+    setLoadingPredictions(true);
+    setUserPredictions([]);
+    const { data } = await supabase
+      .from("predicciones")
+      .select("*")
+      .eq("user_email", email)
+      .order("match_id", { ascending: true });
+    if (data) setUserPredictions(data);
+    setLoadingPredictions(false);
+  };
+
+  const selectUser = (u) => {
+    setSelectedUser(u);
+    loadUserPredictions(u.email);
   };
 
   React.useEffect(() => { if (section === "users") loadUsers(); }, [section]);
@@ -587,6 +607,13 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
       (u.cedula||"").toLowerCase().includes(s) ||
       (u.nombre||"").toLowerCase().includes(s) ||
       (u.primer_apellido||"").toLowerCase().includes(s);
+  });
+
+  const selectedPredictionsWithMatch = userPredictions.map(p => {
+    const match = matches.find(m => Number(m.id) === Number(p.match_id));
+    const pred = { home: p.home, away: p.away };
+    const points = match?.result ? calcPoints(pred, match.result) : 0;
+    return { ...p, match, points };
   });
 
   const exportToExcel = () => {
@@ -603,6 +630,31 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "usuarios_quiniela_mfa.xls";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  const exportPredictionsToExcel = () => {
+    if (!selectedUser) return;
+    const esc = v => String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const rows = selectedPredictionsWithMatch.map(p => `<tr>
+      <td>${esc(selectedUser.nombre_comercial)}</td>
+      <td>${esc(selectedUser.email)}</td>
+      <td>${esc(p.match_id)}</td>
+      <td>${esc(p.match?.group)}</td>
+      <td>${esc(p.match?.date)}</td>
+      <td>${esc(p.match?.time)}</td>
+      <td>${esc(p.match?.homeTeam?.name)}</td>
+      <td>${esc(p.home)}</td>
+      <td>${esc(p.away)}</td>
+      <td>${esc(p.match?.awayTeam?.name)}</td>
+      <td>${p.match?.result ? esc(`${p.match.result.home}-${p.match.result.away}`) : "Pendiente"}</td>
+      <td>${esc(p.points)}</td>
+      <td>${esc(p.updated_at?.slice(0,19).replace("T", " "))}</td>
+    </tr>`).join("");
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"/><style>th{background:#1a9e3f;color:#fff;font-weight:bold}th,td{border:1px solid #999;padding:8px}</style></head><body><h2>Predicciones - ${esc(selectedUser.nombre_comercial)}</h2><table><thead><tr><th>Ferretería</th><th>Correo</th><th>Partido</th><th>Grupo</th><th>Fecha</th><th>Hora</th><th>Local</th><th>Pred. Local</th><th>Pred. Visita</th><th>Visitante</th><th>Resultado</th><th>Puntos</th><th>Actualizado</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+    const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `predicciones_${selectedUser.email || "usuario"}.xls`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
@@ -670,7 +722,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                   {filteredUsers.length===0?(
                     <div style={{padding:20,textAlign:"center",color:G.muted,fontSize:13}}>No hay usuarios registrados.</div>
                   ):filteredUsers.map(u=>(
-                    <button key={u.id} onClick={()=>setSelectedUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
+                    <button key={u.id} onClick={()=>selectUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
                       <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{u.nombre_comercial||"Sin nombre"}</div>
                       <div style={{fontSize:12,color:G.green,marginTop:2}}>{u.nombre} {u.primer_apellido} {u.segundo_apellido}</div>
                       <div style={{fontSize:11,color:G.muted,marginTop:2}}>{u.email}</div>
@@ -682,7 +734,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
               <div>
                 {!selectedUser ? (
-                  <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Selecciona un usuario para ver sus datos completos.</div>
+                  <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Selecciona un usuario para ver sus datos completos y sus predicciones.</div>
                 ) : (
                   <div style={{...card,padding:24,borderRadius:12}}>
                     <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Datos del usuario</div>
@@ -709,6 +761,46 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         </div>
                       ))}
                     </div>
+
+                    <div style={{marginTop:28,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+                      <div>
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Predicciones del usuario</div>
+                        <div style={{fontSize:12,color:G.muted,marginTop:3}}>Marcadores guardados por este usuario en la tabla predicciones.</div>
+                      </div>
+                      <button onClick={exportPredictionsToExcel} disabled={userPredictions.length===0} style={{background:userPredictions.length===0?G.card:G.green,border:userPredictions.length===0?`1px solid ${G.border}`:"none",borderRadius:8,padding:"8px 14px",color:"#fff",cursor:userPredictions.length===0?"not-allowed":"pointer",fontWeight:700,fontSize:13}}>📥 Exportar predicciones</button>
+                    </div>
+
+                    {loadingPredictions ? (
+                      <div style={{marginTop:16,background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:20,textAlign:"center",color:G.muted}}>Cargando predicciones...</div>
+                    ) : userPredictions.length === 0 ? (
+                      <div style={{marginTop:16,background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:20,textAlign:"center",color:G.muted}}>Este usuario aún no tiene predicciones registradas.</div>
+                    ) : (
+                      <div style={{marginTop:16,overflowX:"auto",border:`1px solid ${G.border}`,borderRadius:12}}>
+                        <table style={{width:"100%",borderCollapse:"collapse",minWidth:850}}>
+                          <thead>
+                            <tr style={{background:G.card2}}>
+                              {["Partido","Grupo","Fecha","Equipo local","Predicción","Equipo visitante","Resultado","Pts"].map(h=>(
+                                <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted,borderBottom:`1px solid ${G.border}`}}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedPredictionsWithMatch.map(p => (
+                              <tr key={p.id || `${p.user_email}-${p.match_id}`} style={{borderBottom:`1px solid ${G.border}`}}>
+                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>#{p.match_id}</td>
+                                <td style={{padding:"10px 12px",fontSize:13,color:G.gray}}>{p.match?.group || "—"}</td>
+                                <td style={{padding:"10px 12px",fontSize:13,color:G.gray}}>{p.match?.date || "—"}<br/><span style={{fontSize:11,color:G.muted}}>{p.match?.time || ""}</span></td>
+                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>{p.match?.homeTeam?.flag} {p.match?.homeTeam?.name || "—"}</td>
+                                <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,whiteSpace:"nowrap"}}>{p.home} - {p.away}</td>
+                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>{p.match?.awayTeam?.flag} {p.match?.awayTeam?.name || "—"}</td>
+                                <td style={{padding:"10px 12px",fontSize:13,color:p.match?.result?"#fff":G.muted}}>{p.match?.result ? `${p.match.result.home} - ${p.match.result.away}` : "Pendiente"}</td>
+                                <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:G.green}}>{p.points}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
