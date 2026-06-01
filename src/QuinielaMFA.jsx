@@ -537,37 +537,157 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
 }
 
 function AdminView({ matches, updateResult, publishResult, clearResult, adminResults }) {
+  const [section, setSection] = React.useState("scores");
+  const [dbUsers, setDbUsers] = React.useState([]);
+  const [loadingUsers, setLoadingUsers] = React.useState(false);
+  const [selectedUser, setSelectedUser] = React.useState(null);
+  const [search, setSearch] = React.useState("");
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
+    if (data) setDbUsers(data);
+    setLoadingUsers(false);
+  };
+
+  React.useEffect(() => { if (section === "users") loadUsers(); }, [section]);
+
+  const filteredUsers = dbUsers.filter(u => {
+    const s = search.toLowerCase();
+    return (u.nombre_comercial||"").toLowerCase().includes(s) ||
+      (u.email||"").toLowerCase().includes(s) ||
+      (u.cedula||"").toLowerCase().includes(s) ||
+      (u.nombre||"").toLowerCase().includes(s) ||
+      (u.primer_apellido||"").toLowerCase().includes(s);
+  });
+
+  const exportToExcel = () => {
+    const esc = v => String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const rows = filteredUsers.map(u => `<tr>
+      <td>${esc(u.nombre_comercial)}</td><td>${esc(u.razon_social)}</td><td>${esc(u.cedula)}</td>
+      <td>${esc(u.nombre)} ${esc(u.primer_apellido)} ${esc(u.segundo_apellido)}</td>
+      <td>${esc(u.cedula_personal)}</td><td>${esc(u.email)}</td>
+      <td>${esc(u.whatsapp_negocio)}</td><td>${esc(u.whatsapp_usuario)}</td>
+      <td>${esc(u.provincia)}</td><td>${esc(u.canton)}</td><td>${esc(u.distrito)}</td>
+      <td>${esc(u.created_at?.slice(0,10))}</td>
+    </tr>`).join("");
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"/><style>th{background:#1a9e3f;color:#fff;font-weight:bold}th,td{border:1px solid #999;padding:8px}</style></head><body><h2>Usuarios Quiniela Ferretera MFA</h2><table><thead><tr><th>Nombre comercial</th><th>Razón social</th><th>Cédula jurídica</th><th>Contacto</th><th>Cédula identidad</th><th>Correo</th><th>WhatsApp ferretería</th><th>WhatsApp usuario</th><th>Provincia</th><th>Cantón</th><th>Distrito</th><th>Registro</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+    const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "usuarios_quiniela_mfa.xls";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
-      <div style={{...card,padding:16,borderRadius:12,marginBottom:16}}>
-        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Cargar marcadores oficiales</div>
-        <div style={{fontSize:13,color:G.muted,marginTop:4}}>Al publicar un marcador se actualizan los puntos automáticamente.</div>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
-        {matches.map(m=>(
-          <div key={m.id} style={{...card,padding:14,borderRadius:12}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
-              <span style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</span>
-              <span style={{fontSize:11,color:m.result?G.green:"#ffb400"}}>{m.result?"✅ Publicado":"⏳ Pendiente"}</span>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:6,marginBottom:12}}>
-              <div style={{textAlign:"right",fontSize:18}}>{m.homeTeam.flag}</div>
-              <input disabled={m.result?.locked} value={adminResults[m.id]?.home?.toString()||""} onChange={e=>updateResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
-              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,color:G.green,fontWeight:700}}>VS</span>
-              <input disabled={m.result?.locked} value={adminResults[m.id]?.away?.toString()||""} onChange={e=>updateResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
-              <div style={{fontSize:18}}>{m.awayTeam.flag}</div>
-            </div>
-            {m.result?.locked?(
-              <div style={{textAlign:"center",padding:"8px",background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,fontSize:12,color:G.green}}>🔒 Resultado bloqueado</div>
-            ):(
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                <button onClick={()=>clearResult(m.id)} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:"#ff5050",cursor:"pointer"}}>Limpiar</button>
-                <button onClick={()=>publishResult(m.id)} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:G.green,cursor:"pointer"}}>Publicar</button>
-              </div>
-            )}
-          </div>
+      <div style={{display:"flex",gap:6,marginBottom:20}}>
+        {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"]].map(([s,l])=>(
+          <button key={s} onClick={()=>setSection(s)} style={{padding:"10px 18px",borderRadius:8,border:`1px solid ${section===s?G.green:G.border}`,background:section===s?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{l}</button>
         ))}
       </div>
+
+      {section==="scores" ? (
+        <div>
+          <div style={{...card,padding:16,borderRadius:12,marginBottom:16}}>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Cargar marcadores oficiales</div>
+            <div style={{fontSize:13,color:G.muted,marginTop:4}}>Al publicar un marcador se actualizan los puntos automáticamente.</div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+            {matches.map(m=>(
+              <div key={m.id} style={{...card,padding:14,borderRadius:12}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+                  <span style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</span>
+                  <span style={{fontSize:11,color:m.result?G.green:"#ffb400"}}>{m.result?"✅ Publicado":"⏳ Pendiente"}</span>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:6,marginBottom:12}}>
+                  <div style={{textAlign:"right",fontSize:18}}>{m.homeTeam.flag}</div>
+                  <input disabled={m.result?.locked} value={adminResults[m.id]?.home?.toString()||""} onChange={e=>updateResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
+                  <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,color:G.green,fontWeight:700}}>VS</span>
+                  <input disabled={m.result?.locked} value={adminResults[m.id]?.away?.toString()||""} onChange={e=>updateResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
+                  <div style={{fontSize:18}}>{m.awayTeam.flag}</div>
+                </div>
+                {m.result?.locked?(
+                  <div style={{textAlign:"center",padding:"8px",background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,fontSize:12,color:G.green}}>🔒 Resultado bloqueado</div>
+                ):(
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <button onClick={()=>clearResult(m.id)} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:"#ff5050",cursor:"pointer"}}>Limpiar</button>
+                    <button onClick={()=>publishResult(m.id)} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:G.green,cursor:"pointer"}}>Publicar</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:12}}>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Usuarios registrados ({filteredUsers.length})</div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={loadUsers} style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 14px",color:G.gray,cursor:"pointer",fontSize:13}}>🔄 Actualizar</button>
+              <button onClick={exportToExcel} style={{background:G.green,border:"none",borderRadius:8,padding:"8px 14px",color:"#fff",cursor:"pointer",fontWeight:700,fontSize:13}}>📥 Exportar Excel</button>
+            </div>
+          </div>
+
+          <div style={{marginBottom:16}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar por ferretería, correo, cédula o nombre..." style={{...inp,padding:"11px 16px"}}/>
+          </div>
+
+          {loadingUsers ? (
+            <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Cargando usuarios...</div>
+          ) : (
+            <div style={{display:"grid",gridTemplateColumns:"300px 1fr",gap:16,alignItems:"start"}}>
+              <div style={{...card,borderRadius:12,overflow:"hidden"}}>
+                <div style={{padding:"12px 16px",background:G.card2,fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>Lista de usuarios</div>
+                <div style={{maxHeight:600,overflowY:"auto"}}>
+                  {filteredUsers.length===0?(
+                    <div style={{padding:20,textAlign:"center",color:G.muted,fontSize:13}}>No hay usuarios registrados.</div>
+                  ):filteredUsers.map(u=>(
+                    <button key={u.id} onClick={()=>setSelectedUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
+                      <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{u.nombre_comercial||"Sin nombre"}</div>
+                      <div style={{fontSize:12,color:G.green,marginTop:2}}>{u.nombre} {u.primer_apellido} {u.segundo_apellido}</div>
+                      <div style={{fontSize:11,color:G.muted,marginTop:2}}>{u.email}</div>
+                      <div style={{fontSize:11,color:G.muted}}>{u.provincia} · {u.canton}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                {!selectedUser ? (
+                  <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Selecciona un usuario para ver sus datos completos.</div>
+                ) : (
+                  <div style={{...card,padding:24,borderRadius:12}}>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Datos del usuario</div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
+                      {[
+                        ["Nombre comercial", selectedUser.nombre_comercial],
+                        ["Razón social", selectedUser.razon_social],
+                        ["Cédula jurídica", selectedUser.cedula],
+                        ["Nombre", selectedUser.nombre],
+                        ["Primer apellido", selectedUser.primer_apellido],
+                        ["Segundo apellido", selectedUser.segundo_apellido],
+                        ["Cédula identidad", selectedUser.cedula_personal],
+                        ["Correo", selectedUser.email],
+                        ["WhatsApp ferretería", selectedUser.whatsapp_negocio],
+                        ["WhatsApp usuario", selectedUser.whatsapp_usuario],
+                        ["Provincia", selectedUser.provincia],
+                        ["Cantón", selectedUser.canton],
+                        ["Distrito", selectedUser.distrito],
+                        ["Fecha de registro", selectedUser.created_at?.slice(0,10)],
+                      ].map(([label, value]) => (
+                        <div key={label} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"12px 14px"}}>
+                          <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted,marginBottom:4}}>{label}</div>
+                          <div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{value||"—"}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
