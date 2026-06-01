@@ -201,16 +201,44 @@ export default function QuinielaMFA() {
     finally { setIsLoading(false); }
   };
 
-  const updatePrediction = (matchId, team, value) => {
+  const updatePrediction = async (matchId, team, value) => {
     const v = value.replace(/[^0-9]/g,"").slice(0,2);
-    setPredictions(c=>({...c,[matchId]:{...c[matchId],[team]:v}}));
+    const updated = { ...predictions, [matchId]: { ...(predictions[matchId]||{}), [team]: v } };
+    setPredictions(updated);
+    const pred = updated[matchId];
+    if (pred.home !== undefined && pred.home !== "" && pred.away !== undefined && pred.away !== "") {
+      await supabase.from("predicciones").upsert({
+        user_email: user.email,
+        match_id: matchId,
+        home: pred.home,
+        away: pred.away,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_email,match_id" });
+      setPredictionStatus("saved");
+      setTimeout(()=>setPredictionStatus(""),2000);
+    }
+  };
+  const savePredictions = async () => {
+    const entries = Object.entries(predictions)
+      .filter(([,p]) => p.home !== undefined && p.home !== "" && p.away !== undefined && p.away !== "")
+      .map(([matchId, p]) => ({ user_email: user.email, match_id: Number(matchId), home: p.home, away: p.away, updated_at: new Date().toISOString() }));
+    if (entries.length > 0) {
+      await supabase.from("predicciones").upsert(entries, { onConflict: "user_email,match_id" });
+    }
     setPredictionStatus("saved");
     setTimeout(()=>setPredictionStatus(""),2000);
   };
-  const savePredictions = () => {
-    setPredictionStatus("saved");
-    setTimeout(()=>setPredictionStatus(""),2000);
-  };
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("predicciones").select("*").eq("user_email", user.email).then(({ data }) => {
+      if (data) {
+        const map = {};
+        data.forEach(p => { map[p.match_id] = { home: p.home, away: p.away }; });
+        setPredictions(map);
+      }
+    });
+  }, [user]);
+
   const updateResult = (matchId, team, value) => {
     if (adminResults[matchId]?.locked) return;
     setAdminResults(c=>({...c,[matchId]:{...c[matchId],[team]:value.replace(/[^0-9]/g,"").slice(0,2)}}));
