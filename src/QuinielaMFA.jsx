@@ -454,7 +454,7 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
 }
 
 function ResultsView({ matches, predictions, calcPoints }) {
-  const played=matches.filter(m=>m.result);
+  const played=matches.filter(m=>m.result);  // shows all matches with official result
   const total=played.reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0);
   const done=played.filter(m=>{const p=predictions[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length;
   return (
@@ -483,7 +483,7 @@ function ResultsView({ matches, predictions, calcPoints }) {
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
                   <div style={{fontSize:10,color:G.muted}}>Tu predicción</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</div>
+                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:hasPred?18:13,fontWeight:900,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"Sin predicción"}</div>
                 </div>
                 <div style={{background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
                   <div style={{fontSize:10,color:G.green}}>Resultado real</div>
