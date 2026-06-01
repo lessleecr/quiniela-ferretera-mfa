@@ -500,9 +500,9 @@ function ResultsView({ matches, predictions, calcPoints }) {
 }
 
 function StandingsView({ matches, predictions, calcPoints, user }) {
-  const fullName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.name || "Mi ferretería";
+  const fullName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.contact || "";
   const users = [
-    { name:fullName, province:user.province||"San José", predMap:predictions },
+    { name:user.name||"Mi ferretería", contactName:fullName, province:user.province||"San José", predMap:predictions },
   ].map(u=>({...u,pts:matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(u.predMap[m.id]||{},m.result),0),preds:matches.filter(m=>{const p=u.predMap[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length})).sort((a,b)=>b.pts-a.pts);
   return (
     <div>
@@ -511,7 +511,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
         <table style={{width:"100%",borderCollapse:"collapse"}}>
           <thead>
             <tr style={{background:G.card2}}>
-              {["#","Ferretería","Provincia","Predicciones","Puntos"].map(h=>(
+              {["#","Ferretería","Contacto","Provincia","Predicciones","Puntos"].map(h=>(
                 <th key={h} style={{padding:"12px 16px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
               ))}
             </tr>
@@ -521,6 +521,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
               <tr key={u.name} style={{borderBottom:`1px solid ${G.border}`}}>
                 <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{i+1}</td>
                 <td style={{padding:"12px 16px",fontWeight:600}}>{u.name}</td>
+                <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.contactName}</td>
                 <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.province}</td>
                 <td style={{padding:"12px 16px",textAlign:"center",fontWeight:600}}>{u.preds}</td>
                 <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{u.pts}</td>
