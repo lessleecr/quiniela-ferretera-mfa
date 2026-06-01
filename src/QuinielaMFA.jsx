@@ -202,12 +202,14 @@ export default function QuinielaMFA() {
   };
 
   const updatePrediction = (matchId, team, value) => {
-    setPredictions(c=>({...c,[matchId]:{...c[matchId],[team]:value.replace(/[^0-9]/g,"").slice(0,2)}}));
-    setPredictionStatus("");
+    const v = value.replace(/[^0-9]/g,"").slice(0,2);
+    setPredictions(c=>({...c,[matchId]:{...c[matchId],[team]:v}}));
+    setPredictionStatus("saved");
+    setTimeout(()=>setPredictionStatus(""),2000);
   };
   const savePredictions = () => {
-    const incomplete = matches.some(m=>{const p=predictions[m.id]||{};return p.home===undefined||p.home===""||p.away===undefined||p.away==="";});
-    setPredictionStatus(incomplete?"error":"ok");
+    setPredictionStatus("saved");
+    setTimeout(()=>setPredictionStatus(""),2000);
   };
   const updateResult = (matchId, team, value) => {
     if (adminResults[matchId]?.locked) return;
@@ -443,9 +445,9 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
           </div>
         </div>
       ))}
-      {predictionStatus&&(
-        <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:predictionStatus==="ok"?"rgba(26,158,63,.1)":"rgba(255,80,80,.1)",border:`1px solid ${predictionStatus==="ok"?"rgba(26,158,63,.3)":"rgba(255,80,80,.3)"}`,color:predictionStatus==="ok"?G.green:"#ff5050",fontSize:13}}>
-          {predictionStatus==="ok"?"✅ Predicciones guardadas correctamente.":"⚠️ Debes completar todos los marcadores antes de guardar."}
+      {predictionStatus==="saved"&&(
+        <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",color:G.green,fontSize:13}}>
+          ✅ Predicción guardada automáticamente.
         </div>
       )}
       <button onClick={savePredictions} style={{...greenBtn,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Save size={18}/> Guardar predicciones</button>
