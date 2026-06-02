@@ -579,6 +579,7 @@ export default function QuinielaMFA() {
     ["results","📊","Mis resultados"],
     ["standings","🏅","Posiciones"],
     ["profile","👤","Mi perfil"],
+    ["chat","💬","Chat"],
     ...(isAdmin ? [["admin","⚙️","Admin"]] : []),
     ["rules","📋","Reglas"]
   ];
@@ -653,6 +654,7 @@ export default function QuinielaMFA() {
           </div>
         )}
         {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
+        {view==="chat"&&<ChatView user={user}/>}
         {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
         {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
         {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
@@ -1228,6 +1230,102 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
 
         <button onClick={handleChangePassword} disabled={isChanging} style={{...greenBtn,opacity:isChanging?.7:1}}>
           {isChanging?"Actualizando...":"Cambiar contraseña"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ChatView({ user }) {
+  const [messages, setMessages] = React.useState([]);
+  const [newMsg, setNewMsg] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+  const bottomRef = React.useRef(null);
+  const userName = [user.firstName, user.lastName1].filter(Boolean).join(" ") || user.name || "Usuario";
+
+  const loadMessages = React.useCallback(async () => {
+    const { data } = await supabase.from("chat").select("*").order("created_at", { ascending: true }).limit(100);
+    if (data) setMessages(data);
+  }, []);
+
+  React.useEffect(() => {
+    loadMessages();
+    const interval = setInterval(loadMessages, 5000);
+    return () => clearInterval(interval);
+  }, [loadMessages]);
+
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    const text = newMsg.trim();
+    if (!text) return;
+    setSending(true);
+    await supabase.from("chat").insert({
+      user_email: user.email,
+      user_name: userName,
+      mensaje: text,
+    });
+    setNewMsg("");
+    await loadMessages();
+    setSending(false);
+  };
+
+  const handleKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+  const formatTime = (ts) => {
+    const d = new Date(ts);
+    const cr = new Date(d.getTime() - 6*60*60*1000);
+    const pad = n => String(n).padStart(2,"0");
+    return `${pad(cr.getUTCDate())}/${pad(cr.getUTCMonth()+1)} ${pad(cr.getUTCHours())}:${pad(cr.getUTCMinutes())}`;
+  };
+
+  return (
+    <div style={{display:"grid",gridTemplateRows:"1fr auto",height:"70vh",gap:0}}>
+      <div style={{...card,borderRadius:"16px 16px 0 0",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"16px 20px",borderBottom:`1px solid ${G.border}`,display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:20}}>💬</span>
+          <div>
+            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:G.green,textTransform:"uppercase"}}>Chat de la quiniela</div>
+            <div style={{fontSize:11,color:G.muted}}>Mensajes visibles para todos los participantes · Se actualiza cada 5 segundos</div>
+          </div>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"16px 20px",display:"flex",flexDirection:"column",gap:10}}>
+          {messages.length === 0 ? (
+            <div style={{textAlign:"center",color:G.muted,fontSize:13,marginTop:40}}>Sé el primero en escribir algo 👋</div>
+          ) : messages.map(m => {
+            const isMe = m.user_email === user.email;
+            return (
+              <div key={m.id} style={{display:"flex",flexDirection:"column",alignItems:isMe?"flex-end":"flex-start"}}>
+                <div style={{fontSize:10,color:G.muted,marginBottom:4,paddingLeft:4,paddingRight:4}}>
+                  {!isMe && <span style={{color:G.green,fontWeight:700}}>{m.user_name} · </span>}
+                  {formatTime(m.created_at)}
+                  {isMe && <span style={{color:G.green,fontWeight:700}}> · Tú</span>}
+                </div>
+                <div style={{
+                  maxWidth:"70%",padding:"10px 14px",borderRadius:isMe?"16px 4px 16px 16px":"4px 16px 16px 16px",
+                  background:isMe?G.green:G.card2,
+                  border:`1px solid ${isMe?"transparent":G.border}`,
+                  color:"#fff",fontSize:14,lineHeight:1.5,wordBreak:"break-word"
+                }}>{m.mensaje}</div>
+              </div>
+            );
+          })}
+          <div ref={bottomRef}/>
+        </div>
+      </div>
+      <div style={{background:G.card,border:`1px solid ${G.border}`,borderTop:"none",borderRadius:"0 0 16px 16px",padding:"12px 16px",display:"flex",gap:10,alignItems:"flex-end"}}>
+        <textarea
+          value={newMsg}
+          onChange={e=>setNewMsg(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder="Escribe un mensaje... (Enter para enviar)"
+          rows={1}
+          style={{flex:1,background:G.bg,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 14px",fontSize:14,color:"#fff",resize:"none",outline:"none",fontFamily:"'Barlow',sans-serif",lineHeight:1.5}}
+        />
+        <button onClick={sendMessage} disabled={sending||!newMsg.trim()} style={{background:G.green,border:"none",borderRadius:10,padding:"10px 18px",color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,cursor:"pointer",opacity:sending||!newMsg.trim()?.5:1,whiteSpace:"nowrap"}}>
+          {sending?"...":"Enviar ➤"}
         </button>
       </div>
     </div>
