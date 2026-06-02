@@ -1300,12 +1300,19 @@ function ChatView({ user }) {
     setSending(false);
   };
 
-  const vote = async (msgId, opcionIdx, currentEncuesta) => {
+  const vote = async (msgId, opcionIdx) => {
     if (userVotes[msgId] !== undefined) return;
-    const newVotos = [...currentEncuesta.votos];
-    newVotos[opcionIdx] = (newVotos[opcionIdx]||0) + 1;
-    await supabase.from("votos_encuesta").insert({ mensaje_id:msgId, user_email:user.email, opcion:opcionIdx });
-    await supabase.from("chat").update({ encuesta:{ ...currentEncuesta, votos:newVotos } }).eq("id", msgId);
+    // First register the vote
+    const { error: voteError } = await supabase.from("votos_encuesta").insert({ mensaje_id:msgId, user_email:user.email, opcion:opcionIdx });
+    if (voteError) return;
+    // Then count all votes fresh from DB
+    const { data: allVotes } = await supabase.from("votos_encuesta").select("opcion").eq("mensaje_id", msgId);
+    const { data: msgData } = await supabase.from("chat").select("encuesta").eq("id", msgId).single();
+    if (allVotes && msgData) {
+      const enc = msgData.encuesta;
+      const newVotos = enc.opciones.map((_, i) => allVotes.filter(v => v.opcion === i).length);
+      await supabase.from("chat").update({ encuesta: { ...enc, votos: newVotos } }).eq("id", msgId);
+    }
     setUserVotes(c=>({...c,[msgId]:opcionIdx}));
     await loadMessages();
   };
@@ -1398,7 +1405,7 @@ function ChatView({ user }) {
                       const voted = myVote===i;
                       return (
                         <div key={i} style={{marginBottom:8}}>
-                          <button onClick={()=>vote(m.id,i,enc)} disabled={myVote!==undefined} style={{width:"100%",background:voted?"rgba(26,158,63,.2)":"rgba(255,255,255,.05)",border:`1px solid ${voted?G.green:G.border}`,borderRadius:8,padding:"8px 12px",color:voted?G.green:"#fff",cursor:myVote!==undefined?"default":"pointer",textAlign:"left",fontSize:13,marginBottom:4}}>
+                          <button onClick={()=>vote(m.id,i)} disabled={myVote!==undefined} style={{width:"100%",background:voted?"rgba(26,158,63,.2)":"rgba(255,255,255,.05)",border:`1px solid ${voted?G.green:G.border}`,borderRadius:8,padding:"8px 12px",color:voted?G.green:"#fff",cursor:myVote!==undefined?"default":"pointer",textAlign:"left",fontSize:13,marginBottom:4}}>
                             {voted?"✅ ":""}{opt}
                           </button>
                           {myVote!==undefined&&(
