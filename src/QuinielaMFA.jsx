@@ -118,7 +118,6 @@ export default function QuinielaMFA() {
   const [lastName1, setLastName1] = useState("");
   const [lastName2, setLastName2] = useState("");
   const [cedulaPersonal, setCedulaPersonal] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [provinces, setProvinces] = useState([]);
   const [cantons, setCantons] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -169,7 +168,6 @@ export default function QuinielaMFA() {
         setFirstName(person.firstname || "");
         setLastName1(person.lastname1 || "");
         setLastName2(person.lastname2 || "");
-        setBirthDate(person.dateofbirth || "");
         setCedulaPersonalStatus("ok");
       } else {
         setCedulaPersonalStatus("error");
@@ -228,7 +226,7 @@ export default function QuinielaMFA() {
         nombre_comercial:commercialName, razon_social:hardwareName, cedula,
         contacto:email.split("@")[0], whatsapp_negocio:businessWhatsapp, whatsapp_usuario:userWhatsapp,
         provincia:selProv, canton:selCant, distrito:selDist,
-        nombre:firstName, primer_apellido:lastName1, segundo_apellido:lastName2, cedula_personal:cedulaPersonal, fecha_nacimiento:birthDate,
+        nombre:firstName, primer_apellido:lastName1, segundo_apellido:lastName2, cedula_personal:cedulaPersonal,
       });
       if (ie) throw new Error(ie.message);
       setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp, firstName, lastName1, lastName2 });
@@ -520,7 +518,6 @@ export default function QuinielaMFA() {
                       <Field label="Primer apellido" value={lastName1} onChange={setLastName1} placeholder="Primer apellido"/>
                       <Field label="Segundo apellido" value={lastName2} onChange={setLastName2} placeholder="Segundo apellido"/>
                     </div>
-                    <Field label="Fecha de nacimiento" value={birthDate} onChange={setBirthDate} placeholder="Ej: 01/01/1990"/>
                     <Divider label="Acceso"/>
                     <Field label="Correo electrónico" value={email} onChange={setEmail} placeholder="ejemplo@correo.com" type="email"/>
                     <Field label="Contraseña" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" type="password"/>
