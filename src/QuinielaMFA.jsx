@@ -652,7 +652,7 @@ export default function QuinielaMFA() {
             </div>
           </div>
         )}
-        {view==="profile"&&<ProfileView user={user} setUser={setUser}/>}
+        {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
         {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
         {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
         {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
@@ -826,9 +826,16 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   const sendBackupEmail = React.useCallback(async (usuarios, predicciones) => {
     try {
       const fecha = new Date().toLocaleString("es-CR", { timeZone: "America/Costa_Rica" });
-      const detalle = usuarios.map((u, i) =>
-        `${i+1}. ${u.nombre_comercial} | ${u.nombre||""} ${u.primer_apellido||""} ${u.segundo_apellido||""} | ${u.email} | ${u.provincia} | Predicciones: ${predicciones.filter(p=>p.user_email===u.email).length}`
-      ).join("\n");
+
+      // Build full detail per user with all predictions
+      const detalle = usuarios.map((u, i) => {
+        const userPreds = predicciones.filter(p => p.user_email === u.email);
+        const predsStr = userPreds.length > 0
+          ? userPreds.map(p => `    Partido ${p.match_id}: ${p.home} - ${p.away}`).join("\n")
+          : "    Sin predicciones";
+        return `${i+1}. ${u.nombre_comercial||""} | ${u.nombre||""} ${u.primer_apellido||""} ${u.segundo_apellido||""} | ${u.email} | ${u.cedula||""} | ${u.cedula_personal||""} | ${u.whatsapp_usuario||""} | ${u.provincia||""} ${u.canton||""} ${u.distrito||""} | Registro: ${u.created_at?.slice(0,10)||""}\n  Predicciones (${userPreds.length}):\n${predsStr}`;
+      }).join("\n\n");
+
       await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1028,7 +1035,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   );
 }
 
-function ProfileView({ user, setUser }) {
+function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -1082,6 +1089,56 @@ function ProfileView({ user, setUser }) {
         </div>
         <div style={{marginTop:14,background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"12px 14px",fontSize:12,color:G.muted}}>
           Para actualizar tus datos de ferretería, contacta al administrador.
+        </div>
+      </div>
+
+      {/* Resumen predicciones */}
+      <div style={{...card,padding:24,borderRadius:16,marginTop:20,gridColumn:"1/-1"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Resumen de mis predicciones</div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+            {[["Predicciones",Object.keys(predictions).length],["Con resultado",matches.filter(m=>m.result).length],["Puntos",matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0)+" pts"]].map(([l,v])=>(
+              <div key={l} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 16px",textAlign:"center",minWidth:110}}>
+                <div style={{fontSize:10,color:G.muted,textTransform:"uppercase",letterSpacing:1}}>{l}</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,marginTop:4}}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
+            <thead>
+              <tr style={{background:G.card2}}>
+                {["Grupo","Partido","Fecha","Mi predicción","Resultado","Puntos","Estado"].map(h=>(
+                  <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {matches.map(m=>{
+                const pred=predictions[m.id]||{};
+                const hasPred=pred.home!==undefined&&pred.home!==""&&pred.away!==undefined&&pred.away!=="";
+                const pts=m.result?calcPoints(pred,m.result):null;
+                return (
+                  <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`,background:pts===5?"rgba(26,158,63,.05)":"transparent"}}>
+                    <td style={{padding:"10px 12px",fontSize:13,color:G.muted,fontWeight:700}}>{m.group}</td>
+                    <td style={{padding:"10px 12px",fontSize:13}}>{m.homeTeam.flag} {m.home} vs {m.away} {m.awayTeam.flag}</td>
+                    <td style={{padding:"10px 12px",fontSize:12,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{m.result?`${m.result.home} - ${m.result.away}`:"—"}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:pts===5?G.green:pts>0?"#ffb400":G.muted}}>{pts!==null?`${pts} pts`:"—"}</td>
+                    <td style={{padding:"10px 12px"}}>
+                      <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:100,border:"1px solid",
+                        ...(m.status==="Abierto"?{borderColor:"rgba(26,158,63,.4)",background:"rgba(26,158,63,.1)",color:G.green}:
+                           m.status==="Cierra pronto"?{borderColor:"rgba(255,180,0,.4)",background:"rgba(255,180,0,.1)",color:"#ffb400"}:
+                           {borderColor:"rgba(255,80,80,.4)",background:"rgba(255,80,80,.1)",color:"#ff5050"})
+                      }}>{m.status}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
