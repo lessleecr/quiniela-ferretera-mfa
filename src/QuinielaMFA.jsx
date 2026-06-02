@@ -133,7 +133,18 @@ export default function QuinielaMFA() {
   const [predictions, setPredictions] = useState({});
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
-  const [adminResults, setAdminResults] = useState({ 1:{home:2,away:0}, 2:{home:1,away:1} });
+  const [adminResults, setAdminResults] = useState({});
+
+  // Load results from Supabase on mount
+  useEffect(() => {
+    supabase.from("resultados").select("*").then(({ data }) => {
+      if (data) {
+        const map = {};
+        data.forEach(r => { map[r.match_id] = { home: r.home, away: r.away, locked: r.locked }; });
+        setAdminResults(map);
+      }
+    });
+  }, []);
 
   const getMatchStatus = (date, time) => {
     // Parse match date and time (Costa Rica time UTC-6)
@@ -335,12 +346,19 @@ export default function QuinielaMFA() {
 
   const updateResult = (matchId, team, value) => {
     if (adminResults[matchId]?.locked) return;
-    setAdminResults(c=>({...c,[matchId]:{...c[matchId],[team]:value.replace(/[^0-9]/g,"").slice(0,2)}}));
+    const clean = value.replace(/[^0-9]/g,"").slice(0,2);
+    setAdminResults(c=>({...c,[matchId]:{...c[matchId],[team]:clean}}));
   };
-  const publishResult = matchId => {
-    setAdminResults(c=>{const r=c[matchId];if(!r||r.home===""||r.away==="")return c;return{...c,[matchId]:{...r,locked:true}};});
+  const publishResult = async (matchId) => {
+    const r = adminResults[matchId];
+    if (!r || r.home === "" || r.away === "" || r.home === undefined || r.away === undefined) return;
+    await supabase.from("resultados").upsert({
+      match_id: matchId, home: Number(r.home), away: Number(r.away), locked: true, updated_at: new Date().toISOString()
+    }, { onConflict: "match_id" });
+    setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:true}}));
   };
-  const clearResult = matchId => {
+  const clearResult = async (matchId) => {
+    await supabase.from("resultados").delete().eq("match_id", matchId);
     setAdminResults(c=>{const u={...c};delete u[matchId];return u;});
   };
 
