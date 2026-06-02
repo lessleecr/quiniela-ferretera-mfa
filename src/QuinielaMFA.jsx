@@ -392,9 +392,12 @@ export default function QuinielaMFA() {
       const { data:u, error:e } = await supabase.from("usuarios").select("*").eq("email",email.trim().toLowerCase()).eq("password",password.trim()).maybeSingle();
       if (e) throw new Error(e.message);
       if (!u) {
-        // Log failed attempt
         try { await supabase.from("access_log").insert({ email: email.trim().toLowerCase(), evento: "login_fallido", timestamp: new Date().toISOString() }); } catch(_){}
         setError("Correo o contraseña incorrectos."); setIsLoading(false); return;
+      }
+      if (u.bloqueado) {
+        try { await supabase.from("access_log").insert({ email: u.email, evento: "login_bloqueado", timestamp: new Date().toISOString() }); } catch(_){}
+        setError("Tu cuenta ha sido suspendida. Contacta a MFA para más información."); setIsLoading(false); return;
       }
       // Log successful login with IP (via ipify)
       const ipResp = await fetch("https://api.ipify.org?format=json").catch(()=>({json:()=>({ip:"desconocida"})}));
@@ -1226,6 +1229,17 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     );
   };
 
+  const toggleBloqueo = async (u) => {
+    if (u.email === SUPERUSER) return;
+    const bloqueado = !u.bloqueado;
+    const { error } = await supabase.from("usuarios").update({ bloqueado }).eq("email", u.email);
+    if (error) { alert("Error al actualizar estado: " + error.message); return; }
+    setSelectedUser(prev => ({...prev, bloqueado}));
+    setDbUsers(prev => prev.map(x => x.email === u.email ? {...x, bloqueado} : x));
+    // Log the action
+    try { await supabase.from("access_log").insert({ email: u.email, evento: bloqueado ? "usuario_bloqueado" : "usuario_desbloqueado", timestamp: new Date().toISOString() }); } catch(_){}
+  };
+
   const sendBackupEmail = React.useCallback(async (usuarios, predicciones) => {
     try {
       const fecha = new Date().toLocaleString("es-CR", { timeZone: "America/Costa_Rica" });
@@ -1395,11 +1409,14 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                   {filteredUsers.length===0?(
                     <div style={{padding:20,textAlign:"center",color:G.muted,fontSize:13}}>No hay usuarios registrados.</div>
                   ):filteredUsers.map(u=>(
-                    <button key={u.id} onClick={()=>setSelectedUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
+                    <button key={u.id} onClick={()=>setSelectedUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":u.bloqueado?"rgba(255,80,80,.04)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
                       <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{u.nombre_comercial||"Sin nombre"}</div>
                       <div style={{fontSize:12,color:G.green,marginTop:2}}>{u.nombre} {u.primer_apellido} {u.segundo_apellido}</div>
                       <div style={{fontSize:11,color:G.muted,marginTop:2}}>{u.email}</div>
-                      <div style={{fontSize:11,color:G.muted}}>{u.provincia} · {u.canton}</div>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:2}}>
+                        <div style={{fontSize:11,color:G.muted}}>{u.provincia} · {u.canton}</div>
+                        {u.bloqueado && <span style={{fontSize:10,fontWeight:700,color:"#ff5050",background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:100,padding:"1px 6px"}}>⛔ BLOQ</span>}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -1435,12 +1452,12 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         </div>
                       ))}
                     </div>
-                    <div style={{marginTop:16,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{marginTop:16,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
                       {selectedUser.email === SUPERUSER ? (
                         <div style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"10px 16px",fontSize:13,fontWeight:700,color:G.green}}>
                           ⭐ Superusuario — no se puede modificar
                         </div>
-                      ) : (
+                      ) : (<>
                         <button onClick={()=>toggleAdmin(selectedUser.email)} style={{
                           padding:"10px 20px", borderRadius:8, fontWeight:700, fontSize:13, cursor:"pointer",
                           border: isUserAdmin(selectedUser.email) ? "1px solid rgba(255,80,80,.4)" : "1px solid rgba(26,158,63,.4)",
@@ -1449,9 +1466,20 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         }}>
                           {isUserAdmin(selectedUser.email) ? "❌ Quitar Admin" : "✅ Asignar como Admin"}
                         </button>
-                      )}
+                        <button onClick={()=>toggleBloqueo(selectedUser)} style={{
+                          padding:"10px 20px", borderRadius:8, fontWeight:700, fontSize:13, cursor:"pointer",
+                          border: selectedUser.bloqueado ? "1px solid rgba(26,158,63,.4)" : "1px solid rgba(255,140,0,.4)",
+                          background: selectedUser.bloqueado ? "rgba(26,158,63,.1)" : "rgba(255,140,0,.08)",
+                          color: selectedUser.bloqueado ? G.green : "#ff8c00",
+                        }}>
+                          {selectedUser.bloqueado ? "🔓 Desbloquear usuario" : "🚫 Bloquear usuario"}
+                        </button>
+                        {selectedUser.bloqueado && (
+                          <span style={{fontSize:12,fontWeight:700,padding:"4px 10px",borderRadius:100,background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",color:"#ff5050"}}>⛔ BLOQUEADO</span>
+                        )}
+                      </>)}
                       <div style={{fontSize:12,color:G.muted}}>
-                        Rol actual: <span style={{color:isUserAdmin(selectedUser.email)?G.green:G.gray,fontWeight:700}}>{isUserAdmin(selectedUser.email)?"Administrador":"Usuario"}</span>
+                        Rol: <span style={{color:isUserAdmin(selectedUser.email)?G.green:G.gray,fontWeight:700}}>{isUserAdmin(selectedUser.email)?"Administrador":"Usuario"}</span>
                       </div>
                     </div>
 
