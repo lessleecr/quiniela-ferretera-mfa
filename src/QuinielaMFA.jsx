@@ -740,10 +740,7 @@ export default function QuinielaMFA() {
             </div>
           </div>
         )}
-        <div style={{display:"grid",gridTemplateColumns:"140px 1fr 140px",gap:16,alignItems:"start"}} className="dashboard-grid">
-          {/* Banner #6 - lateral izquierdo dashboard */}
-          <div style={{position:"sticky",top:24}} className="dashboard-sidebar"><BannerDisplay slot={6} vertical={true}/></div>
-          <div>
+        <div>
             {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
             {view==="chat"&&<ChatView user={user}/>}
             {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
@@ -751,9 +748,6 @@ export default function QuinielaMFA() {
             {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
             {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults} calcPoints={calcPoints}/>}
             {view==="rules"&&<RulesView/>}
-          </div>
-          {/* Banner #7 - lateral derecho dashboard */}
-          <div style={{position:"sticky",top:24}} className="dashboard-sidebar"><BannerDisplay slot={7} vertical={true}/></div>
         </div>
       </div>
     </div>
