@@ -1240,13 +1240,26 @@ function ChatView({ user }) {
   const [messages, setMessages] = React.useState([]);
   const [newMsg, setNewMsg] = React.useState("");
   const [sending, setSending] = React.useState(false);
+  const [showPollForm, setShowPollForm] = React.useState(false);
+  const [pollQuestion, setPollQuestion] = React.useState("");
+  const [pollOptions, setPollOptions] = React.useState(["",""]);
+  const [userVotes, setUserVotes] = React.useState({});
+  const [uploadingImg, setUploadingImg] = React.useState(false);
   const bottomRef = React.useRef(null);
+  const fileInputRef = React.useRef(null);
+  const isAdmin = ADMIN_EMAILS.includes(user.email);
   const userName = [user.firstName, user.lastName1].filter(Boolean).join(" ") || user.name || "Usuario";
 
   const loadMessages = React.useCallback(async () => {
     const { data } = await supabase.from("chat").select("*").order("created_at", { ascending: true }).limit(100);
     if (data) setMessages(data);
-  }, []);
+    const { data: votes } = await supabase.from("votos_encuesta").select("*").eq("user_email", user.email);
+    if (votes) {
+      const map = {};
+      votes.forEach(v => { map[v.mensaje_id] = v.opcion; });
+      setUserVotes(map);
+    }
+  }, [user.email]);
 
   React.useEffect(() => {
     loadMessages();
@@ -1254,25 +1267,7 @@ function ChatView({ user }) {
     return () => clearInterval(interval);
   }, [loadMessages]);
 
-  React.useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const sendMessage = async () => {
-    const text = newMsg.trim();
-    if (!text) return;
-    setSending(true);
-    await supabase.from("chat").insert({
-      user_email: user.email,
-      user_name: userName,
-      mensaje: text,
-    });
-    setNewMsg("");
-    await loadMessages();
-    setSending(false);
-  };
-
-  const handleKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+  React.useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [messages]);
 
   const formatTime = (ts) => {
     const d = new Date(ts);
@@ -1281,49 +1276,164 @@ function ChatView({ user }) {
     return `${pad(cr.getUTCDate())}/${pad(cr.getUTCMonth()+1)} ${pad(cr.getUTCHours())}:${pad(cr.getUTCMinutes())}`;
   };
 
+  const sendMessage = async () => {
+    const text = newMsg.trim();
+    if (!text) return;
+    setSending(true);
+    await supabase.from("chat").insert({ user_email:user.email, user_name:userName, mensaje:text, tipo:"mensaje" });
+    setNewMsg("");
+    await loadMessages();
+    setSending(false);
+  };
+
+  const sendPoll = async () => {
+    if (!pollQuestion.trim() || pollOptions.filter(o=>o.trim()).length < 2) return;
+    setSending(true);
+    const opts = pollOptions.filter(o=>o.trim());
+    await supabase.from("chat").insert({
+      user_email:user.email, user_name:userName,
+      mensaje: pollQuestion.trim(), tipo:"encuesta",
+      encuesta: { pregunta:pollQuestion.trim(), opciones:opts, votos:opts.map(()=>0) }
+    });
+    setPollQuestion(""); setPollOptions(["",""]); setShowPollForm(false);
+    await loadMessages();
+    setSending(false);
+  };
+
+  const vote = async (msgId, opcionIdx, currentEncuesta) => {
+    if (userVotes[msgId] !== undefined) return;
+    const newVotos = [...currentEncuesta.votos];
+    newVotos[opcionIdx] = (newVotos[opcionIdx]||0) + 1;
+    await supabase.from("votos_encuesta").insert({ mensaje_id:msgId, user_email:user.email, opcion:opcionIdx });
+    await supabase.from("chat").update({ encuesta:{ ...currentEncuesta, votos:newVotos } }).eq("id", msgId);
+    setUserVotes(c=>({...c,[msgId]:opcionIdx}));
+    await loadMessages();
+  };
+
+  const uploadImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImg(true);
+    const fileName = `${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("chat-images").upload(fileName, file);
+    if (!error) {
+      const { data:urlData } = supabase.storage.from("chat-images").getPublicUrl(fileName);
+      await supabase.from("chat").insert({ user_email:user.email, user_name:userName, mensaje:"📷 Imagen", tipo:"imagen", imagen_url:urlData.publicUrl });
+      await loadMessages();
+    }
+    setUploadingImg(false);
+    e.target.value = "";
+  };
+
+  const handleKey = (e) => { if (e.key==="Enter"&&!e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+  const totalVotos = (enc) => enc.votos.reduce((t,v)=>t+(v||0),0);
+
   return (
-    <div style={{display:"grid",gridTemplateRows:"1fr auto",height:"70vh",gap:0}}>
-      <div style={{...card,borderRadius:"16px 16px 0 0",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-        <div style={{padding:"16px 20px",borderBottom:`1px solid ${G.border}`,display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontSize:20}}>💬</span>
-          <div>
-            <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:G.green,textTransform:"uppercase"}}>Chat de la quiniela</div>
-            <div style={{fontSize:11,color:G.muted}}>Mensajes visibles para todos los participantes · Se actualiza cada 5 segundos</div>
+    <div style={{display:"flex",flexDirection:"column",height:"75vh",gap:0}}>
+      <div style={{...card,borderRadius:"16px 16px 0 0",flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{padding:"14px 20px",borderBottom:`1px solid ${G.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:20}}>💬</span>
+            <div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:G.green,textTransform:"uppercase"}}>Chat de la quiniela</div>
+              <div style={{fontSize:11,color:G.muted}}>Visible para todos · Se actualiza cada 5 seg</div>
+            </div>
           </div>
+          {isAdmin && (
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>setShowPollForm(!showPollForm)} style={{background:showPollForm?"rgba(255,180,0,.2)":"rgba(26,158,63,.1)",border:`1px solid ${showPollForm?"rgba(255,180,0,.4)":"rgba(26,158,63,.3)"}`,borderRadius:8,padding:"6px 12px",color:showPollForm?"#ffb400":G.green,fontSize:12,fontWeight:700,cursor:"pointer"}}>📊 Encuesta</button>
+              <button onClick={()=>fileInputRef.current?.click()} disabled={uploadingImg} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"6px 12px",color:G.green,fontSize:12,fontWeight:700,cursor:"pointer",opacity:uploadingImg?.6:1}}>{uploadingImg?"Subiendo...":"📷 Foto"}</button>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={uploadImage} style={{display:"none"}}/>
+            </div>
+          )}
         </div>
-        <div style={{flex:1,overflowY:"auto",padding:"16px 20px",display:"flex",flexDirection:"column",gap:10}}>
-          {messages.length === 0 ? (
+
+        {/* Poll form */}
+        {showPollForm && isAdmin && (
+          <div style={{padding:"14px 20px",borderBottom:`1px solid ${G.border}`,background:"rgba(255,180,0,.05)"}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#ffb400",textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Nueva encuesta</div>
+            <input value={pollQuestion} onChange={e=>setPollQuestion(e.target.value)} placeholder="Pregunta de la encuesta..." style={{...inp,marginBottom:8}}/>
+            {pollOptions.map((opt,i)=>(
+              <div key={i} style={{display:"flex",gap:6,marginBottom:6}}>
+                <input value={opt} onChange={e=>{const n=[...pollOptions];n[i]=e.target.value;setPollOptions(n);}} placeholder={`Opción ${i+1}`} style={{...inp,flex:1}}/>
+                {pollOptions.length>2&&<button onClick={()=>setPollOptions(pollOptions.filter((_,j)=>j!==i))} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"0 10px",color:"#ff5050",cursor:"pointer",fontSize:16}}>×</button>}
+              </div>
+            ))}
+            <div style={{display:"flex",gap:8,marginTop:8}}>
+              <button onClick={()=>setPollOptions([...pollOptions,""])} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:6,padding:"6px 12px",color:G.green,fontSize:12,cursor:"pointer"}}>+ Opción</button>
+              <button onClick={sendPoll} disabled={sending} style={{background:G.green,border:"none",borderRadius:6,padding:"6px 16px",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>Publicar encuesta</button>
+            </div>
+          </div>
+        )}
+
+        {/* Messages */}
+        <div style={{flex:1,overflowY:"auto",padding:"16px 20px",display:"flex",flexDirection:"column",gap:12}}>
+          {messages.length===0?(
             <div style={{textAlign:"center",color:G.muted,fontSize:13,marginTop:40}}>Sé el primero en escribir algo 👋</div>
-          ) : messages.map(m => {
-            const isMe = m.user_email === user.email;
+          ):messages.map(m=>{
+            const isMe = m.user_email===user.email;
+            if (m.tipo==="imagen") return (
+              <div key={m.id} style={{display:"flex",flexDirection:"column",alignItems:isMe?"flex-end":"flex-start"}}>
+                <div style={{fontSize:10,color:G.muted,marginBottom:4}}>
+                  {!isMe&&<span style={{color:G.green,fontWeight:700}}>{m.user_name} · </span>}
+                  {formatTime(m.created_at)}{isMe&&<span style={{color:G.green,fontWeight:700}}> · Tú</span>}
+                </div>
+                <img src={m.imagen_url} alt="img" style={{maxWidth:280,maxHeight:200,borderRadius:12,border:`1px solid ${G.border}`,objectFit:"cover",cursor:"pointer"}} onClick={()=>window.open(m.imagen_url,"_blank")}/>
+              </div>
+            );
+            if (m.tipo==="encuesta") {
+              const enc = m.encuesta||{};
+              const total = totalVotos(enc);
+              const myVote = userVotes[m.id];
+              return (
+                <div key={m.id} style={{maxWidth:360,alignSelf:"flex-start"}}>
+                  <div style={{fontSize:10,color:G.muted,marginBottom:4}}><span style={{color:G.green,fontWeight:700}}>{m.user_name} · </span>{formatTime(m.created_at)}</div>
+                  <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:16}}>
+                    <div style={{fontSize:13,fontWeight:700,color:"#ffb400",marginBottom:2}}>📊 Encuesta</div>
+                    <div style={{fontSize:14,fontWeight:600,color:"#fff",marginBottom:12}}>{enc.pregunta}</div>
+                    {(enc.opciones||[]).map((opt,i)=>{
+                      const votos = enc.votos?.[i]||0;
+                      const pct = total>0?Math.round(votos/total*100):0;
+                      const voted = myVote===i;
+                      return (
+                        <div key={i} style={{marginBottom:8}}>
+                          <button onClick={()=>vote(m.id,i,enc)} disabled={myVote!==undefined} style={{width:"100%",background:voted?"rgba(26,158,63,.2)":"rgba(255,255,255,.05)",border:`1px solid ${voted?G.green:G.border}`,borderRadius:8,padding:"8px 12px",color:voted?G.green:"#fff",cursor:myVote!==undefined?"default":"pointer",textAlign:"left",fontSize:13,marginBottom:4}}>
+                            {voted?"✅ ":""}{opt}
+                          </button>
+                          {myVote!==undefined&&(
+                            <div style={{display:"flex",alignItems:"center",gap:8}}>
+                              <div style={{flex:1,height:4,background:G.border,borderRadius:2,overflow:"hidden"}}>
+                                <div style={{width:`${pct}%`,height:"100%",background:voted?G.green:G.gray,borderRadius:2,transition:".3s"}}/>
+                              </div>
+                              <span style={{fontSize:11,color:G.muted,width:40,textAlign:"right"}}>{pct}% ({votos})</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <div style={{fontSize:11,color:G.muted,marginTop:4}}>{total} {total===1?"voto":"votos"}</div>
+                  </div>
+                </div>
+              );
+            }
             return (
               <div key={m.id} style={{display:"flex",flexDirection:"column",alignItems:isMe?"flex-end":"flex-start"}}>
                 <div style={{fontSize:10,color:G.muted,marginBottom:4,paddingLeft:4,paddingRight:4}}>
-                  {!isMe && <span style={{color:G.green,fontWeight:700}}>{m.user_name} · </span>}
-                  {formatTime(m.created_at)}
-                  {isMe && <span style={{color:G.green,fontWeight:700}}> · Tú</span>}
+                  {!isMe&&<span style={{color:G.green,fontWeight:700}}>{m.user_name} · </span>}
+                  {formatTime(m.created_at)}{isMe&&<span style={{color:G.green,fontWeight:700}}> · Tú</span>}
                 </div>
-                <div style={{
-                  maxWidth:"70%",padding:"10px 14px",borderRadius:isMe?"16px 4px 16px 16px":"4px 16px 16px 16px",
-                  background:isMe?G.green:G.card2,
-                  border:`1px solid ${isMe?"transparent":G.border}`,
-                  color:"#fff",fontSize:14,lineHeight:1.5,wordBreak:"break-word"
-                }}>{m.mensaje}</div>
+                <div style={{maxWidth:"70%",padding:"10px 14px",borderRadius:isMe?"16px 4px 16px 16px":"4px 16px 16px 16px",background:isMe?G.green:G.card2,border:`1px solid ${isMe?"transparent":G.border}`,color:"#fff",fontSize:14,lineHeight:1.5,wordBreak:"break-word"}}>{m.mensaje}</div>
               </div>
             );
           })}
           <div ref={bottomRef}/>
         </div>
       </div>
+
+      {/* Input */}
       <div style={{background:G.card,border:`1px solid ${G.border}`,borderTop:"none",borderRadius:"0 0 16px 16px",padding:"12px 16px",display:"flex",gap:10,alignItems:"flex-end"}}>
-        <textarea
-          value={newMsg}
-          onChange={e=>setNewMsg(e.target.value)}
-          onKeyDown={handleKey}
-          placeholder="Escribe un mensaje... (Enter para enviar)"
-          rows={1}
-          style={{flex:1,background:G.bg,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 14px",fontSize:14,color:"#fff",resize:"none",outline:"none",fontFamily:"'Barlow',sans-serif",lineHeight:1.5}}
-        />
+        <textarea value={newMsg} onChange={e=>setNewMsg(e.target.value)} onKeyDown={handleKey} placeholder="Escribe un mensaje... (Enter para enviar)" rows={1} style={{flex:1,background:G.bg,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 14px",fontSize:14,color:"#fff",resize:"none",outline:"none",fontFamily:"'Barlow',sans-serif",lineHeight:1.5}}/>
         <button onClick={sendMessage} disabled={sending||!newMsg.trim()} style={{background:G.green,border:"none",borderRadius:10,padding:"10px 18px",color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,cursor:"pointer",opacity:sending||!newMsg.trim()?.5:1,whiteSpace:"nowrap"}}>
           {sending?"...":"Enviar ➤"}
         </button>
