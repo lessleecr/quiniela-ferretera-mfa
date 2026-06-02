@@ -129,6 +129,7 @@ export default function QuinielaMFA() {
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
   const [view, setView] = useState("predictions");
+  const [showWelcome, setShowWelcome] = useState(true);
   const [predictions, setPredictions] = useState({});
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
@@ -229,7 +230,7 @@ export default function QuinielaMFA() {
         nombre:firstName, primer_apellido:lastName1, segundo_apellido:lastName2, cedula_personal:cedulaPersonal,
       });
       if (ie) throw new Error(ie.message);
-      setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp, firstName, lastName1, lastName2 });
+      setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp, businessWhatsapp, firstName, lastName1, lastName2, cedulaPersonal });
     } catch(err) { setError(err.message||"Error al crear el usuario."); }
     finally { setIsLoading(false); }
   };
@@ -581,6 +582,39 @@ export default function QuinielaMFA() {
           ))}
         </div>
 
+        {showWelcome && (
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.85)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div style={{background:G.card,border:`1px solid ${G.green}`,borderRadius:20,padding:32,maxWidth:560,width:"100%",maxHeight:"80vh",overflowY:"auto"}}>
+              <div style={{textAlign:"center",marginBottom:24}}>
+                <div style={{fontSize:40,marginBottom:12}}>🏆</div>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:G.green,textTransform:"uppercase",letterSpacing:1}}>Quiniela Ferretera MFA</div>
+                <div style={{fontSize:14,color:G.gray,marginTop:6}}>Mundial 2026 · Bienvenido</div>
+              </div>
+              <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:20,marginBottom:20}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#fff",textTransform:"uppercase",marginBottom:14}}>📋 Reglas y puntaje</div>
+                {[
+                  ["🎯 Marcador exacto","5 pts — acertás el resultado exacto"],
+                  ["✅ Ganador correcto","3 pts — acertás quién gana o empate"],
+                  ["📊 Diferencia correcta","+1 pt — la diferencia de goles es la misma"],
+                  ["⏰ Cierre de predicciones","Se cierran al inicio de cada partido"],
+                  ["🏅 Ranking","Se actualiza después de cada partido publicado"],
+                  ["🎁 Premios","Los mejores al final del torneo se llevan premios"],
+                ].map(([title, desc]) => (
+                  <div key={title} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",padding:"10px 0",borderBottom:`1px solid ${G.border}`}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#fff"}}>{title}</span>
+                    <span style={{fontSize:12,color:G.gray,textAlign:"right",maxWidth:"55%"}}>{desc}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:10,padding:"12px 16px",marginBottom:20,fontSize:12,color:G.gray,textAlign:"center"}}>
+                La Quiniela Ferretera MFA es una dinámica promocional exclusiva para clientes MFA. Aplican condiciones del concurso.
+              </div>
+              <button onClick={()=>setShowWelcome(false)} style={{...greenBtn,fontSize:16,letterSpacing:1}}>
+                ✅ Entendido — ¡A jugar!
+              </button>
+            </div>
+          </div>
+        )}
         {view==="profile"&&<ProfileView user={user} setUser={setUser}/>}
         {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
         {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
@@ -945,13 +979,16 @@ function ProfileView({ user, setUser }) {
     finally { setIsChanging(false); }
   };
 
+  const fullContactName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.contact || "—";
   const dataFields = [
     ["Nombre comercial", user.name],
     ["Razón social", user.legalName],
     ["Cédula jurídica", user.cedula],
-    ["Contacto", user.contact],
+    ["Nombre del contacto", fullContactName],
+    ["Cédula de identidad", user.cedulaPersonal],
     ["Correo electrónico", user.email],
-    ["Teléfono / WhatsApp", user.phone],
+    ["WhatsApp ferretería", user.businessWhatsapp],
+    ["WhatsApp usuario", user.phone],
     ["Provincia", user.province],
     ["Cantón", user.canton],
     ["Distrito", user.district],
