@@ -792,7 +792,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [matches, calcPoints, user.email]);
 
   return (
     <div>
