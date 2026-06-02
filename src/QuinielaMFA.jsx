@@ -1056,7 +1056,7 @@ const pred = allPredicciones.find(p=>p.match_id===m.id&&p.user_email===selectedU
                                     <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
                                     <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>—</td>
                                     <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.muted}}>—</td>
-                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at?.slice(0,16)||"—"}</td>
+                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at ? (() => { const d = new Date(pred.updated_at); const cr = new Date(d.getTime() - 6*60*60*1000); return `${cr.getUTCDate().toString().padStart(2,'0')}/${(cr.getUTCMonth()+1).toString().padStart(2,'0')}/${cr.getUTCFullYear()} ${cr.getUTCHours().toString().padStart(2,'0')}:${cr.getUTCMinutes().toString().padStart(2,'0')}`; })() : "—"}</td>
                                   </tr>
                                 );
                               })}
