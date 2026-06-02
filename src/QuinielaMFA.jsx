@@ -420,10 +420,10 @@ export default function QuinielaMFA() {
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
         <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}}>
           <Header subtitle="Mayoreo Ferretería y Acabados" />
-          <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"start"}}>
+          <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"stretch"}}>
             {/* Banner #2 - lateral izquierdo inicio */}
-            <div style={{position:"sticky",top:24}}>
-              <BannerDisplay slot={2} vertical={true}/>
+            <div style={{minHeight:"100%"}}>
+              <BannerDisplay slot={2} stretch={true}/>
             </div>
             <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.5}}>
               <BannerDisplay slot={1}/>
@@ -1434,7 +1434,7 @@ function ChatView({ user }) {
   );
 }
 
-function BannerDisplay({ slot, vertical=false }) {
+function BannerDisplay({ slot, vertical=false, height=null, maxHeight=null, stretch=false }) {
   const [banner, setBanner] = React.useState(null);
   React.useEffect(() => {
     supabase.from("banners").select("*").eq("orden", slot).eq("activo", true).single().then(({data}) => {
@@ -1442,9 +1442,11 @@ function BannerDisplay({ slot, vertical=false }) {
     });
   }, [slot]);
   if (!banner) return null;
+  const imgHeight = height || (vertical ? "400px" : "auto");
+  const imgMaxHeight = maxHeight || (vertical ? "100vh" : "200px");
   return (
-    <div style={{width:"100%",marginBottom:16,borderRadius:12,overflow:"hidden",border:`1px solid ${G.border}`}}>
-      <img src={banner.imagen_url} alt={banner.nombre} style={{width:"100%",height:vertical?"400px":"auto",maxHeight:vertical?"100vh":"200px",objectFit:"cover",display:"block"}}/>
+    <div style={{width:"100%",height:stretch?"100%":undefined,marginBottom:stretch?0:16,borderRadius:12,overflow:"hidden",border:`1px solid ${G.border}`}}>
+      <img src={banner.imagen_url} alt={banner.nombre} style={{width:"100%",height:stretch?"100%":imgHeight,maxHeight:stretch?"none":imgMaxHeight,objectFit:"cover",display:"block"}}/>
     </div>
   );
 }
