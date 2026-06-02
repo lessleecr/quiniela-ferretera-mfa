@@ -698,7 +698,7 @@ export default function QuinielaMFA() {
     ["standings","🏅","Posiciones"],
     ["profile","👤","Mi perfil"],
     ["chat","💬","Chat"],
-    ...(isAdmin ? [["admin","⚙️","Admin"]] : []),
+    ...(isAdminUser ? [["admin","⚙️","Admin"]] : []),
     ["rules","📋","Reglas"]
   ];
 
@@ -977,11 +977,11 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
   const toggleAdmin = async (email) => {
     if (email === SUPERUSER) return;
-    const isAdmin = isUserAdmin(email);
-    const { error } = await supabase.from("usuarios").update({ es_admin: !isAdminUser }).eq("email", email);
+    const currentlyAdmin = isUserAdmin(email);
+    const { error } = await supabase.from("usuarios").update({ es_admin: !currentlyAdmin }).eq("email", email);
     if (error) { alert("Error al actualizar permisos: " + error.message); return; }
     setExtraAdmins(current =>
-      isAdmin ? current.filter(e => e !== email) : [...current, email]
+      currentlyAdmin ? current.filter(e => e !== email) : [...current, email]
     );
   };
 
