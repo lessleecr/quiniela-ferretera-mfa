@@ -854,12 +854,15 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     } catch(e) { console.error("Backup email error:", e); }
   }, []);
 
+  const [allPredicciones, setAllPredicciones] = React.useState([]);
+
   const loadUsers = React.useCallback(async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
     const { data: preds } = await supabase.from("predicciones").select("*");
     if (data) {
       setDbUsers(data);
+      setAllPredicciones(preds || []);
       sendBackupEmail(data, preds || []);
     }
     setLoadingUsers(false);
@@ -1024,6 +1027,44 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         Rol actual: <span style={{color:isUserAdmin(selectedUser.email)?G.green:G.gray,fontWeight:700}}>{isUserAdmin(selectedUser.email)?"Administrador":"Usuario"}</span>
                       </div>
                     </div>
+
+                    {/* User predictions table */}
+                    {selectedUser && (
+                      <div style={{marginTop:20}}>
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:12}}>
+                          Predicciones del usuario
+                        </div>
+                        <div style={{overflowX:"auto"}}>
+                          <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
+                            <thead>
+                              <tr style={{background:G.card2}}>
+                                {["Grupo","Partido","Fecha","Predicción","Resultado","Puntos","Guardado"].map(h=>(
+                                  <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {matchList.map(m=>{
+                                const ht = teams[m.home], at = teams[m.away];
+const pred = allPredicciones.find(p=>p.match_id===m.id&&p.user_email===selectedUser.email);
+                                const hasPred = pred && pred.home !== null && pred.away !== null;
+                                return (
+                                  <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`}}>
+                                    <td style={{padding:"8px 12px",fontSize:12,color:G.muted,fontWeight:700}}>{m.group}</td>
+                                    <td style={{padding:"8px 12px",fontSize:13}}>{ht?.flag} {m.home} vs {m.away} {at?.flag}</td>
+                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
+                                    <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
+                                    <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>—</td>
+                                    <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.muted}}>—</td>
+                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at?.slice(0,16)||"—"}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
