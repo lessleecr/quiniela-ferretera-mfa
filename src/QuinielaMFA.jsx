@@ -786,10 +786,38 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     );
   };
 
+  const sendBackupEmail = async (usuarios, predicciones) => {
+    try {
+      const fecha = new Date().toLocaleString("es-CR", { timeZone: "America/Costa_Rica" });
+      const detalle = usuarios.map((u, i) =>
+        `${i+1}. ${u.nombre_comercial} | ${u.nombre||""} ${u.primer_apellido||""} ${u.segundo_apellido||""} | ${u.email} | ${u.provincia} | Predicciones: ${predicciones.filter(p=>p.user_email===u.email).length}`
+      ).join("\n");
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "service_suphdhh",
+          template_id: "template_ds9b3vu",
+          user_id: "jX4XRELE75nhLURIb",
+          template_params: {
+            fecha,
+            total_usuarios: usuarios.length,
+            total_predicciones: predicciones.length,
+            detalle: detalle || "Sin usuarios registrados.",
+          }
+        })
+      });
+    } catch(e) { console.error("Backup email error:", e); }
+  };
+
   const loadUsers = async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
-    if (data) setDbUsers(data);
+    const { data: preds } = await supabase.from("predicciones").select("*");
+    if (data) {
+      setDbUsers(data);
+      sendBackupEmail(data, preds || []);
+    }
     setLoadingUsers(false);
   };
 
@@ -865,9 +893,17 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
         <div>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:12}}>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Usuarios registrados ({filteredUsers.length})</div>
-            <div style={{display:"flex",gap:8}}>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               <button onClick={loadUsers} style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 14px",color:G.gray,cursor:"pointer",fontSize:13}}>🔄 Actualizar</button>
               <button onClick={exportToExcel} style={{background:G.green,border:"none",borderRadius:8,padding:"8px 14px",color:"#fff",cursor:"pointer",fontWeight:700,fontSize:13}}>📥 Exportar Excel</button>
+              <button onClick={async()=>{
+                const c1 = window.confirm("⚠️ ¿Estás seguro de que quieres borrar TODAS las predicciones?\nEsta acción no se puede deshacer.");
+                if (!c1) return;
+                const c2 = window.confirm("🔴 CONFIRMACIÓN FINAL: Se borrarán las predicciones de TODOS los usuarios.\n¿Continuar?");
+                if (!c2) return;
+                await supabase.from("predicciones").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+                alert("✅ Todas las predicciones han sido borradas.");
+              }} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.4)",borderRadius:8,padding:"8px 14px",color:"#ff5050",cursor:"pointer",fontWeight:700,fontSize:13}}>🗑️ Resetear predicciones</button>
             </div>
           </div>
 
