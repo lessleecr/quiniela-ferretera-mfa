@@ -656,7 +656,7 @@ export default function QuinielaMFA() {
         {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
         {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
         {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
-        {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults}/>}
+        {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults} calcPoints={calcPoints}/>}
         {view==="rules"&&<RulesView/>}
       </div>
     </div>
@@ -769,41 +769,66 @@ function ResultsView({ matches, predictions, calcPoints }) {
 }
 
 function StandingsView({ matches, predictions, calcPoints, user }) {
-  const fullName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.contact || "";
-  const users = [
-    { name:user.name||"Mi ferretería", contactName:fullName, province:user.province||"San José", predMap:predictions },
-  ].map(u=>({...u,pts:matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(u.predMap[m.id]||{},m.result),0),preds:matches.filter(m=>{const p=u.predMap[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length})).sort((a,b)=>b.pts-a.pts);
+  const [standings, setStandings] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido, segundo_apellido, provincia");
+      const { data: preds } = await supabase.from("predicciones").select("*");
+      if (!usuarios) { setLoading(false); return; }
+      const allPreds = preds || [];
+      const ranked = usuarios.map(u => {
+        const userPreds = allPreds.filter(p => p.user_email === u.email);
+        const predMap = {};
+        userPreds.forEach(p => { predMap[p.match_id] = { home: p.home, away: p.away }; });
+        const pts = matches.filter(m => m.result).reduce((t, m) => t + calcPoints(predMap[m.id] || {}, m.result), 0);
+        const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
+        const isMe = u.email === user.email;
+        return { name: u.nombre_comercial || "—", contactName, province: u.provincia || "—", pts, preds: userPreds.length, isMe };
+      }).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
+      setStandings(ranked);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
   return (
     <div>
       <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:16}}>Tabla de posiciones</div>
-      <div style={{...card,borderRadius:12,overflow:"hidden"}}>
-        <table style={{width:"100%",borderCollapse:"collapse"}}>
-          <thead>
-            <tr style={{background:G.card2}}>
-              {["#","Ferretería","Contacto","Provincia","Predicciones","Puntos"].map(h=>(
-                <th key={h} style={{padding:"12px 16px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u,i)=>(
-              <tr key={u.name} style={{borderBottom:`1px solid ${G.border}`}}>
-                <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{i+1}</td>
-                <td style={{padding:"12px 16px",fontWeight:600}}>{u.name}</td>
-                <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.contactName}</td>
-                <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.province}</td>
-                <td style={{padding:"12px 16px",textAlign:"center",fontWeight:600}}>{u.preds}</td>
-                <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{u.pts}</td>
+      {loading ? (
+        <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Cargando posiciones...</div>
+      ) : (
+        <div style={{...card,borderRadius:12,overflow:"hidden"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead>
+              <tr style={{background:G.card2}}>
+                {["#","Ferretería","Contacto","Provincia","Predicciones","Puntos"].map(h=>(
+                  <th key={h} style={{padding:"12px 16px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {standings.map((u,i)=>(
+                <tr key={u.name+i} style={{borderBottom:`1px solid ${G.border}`,background:u.isMe?"rgba(26,158,63,.08)":"transparent"}}>
+                  <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:i<3?G.green:G.muted}}>{i+1}</td>
+                  <td style={{padding:"12px 16px",fontWeight:600,color:u.isMe?G.green:"#fff"}}>{u.name}{u.isMe&&<span style={{fontSize:10,marginLeft:6,color:G.green,fontStyle:"italic"}}>← tú</span>}</td>
+                  <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.contactName}</td>
+                  <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.province}</td>
+                  <td style={{padding:"12px 16px",textAlign:"center",fontWeight:600}}>{u.preds}</td>
+                  <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{u.pts}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
 
-function AdminView({ matches, updateResult, publishResult, clearResult, adminResults }) {
+function AdminView({ matches, updateResult, publishResult, clearResult, adminResults, calcPoints }) {
   const [section, setSection] = React.useState("scores");
   const [dbUsers, setDbUsers] = React.useState([]);
   const [loadingUsers, setLoadingUsers] = React.useState(false);
@@ -1054,9 +1079,8 @@ const pred = allPredicciones.find(p=>p.match_id===m.id&&p.user_email===selectedU
                                     <td style={{padding:"8px 12px",fontSize:13}}>{ht?.flag} {m.home} vs {m.away} {at?.flag}</td>
                                     <td style={{padding:"8px 12px",fontSize:11,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
                                     <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
-                                    <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>—</td>
-                                    <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.muted}}>—</td>
-                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at ? (() => { const d = new Date(pred.updated_at); const cr = new Date(d.getTime() - 6*60*60*1000); return `${cr.getUTCDate().toString().padStart(2,'0')}/${(cr.getUTCMonth()+1).toString().padStart(2,'0')}/${cr.getUTCFullYear()} ${cr.getUTCHours().toString().padStart(2,'0')}:${cr.getUTCMinutes().toString().padStart(2,'0')}`; })() : "—"}</td>
+                                    {(() => { const matchData = matches.find(mx=>mx.id===m.id); const res = matchData?.result; const pts = res && hasPred ? calcPoints({home:pred?.home,away:pred?.away}, res) : null; return (<><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{res?`${res.home} - ${res.away}`:"—"}</td><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:pts===5?G.green:pts>0?"#ffb400":G.muted}}>{pts!==null?`${pts} pts`:"—"}</td></>); })()}
+                                    <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at ? (() => { const d = new Date(pred.updated_at); const cr = new Date(d.getTime() - (6*60*60*1000)); const pad = n=>String(n).padStart(2,"0"); return `${pad(cr.getUTCDate())}/${pad(cr.getUTCMonth()+1)}/${cr.getUTCFullYear()} ${pad(cr.getUTCHours())}:${pad(cr.getUTCMinutes())}`; })() : "—"}</td>
                                   </tr>
                                 );
                               })}
