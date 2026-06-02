@@ -821,7 +821,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     setLoadingUsers(false);
   };
 
-  React.useEffect(() => { if (section === "users") loadUsers(); }, [section]);
+  React.useEffect(() => { if (section === "users") loadUsers(); }, [section, loadUsers]);
 
   const filteredUsers = dbUsers.filter(u => {
     const s = search.toLowerCase();
