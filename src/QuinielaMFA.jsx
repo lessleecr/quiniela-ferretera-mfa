@@ -324,30 +324,28 @@ export default function QuinielaMFA() {
     setAdminResults(c=>{const u={...c};delete u[matchId];return u;});
   };
 
-  if (!user) {
-    // Live standings loaded from Supabase
-    const [liveStandings, setLiveStandings] = React.useState([]);
-    React.useEffect(() => {
-      const loadStandings = async () => {
-        const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
-        const { data: preds } = await supabase.from("predicciones").select("*");
-        if (!usuarios || !preds) return;
-        const matchesWithResult = matchList.map((m,i)=>({...m,homeTeam:teams[m.home],awayTeam:teams[m.away],status:i<40?"Abierto":i<56?"Cierra pronto":"Cerrado",result:null}));
-        const standing = usuarios.map(u => {
-          const userPreds = preds.filter(p => p.user_email === u.email);
-          const pts = userPreds.reduce((total, p) => {
-            const match = matchesWithResult.find(m => m.id === p.match_id);
-            if (!match || !match.result) return total;
-            return total + calcPoints({ home: p.home, away: p.away }, match.result);
-          }, 0);
-          const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
-          return { name, pts, preds: userPreds.length };
-        }).sort((a,b) => b.pts - a.pts || b.preds - a.preds).slice(0, 10);
-        setLiveStandings(standing);
-      };
-      loadStandings();
-    }, []);
+  // Live standings loaded from Supabase
+  const [liveStandings, setLiveStandings] = useState([]);
+  useEffect(() => {
+    if (user) return;
+    const loadStandings = async () => {
+      const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
+      const { data: preds } = await supabase.from("predicciones").select("*");
+      if (!usuarios || !preds) return;
+      const standing = usuarios.map(u => {
+        const userPreds = preds.filter(p => p.user_email === u.email);
+        const pts = userPreds.reduce((total, p) => {
+          return total;
+        }, 0);
+        const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
+        return { name, pts, preds: userPreds.length };
+      }).sort((a,b) => b.preds - a.preds).slice(0, 10);
+      setLiveStandings(standing);
+    };
+    loadStandings();
+  }, [user]);
 
+  if (!user) {
     if (authMode === "forgot") {
       return (
         <div style={{background:G.bg,minHeight:"100vh",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
