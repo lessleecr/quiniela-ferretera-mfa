@@ -486,11 +486,6 @@ export default function QuinielaMFA() {
                       <Field label="WhatsApp usuario" value={userWhatsapp} onChange={setUserWhatsapp} placeholder="88880000"/>
                     </div>
                     <Divider label="Datos del contacto"/>
-                    <Field label="Nombre" value={firstName} onChange={setFirstName} placeholder="Nombre"/>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                      <Field label="Primer apellido" value={lastName1} onChange={setLastName1} placeholder="Primer apellido"/>
-                      <Field label="Segundo apellido" value={lastName2} onChange={setLastName2} placeholder="Segundo apellido"/>
-                    </div>
                     <div style={{marginBottom:14}}>
                       <label style={lbl}>Cédula de identidad</label>
                       <div style={{position:"relative"}}>
@@ -517,6 +512,11 @@ export default function QuinielaMFA() {
                       {cedulaPersonalStatus==="error" && (
                         <div style={{fontSize:12,color:"#ff5050",marginTop:6}}>❌ Cédula no encontrada. Completa los datos manualmente.</div>
                       )}
+                    </div>
+                    <Field label="Nombre" value={firstName} onChange={setFirstName} placeholder="Nombre"/>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                      <Field label="Primer apellido" value={lastName1} onChange={setLastName1} placeholder="Primer apellido"/>
+                      <Field label="Segundo apellido" value={lastName2} onChange={setLastName2} placeholder="Segundo apellido"/>
                     </div>
                     <Divider label="Acceso"/>
                     <Field label="Correo electrónico" value={email} onChange={setEmail} placeholder="ejemplo@correo.com" type="email"/>
