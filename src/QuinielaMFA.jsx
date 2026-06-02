@@ -8,6 +8,8 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhob3VvbHFsbXJycXpmY3RibHdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNjYyNjYsImV4cCI6MjA5NTg0MjI2Nn0.jodF4LzC6K7DyG5nYTbCNqwr1z_x8qljjMEQYoL2aOY"
 );
 
+const ADMIN_EMAILS = ["lvillegasv@mfamayoreo.com"];
+
 const G = {
   green:"#1a9e3f", greenDark:"#0f6b2a", greenDim:"#1e3d28", greenLight:"#22c44f",
   bg:"#0d0d0d", card:"#161616", card2:"#1e1e1e", border:"#2a2a2a", muted:"#666", gray:"#aaa",
@@ -25,29 +27,6 @@ const teams = {
 const matchList = [
   {id:1,group:"A",home:"MEX",away:"RSA",date:"11 JUN",time:"1:00 PM"},{id:2,group:"A",home:"KOR",away:"CZE",date:"11 JUN",time:"8:00 PM"},{id:3,group:"B",home:"CAN",away:"BIH",date:"12 JUN",time:"1:00 PM"},{id:4,group:"D",home:"USA",away:"PAR",date:"12 JUN",time:"7:00 PM"},{id:5,group:"B",home:"QAT",away:"SUI",date:"13 JUN",time:"1:00 PM"},{id:6,group:"C",home:"BRA",away:"MAR",date:"13 JUN",time:"4:00 PM"},{id:7,group:"C",home:"HAI",away:"SCO",date:"13 JUN",time:"7:00 PM"},{id:8,group:"D",home:"AUS",away:"TUR",date:"13 JUN",time:"10:00 PM"},{id:9,group:"E",home:"GER",away:"CUW",date:"14 JUN",time:"11:00 AM"},{id:10,group:"F",home:"NED",away:"JPN",date:"14 JUN",time:"2:00 PM"},{id:11,group:"E",home:"CIV",away:"ECU",date:"14 JUN",time:"5:00 PM"},{id:12,group:"F",home:"TUN",away:"SWE",date:"14 JUN",time:"8:00 PM"},{id:13,group:"H",home:"ESP",away:"CPV",date:"15 JUN",time:"10:00 AM"},{id:14,group:"G",home:"BEL",away:"EGY",date:"15 JUN",time:"1:00 PM"},{id:15,group:"H",home:"KSA",away:"URU",date:"15 JUN",time:"4:00 PM"},{id:16,group:"G",home:"IRN",away:"NZL",date:"15 JUN",time:"7:00 PM"},{id:17,group:"I",home:"FRA",away:"SEN",date:"16 JUN",time:"1:00 PM"},{id:18,group:"I",home:"IRQ",away:"NOR",date:"16 JUN",time:"4:00 PM"},{id:19,group:"J",home:"ARG",away:"ALG",date:"16 JUN",time:"7:00 PM"},{id:20,group:"J",home:"AUT",away:"JOR",date:"16 JUN",time:"10:00 PM"},{id:21,group:"K",home:"POR",away:"COD",date:"17 JUN",time:"11:00 AM"},{id:22,group:"L",home:"ENG",away:"CRO",date:"17 JUN",time:"2:00 PM"},{id:23,group:"L",home:"GHA",away:"PAN",date:"17 JUN",time:"5:00 PM"},{id:24,group:"K",home:"UZB",away:"COL",date:"17 JUN",time:"8:00 PM"},{id:25,group:"A",home:"CZE",away:"RSA",date:"18 JUN",time:"10:00 AM"},{id:26,group:"B",home:"SUI",away:"BIH",date:"18 JUN",time:"1:00 PM"},{id:27,group:"B",home:"CAN",away:"QAT",date:"18 JUN",time:"4:00 PM"},{id:28,group:"A",home:"MEX",away:"KOR",date:"18 JUN",time:"7:00 PM"},{id:29,group:"D",home:"USA",away:"AUS",date:"19 JUN",time:"1:00 PM"},{id:30,group:"C",home:"SCO",away:"MAR",date:"19 JUN",time:"1:00 PM"},{id:31,group:"C",home:"BRA",away:"HAI",date:"19 JUN",time:"7:00 PM"},{id:32,group:"D",home:"TUR",away:"PAR",date:"19 JUN",time:"10:00 PM"},{id:33,group:"F",home:"NED",away:"SWE",date:"20 JUN",time:"11:00 AM"},{id:34,group:"E",home:"GER",away:"CIV",date:"20 JUN",time:"2:00 PM"},{id:35,group:"E",home:"ECU",away:"CUW",date:"20 JUN",time:"6:00 PM"},{id:36,group:"F",home:"TUN",away:"JPN",date:"20 JUN",time:"10:00 PM"},{id:37,group:"H",home:"ESP",away:"KSA",date:"21 JUN",time:"10:00 AM"},{id:38,group:"G",home:"BEL",away:"IRN",date:"21 JUN",time:"1:00 PM"},{id:39,group:"H",home:"URU",away:"CPV",date:"21 JUN",time:"4:00 PM"},{id:40,group:"G",home:"NZL",away:"EGY",date:"21 JUN",time:"7:00 PM"},{id:41,group:"J",home:"ARG",away:"AUT",date:"22 JUN",time:"11:00 AM"},{id:42,group:"I",home:"FRA",away:"IRQ",date:"22 JUN",time:"3:00 PM"},{id:43,group:"I",home:"NOR",away:"SEN",date:"22 JUN",time:"6:00 PM"},{id:44,group:"J",home:"JOR",away:"ALG",date:"22 JUN",time:"9:00 PM"},{id:45,group:"K",home:"POR",away:"UZB",date:"23 JUN",time:"11:00 AM"},{id:46,group:"L",home:"ENG",away:"GHA",date:"23 JUN",time:"2:00 PM"},{id:47,group:"L",home:"PAN",away:"CRO",date:"23 JUN",time:"5:00 PM"},{id:48,group:"K",home:"COL",away:"COD",date:"23 JUN",time:"8:00 PM"},{id:49,group:"B",home:"SUI",away:"CAN",date:"24 JUN",time:"1:00 PM"},{id:50,group:"B",home:"BIH",away:"QAT",date:"24 JUN",time:"1:00 PM"},{id:51,group:"C",home:"BRA",away:"SCO",date:"24 JUN",time:"4:00 PM"},{id:52,group:"C",home:"MAR",away:"HAI",date:"24 JUN",time:"4:00 PM"},{id:53,group:"A",home:"MEX",away:"CZE",date:"24 JUN",time:"7:00 PM"},{id:54,group:"A",home:"KOR",away:"RSA",date:"24 JUN",time:"7:00 PM"},{id:55,group:"E",home:"ECU",away:"GER",date:"25 JUN",time:"2:00 PM"},{id:56,group:"E",home:"CUW",away:"CIV",date:"25 JUN",time:"2:00 PM"},{id:57,group:"F",home:"TUN",away:"NED",date:"25 JUN",time:"5:00 PM"},{id:58,group:"F",home:"JPN",away:"SWE",date:"25 JUN",time:"5:00 PM"},{id:59,group:"D",home:"USA",away:"TUR",date:"25 JUN",time:"8:00 PM"},{id:60,group:"D",home:"PAR",away:"AUS",date:"25 JUN",time:"8:00 PM"},{id:61,group:"I",home:"NOR",away:"FRA",date:"26 JUN",time:"1:00 PM"},{id:62,group:"I",home:"SEN",away:"IRQ",date:"26 JUN",time:"1:00 PM"},{id:63,group:"H",home:"URU",away:"ESP",date:"26 JUN",time:"6:00 PM"},{id:64,group:"H",home:"CPV",away:"KSA",date:"26 JUN",time:"6:00 PM"},{id:65,group:"G",home:"NZL",away:"BEL",date:"26 JUN",time:"9:00 PM"},{id:66,group:"G",home:"EGY",away:"IRN",date:"26 JUN",time:"9:00 PM"},{id:67,group:"L",home:"PAN",away:"ENG",date:"27 JUN",time:"3:00 PM"},{id:68,group:"L",home:"CRO",away:"GHA",date:"27 JUN",time:"3:00 PM"},{id:69,group:"K",home:"COL",away:"POR",date:"27 JUN",time:"5:30 PM"},{id:70,group:"K",home:"COD",away:"UZB",date:"27 JUN",time:"5:30 PM"},{id:71,group:"J",home:"ARG",away:"JOR",date:"27 JUN",time:"8:00 PM"},{id:72,group:"J",home:"ALG",away:"AUT",date:"27 JUN",time:"8:00 PM"},
 ];
-
-
-
-function getMatchDateTime(match) {
-  const year = 2026;
-  const months = { JUN: 5 }; // Mes base 0: junio = 5
-  const [dayText, monthText] = match.date.split(" ");
-  const day = Number(dayText);
-  const month = months[monthText];
-  const [timeText, period] = match.time.split(" ");
-  let [hour, minute] = timeText.split(":").map(Number);
-  if (period === "PM" && hour !== 12) hour += 12;
-  if (period === "AM" && hour === 12) hour = 0;
-  return new Date(year, month, day, hour, minute, 0, 0);
-}
-
-function getMatchStatus(match, now = new Date()) {
-  const matchDateTime = getMatchDateTime(match);
-  if (now >= matchDateTime) return "Cerrado";
-  const hoursBefore = (matchDateTime - now) / (1000 * 60 * 60);
-  if (hoursBefore <= 3) return "Cierra pronto";
-  return "Abierto";
-}
 
 function calcPoints(pred, result) {
   if (!pred || pred.home === "" || pred.away === "") return 0;
@@ -149,19 +128,13 @@ export default function QuinielaMFA() {
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
   const [adminResults, setAdminResults] = useState({ 1:{home:2,away:0}, 2:{home:1,away:1} });
-  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const matches = matchList.map((m) => ({
+  const matches = matchList.map((m, i) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
-    status: getMatchStatus(m, currentTime),
+    status: i < 40 ? "Abierto" : i < 56 ? "Cierra pronto" : "Cerrado",
     result: adminResults[m.id] && adminResults[m.id].home !== "" && adminResults[m.id].away !== ""
       ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away) } : null,
   }));
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     fetch("https://ubicaciones.paginasweb.cr/provincias.json").then(r=>r.json()).then(d=>setProvinces(Object.entries(d).map(([id,name])=>({id,name})))).catch(()=>{});
@@ -231,12 +204,6 @@ export default function QuinielaMFA() {
   };
 
   const updatePrediction = async (matchId, team, value) => {
-    const match = matches.find(m => m.id === matchId);
-    if (match?.status === "Cerrado") {
-      setPredictionStatus("closed");
-      setTimeout(() => setPredictionStatus(""), 2500);
-      return;
-    }
     const v = value.replace(/[^0-9]/g,"").slice(0,2);
     const updated = { ...predictions, [matchId]: { ...(predictions[matchId]||{}), [team]: v } };
     setPredictions(updated);
@@ -255,10 +222,7 @@ export default function QuinielaMFA() {
   };
   const savePredictions = async () => {
     const entries = Object.entries(predictions)
-      .filter(([matchId,p]) => {
-        const match = matches.find(m => m.id === Number(matchId));
-        return match?.status !== "Cerrado" && p.home !== undefined && p.home !== "" && p.away !== undefined && p.away !== "";
-      })
+      .filter(([,p]) => p.home !== undefined && p.home !== "" && p.away !== undefined && p.away !== "")
       .map(([matchId, p]) => ({ user_email: user.email, match_id: Number(matchId), home: p.home, away: p.away, updated_at: new Date().toISOString() }));
     if (entries.length > 0) {
       await supabase.from("predicciones").upsert(entries, { onConflict: "user_email,match_id" });
@@ -414,7 +378,14 @@ export default function QuinielaMFA() {
     );
   }
 
-  const tabs = [["predictions","🎯","Mis predicciones"],["results","📊","Mis resultados"],["standings","🏅","Posiciones"],["admin","⚙️","Admin"],["rules","📋","Reglas"]];
+  const isAdmin = ADMIN_EMAILS.includes(user.email);
+  const tabs = [
+    ["predictions","🎯","Mis predicciones"],
+    ["results","📊","Mis resultados"],
+    ["standings","🏅","Posiciones"],
+    ...(isAdmin ? [["admin","⚙️","Admin"]] : []),
+    ["rules","📋","Reglas"]
+  ];
 
   return (
     <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
@@ -494,9 +465,9 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:8}}>
                     <div style={{textAlign:"right"}}><div style={{fontSize:20}}>{m.homeTeam.flag}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.home}</div></div>
-                    <input disabled={m.status==="Cerrado"} value={pred.home||""} onChange={e=>updatePrediction(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px",opacity:m.status==="Cerrado"?.45:1,cursor:m.status==="Cerrado"?"not-allowed":"text"}} placeholder="0"/>
+                    <input value={pred.home||""} onChange={e=>updatePrediction(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px"}} placeholder="0"/>
                     <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,color:G.green}}>VS</span>
-                    <input disabled={m.status==="Cerrado"} value={pred.away||""} onChange={e=>updatePrediction(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px",opacity:m.status==="Cerrado"?.45:1,cursor:m.status==="Cerrado"?"not-allowed":"text"}} placeholder="0"/>
+                    <input value={pred.away||""} onChange={e=>updatePrediction(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px"}} placeholder="0"/>
                     <div><div style={{fontSize:20}}>{m.awayTeam.flag}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.away}</div></div>
                   </div>
                   {m.result&&(
@@ -514,11 +485,6 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
       {predictionStatus==="saved"&&(
         <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",color:G.green,fontSize:13}}>
           ✅ Predicción guardada automáticamente.
-        </div>
-      )}
-      {predictionStatus==="closed"&&(
-        <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",color:"#ff5050",fontSize:13}}>
-          🔒 Este partido ya está cerrado y no permite cambios.
         </div>
       )}
       <button onClick={savePredictions} style={{...greenBtn,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Save size={18}/> Guardar predicciones</button>
@@ -613,32 +579,12 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   const [loadingUsers, setLoadingUsers] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [search, setSearch] = React.useState("");
-  const [userPredictions, setUserPredictions] = React.useState([]);
-  const [loadingPredictions, setLoadingPredictions] = React.useState(false);
 
   const loadUsers = async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
     if (data) setDbUsers(data);
     setLoadingUsers(false);
-  };
-
-  const loadUserPredictions = async (email) => {
-    if (!email) return;
-    setLoadingPredictions(true);
-    setUserPredictions([]);
-    const { data } = await supabase
-      .from("predicciones")
-      .select("*")
-      .eq("user_email", email)
-      .order("match_id", { ascending: true });
-    if (data) setUserPredictions(data);
-    setLoadingPredictions(false);
-  };
-
-  const selectUser = (u) => {
-    setSelectedUser(u);
-    loadUserPredictions(u.email);
   };
 
   React.useEffect(() => { if (section === "users") loadUsers(); }, [section]);
@@ -650,13 +596,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
       (u.cedula||"").toLowerCase().includes(s) ||
       (u.nombre||"").toLowerCase().includes(s) ||
       (u.primer_apellido||"").toLowerCase().includes(s);
-  });
-
-  const selectedPredictionsWithMatch = userPredictions.map(p => {
-    const match = matches.find(m => Number(m.id) === Number(p.match_id));
-    const pred = { home: p.home, away: p.away };
-    const points = match?.result ? calcPoints(pred, match.result) : 0;
-    return { ...p, match, points };
   });
 
   const exportToExcel = () => {
@@ -673,31 +612,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "usuarios_quiniela_mfa.xls";
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  };
-
-  const exportPredictionsToExcel = () => {
-    if (!selectedUser) return;
-    const esc = v => String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const rows = selectedPredictionsWithMatch.map(p => `<tr>
-      <td>${esc(selectedUser.nombre_comercial)}</td>
-      <td>${esc(selectedUser.email)}</td>
-      <td>${esc(p.match_id)}</td>
-      <td>${esc(p.match?.group)}</td>
-      <td>${esc(p.match?.date)}</td>
-      <td>${esc(p.match?.time)}</td>
-      <td>${esc(p.match?.homeTeam?.name)}</td>
-      <td>${esc(p.home)}</td>
-      <td>${esc(p.away)}</td>
-      <td>${esc(p.match?.awayTeam?.name)}</td>
-      <td>${p.match?.result ? esc(`${p.match.result.home}-${p.match.result.away}`) : "Pendiente"}</td>
-      <td>${esc(p.points)}</td>
-      <td>${esc(p.updated_at?.slice(0,19).replace("T", " "))}</td>
-    </tr>`).join("");
-    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"/><style>th{background:#1a9e3f;color:#fff;font-weight:bold}th,td{border:1px solid #999;padding:8px}</style></head><body><h2>Predicciones - ${esc(selectedUser.nombre_comercial)}</h2><table><thead><tr><th>Ferretería</th><th>Correo</th><th>Partido</th><th>Grupo</th><th>Fecha</th><th>Hora</th><th>Local</th><th>Pred. Local</th><th>Pred. Visita</th><th>Visitante</th><th>Resultado</th><th>Puntos</th><th>Actualizado</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
-    const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `predicciones_${selectedUser.email || "usuario"}.xls`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
@@ -765,7 +679,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                   {filteredUsers.length===0?(
                     <div style={{padding:20,textAlign:"center",color:G.muted,fontSize:13}}>No hay usuarios registrados.</div>
                   ):filteredUsers.map(u=>(
-                    <button key={u.id} onClick={()=>selectUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
+                    <button key={u.id} onClick={()=>setSelectedUser(u)} style={{width:"100%",padding:"12px 16px",background:selectedUser?.id===u.id?"rgba(26,158,63,.1)":"transparent",border:"none",borderBottom:`1px solid ${G.border}`,textAlign:"left",cursor:"pointer",transition:".15s"}}>
                       <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{u.nombre_comercial||"Sin nombre"}</div>
                       <div style={{fontSize:12,color:G.green,marginTop:2}}>{u.nombre} {u.primer_apellido} {u.segundo_apellido}</div>
                       <div style={{fontSize:11,color:G.muted,marginTop:2}}>{u.email}</div>
@@ -777,7 +691,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
               <div>
                 {!selectedUser ? (
-                  <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Selecciona un usuario para ver sus datos completos y sus predicciones.</div>
+                  <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Selecciona un usuario para ver sus datos completos.</div>
                 ) : (
                   <div style={{...card,padding:24,borderRadius:12}}>
                     <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Datos del usuario</div>
@@ -804,46 +718,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         </div>
                       ))}
                     </div>
-
-                    <div style={{marginTop:28,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
-                      <div>
-                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Predicciones del usuario</div>
-                        <div style={{fontSize:12,color:G.muted,marginTop:3}}>Marcadores guardados por este usuario en la tabla predicciones.</div>
-                      </div>
-                      <button onClick={exportPredictionsToExcel} disabled={userPredictions.length===0} style={{background:userPredictions.length===0?G.card:G.green,border:userPredictions.length===0?`1px solid ${G.border}`:"none",borderRadius:8,padding:"8px 14px",color:"#fff",cursor:userPredictions.length===0?"not-allowed":"pointer",fontWeight:700,fontSize:13}}>📥 Exportar predicciones</button>
-                    </div>
-
-                    {loadingPredictions ? (
-                      <div style={{marginTop:16,background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:20,textAlign:"center",color:G.muted}}>Cargando predicciones...</div>
-                    ) : userPredictions.length === 0 ? (
-                      <div style={{marginTop:16,background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:20,textAlign:"center",color:G.muted}}>Este usuario aún no tiene predicciones registradas.</div>
-                    ) : (
-                      <div style={{marginTop:16,overflowX:"auto",border:`1px solid ${G.border}`,borderRadius:12}}>
-                        <table style={{width:"100%",borderCollapse:"collapse",minWidth:850}}>
-                          <thead>
-                            <tr style={{background:G.card2}}>
-                              {["Partido","Grupo","Fecha","Equipo local","Predicción","Equipo visitante","Resultado","Pts"].map(h=>(
-                                <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted,borderBottom:`1px solid ${G.border}`}}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {selectedPredictionsWithMatch.map(p => (
-                              <tr key={p.id || `${p.user_email}-${p.match_id}`} style={{borderBottom:`1px solid ${G.border}`}}>
-                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>#{p.match_id}</td>
-                                <td style={{padding:"10px 12px",fontSize:13,color:G.gray}}>{p.match?.group || "—"}</td>
-                                <td style={{padding:"10px 12px",fontSize:13,color:G.gray}}>{p.match?.date || "—"}<br/><span style={{fontSize:11,color:G.muted}}>{p.match?.time || ""}</span></td>
-                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>{p.match?.homeTeam?.flag} {p.match?.homeTeam?.name || "—"}</td>
-                                <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,whiteSpace:"nowrap"}}>{p.home} - {p.away}</td>
-                                <td style={{padding:"10px 12px",fontSize:13,fontWeight:700}}>{p.match?.awayTeam?.flag} {p.match?.awayTeam?.name || "—"}</td>
-                                <td style={{padding:"10px 12px",fontSize:13,color:p.match?.result?"#fff":G.muted}}>{p.match?.result ? `${p.match.result.home} - ${p.match.result.away}` : "Pendiente"}</td>
-                                <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:G.green}}>{p.points}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
