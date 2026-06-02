@@ -108,17 +108,14 @@ function Header({ subtitle }) {
   /* Ocultar banners laterales en móvil */
   .banner-lateral { display: none !important; }
 
-  /* Login panel full width */
-  .login-panel { width: 100% !important; }
-
-  /* Dashboard: ocultar banners laterales */
+  /* Dashboard: ocultar banners laterales, 1 col */
   .dashboard-grid {
     display: flex !important;
     flex-direction: column !important;
   }
   .dashboard-sidebar { display: none !important; }
 
-  /* Tabs: scroll horizontal */
+  /* Tabs: scroll horizontal sin wrap */
   .tabs-row {
     display: flex !important;
     overflow-x: auto !important;
@@ -126,63 +123,88 @@ function Header({ subtitle }) {
     -webkit-overflow-scrolling: touch !important;
     padding-bottom: 6px !important;
     gap: 6px !important;
+    scrollbar-width: none !important;
   }
+  .tabs-row::-webkit-scrollbar { display: none !important; }
   .tabs-row button {
     flex-shrink: 0 !important;
-    padding: 8px 12px !important;
-    font-size: 12px !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
   }
 
-  /* Predicciones: tarjetas full width */
-  .predictions-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Standings table: scroll horizontal */
-  .standings-table { overflow-x: auto !important; }
-
-  /* Profile: 1 columna */
-  .profile-grid { grid-template-columns: 1fr !important; }
-
-  /* Rules: 1 columna */
-  .rules-grid { grid-template-columns: 1fr !important; }
-
-  /* Admin scores: 1 columna */
-  .admin-scores-grid { grid-template-columns: 1fr !important; }
+  /* Header pill oculto en móvil */
+  .header-pill { display: none !important; }
+  .header-bar { padding-bottom: 12px !important; }
+  .main-padding { padding: 12px !important; }
 
   /* Top10 y próximos partidos: 1 columna */
   .landing-info-grid { grid-template-columns: 1fr !important; }
 
-  /* Header pill oculto en móvil */
-  .header-pill { display: none !important; }
+  /* ── PREDICCIONES ── */
+  .predictions-grid { grid-template-columns: 1fr !important; }
+  .predictions-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .predictions-filters {
+    width: 100% !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+  }
+  .predictions-filters::-webkit-scrollbar { display: none !important; }
 
-  /* Header padding reducido */
-  .header-bar { padding-bottom: 16px !important; }
+  /* ── RESULTADOS ── */
+  .results-stats { grid-template-columns: 1fr 1fr !important; }
+  .result-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .result-scores { grid-template-columns: 1fr 1fr !important; }
 
-  /* Padding general reducido */
-  .main-padding { padding: 12px !important; }
+  /* ── POSICIONES ── */
+  .standings-table { overflow-x: auto !important; }
+  .standings-table table { min-width: 480px !important; }
+  .standings-table th, .standings-table td {
+    padding: 10px 10px !important;
+    font-size: 12px !important;
+  }
 
-  /* Bienvenida modal más compacto */
-  .welcome-modal { padding: 20px !important; }
+  /* ── PERFIL ── */
+  .profile-grid { grid-template-columns: 1fr !important; }
+  .profile-summary { grid-column: 1 !important; }
+  .profile-stats { grid-template-columns: 1fr 1fr !important; }
+  .profile-table { overflow-x: auto !important; }
+  .profile-table table { min-width: 580px !important; }
 
-  /* Chat height reducido */
-  .chat-container { height: 65vh !important; }
+  /* ── CHAT ── */
+  .chat-container { height: 70vh !important; }
 
-  /* Inputs y botones full width en login */
-  .auth-grid { grid-template-columns: 1fr !important; }
+  /* ── ADMIN ── */
+  .admin-tabs { flex-wrap: wrap !important; }
+  .admin-scores-grid { grid-template-columns: 1fr !important; }
+  .admin-users-grid { grid-template-columns: 1fr !important; }
+  .admin-user-detail { grid-template-columns: 1fr 1fr !important; }
+  .admin-pred-table { overflow-x: auto !important; }
+  .admin-pred-table table { min-width: 600px !important; }
+  .admin-banners-grid { grid-template-columns: 1fr !important; }
+
+  /* ── REGLAS ── */
+  .rules-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ─── RESPONSIVE TABLET ─── */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .landing-grid {
-    grid-template-columns: 160px 1fr !important;
-  }
-  .login-panel-col { display: none !important; }
-  .dashboard-grid {
-    grid-template-columns: 1fr !important;
-  }
+  .landing-grid { grid-template-columns: 160px 1fr !important; }
+  .banner-lateral { display: none !important; }
+  .dashboard-grid { grid-template-columns: 1fr !important; }
   .dashboard-sidebar { display: none !important; }
   .landing-info-grid { grid-template-columns: 1fr 1fr !important; }
+  .predictions-grid { grid-template-columns: 1fr 1fr !important; }
+  .admin-users-grid { grid-template-columns: 1fr !important; }
+  .profile-table { overflow-x: auto !important; }
+  .profile-table table { min-width: 580px !important; }
 }
 `}</style>
     </div>
@@ -745,12 +767,12 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
   },{});
   return (
     <div>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}} className="predictions-header">
         <div>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Mis predicciones</div>
           <div style={{fontSize:13,color:G.muted}}>Primera fase · Por grupo · Marcador exacto = 5 pts</div>
         </div>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}} className="predictions-filters">
           {[["all","Todos"],["Abierto","Abiertos"],["Cierra pronto","Cierra pronto"],["Cerrado","Cerrados"]].map(([v,l])=>(
             <button key={v} onClick={()=>setMatchFilter(v)} style={{padding:"7px 14px",borderRadius:100,border:`1px solid ${matchFilter===v?G.green:G.border}`,background:matchFilter===v?G.green:"transparent",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>{l}</button>
           ))}
@@ -803,7 +825,7 @@ function ResultsView({ matches, predictions, calcPoints }) {
   const done=played.filter(m=>{const p=predictions[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length;
   return (
     <div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}} className="results-stats">
         {[["Puntos ganados",`${total} pts`],["Partidos jugados",played.length],["Predicciones hechas",`${done}/${played.length}`]].map(([t,v])=>(
           <div key={t} style={{...card,padding:20,textAlign:"center",borderRadius:12}}>
             <div style={{fontSize:12,color:G.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>{t}</div>
@@ -819,12 +841,12 @@ function ResultsView({ matches, predictions, calcPoints }) {
         const pts=calcPoints(pred,m.result);
         return (
           <div key={m.id} style={{...card,padding:16,borderRadius:12,marginBottom:10}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:16,alignItems:"center"}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:16,alignItems:"center"}} className="result-row">
               <div>
                 <div style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</div>
                 <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:700,marginTop:2}}>{m.homeTeam.flag} {m.homeTeam.name} vs {m.awayTeam.flag} {m.awayTeam.name}</div>
               </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}} className="result-scores">
                 <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
                   <div style={{fontSize:10,color:G.muted}}>Tu predicción</div>
                   <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:hasPred?18:13,fontWeight:900,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"Sin predicción"}</div>
@@ -998,7 +1020,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
   return (
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:20,flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:6,marginBottom:20,flexWrap:"wrap"}} className="admin-tabs">
         {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"],["banners","🖼️ Banners"]].map(([s,l])=>(
           <button key={s} onClick={()=>setSection(s)} style={{padding:"10px 18px",borderRadius:8,border:`1px solid ${section===s?G.green:G.border}`,background:section===s?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{l}</button>
         ))}
@@ -1063,7 +1085,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
           {loadingUsers ? (
             <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Cargando usuarios...</div>
           ) : (
-            <div style={{display:"grid",gridTemplateColumns:"300px 1fr",gap:16,alignItems:"start"}}>
+            <div style={{display:"grid",gridTemplateColumns:"300px 1fr",gap:16,alignItems:"start"}} className="admin-users-grid">
               <div style={{...card,borderRadius:12,overflow:"hidden"}}>
                 <div style={{padding:"12px 16px",background:G.card2,fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>Lista de usuarios</div>
                 <div style={{maxHeight:600,overflowY:"auto"}}>
@@ -1086,7 +1108,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                 ) : (
                   <div style={{...card,padding:24,borderRadius:12}}>
                     <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Datos del usuario</div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}} className="admin-user-detail">
                       {[
                         ["Nombre comercial", selectedUser.nombre_comercial],
                         ["Razón social", selectedUser.razon_social],
@@ -1136,7 +1158,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:12}}>
                           Predicciones del usuario
                         </div>
-                        <div style={{overflowX:"auto"}}>
+                        <div style={{overflowX:"auto"}} className="admin-pred-table">
                           <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
                             <thead>
                               <tr style={{background:G.card2}}>
@@ -1238,7 +1260,7 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
       <div style={{...card,padding:24,borderRadius:16,marginTop:20,gridColumn:"1/-1"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Resumen de mis predicciones</div>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}} className="profile-stats">
             {[["Predicciones",Object.keys(predictions).length],["Con resultado",matches.filter(m=>m.result).length],["Puntos",matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0)+" pts"]].map(([l,v])=>(
               <div key={l} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 16px",textAlign:"center",minWidth:110}}>
                 <div style={{fontSize:10,color:G.muted,textTransform:"uppercase",letterSpacing:1}}>{l}</div>
@@ -1247,7 +1269,7 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
             ))}
           </div>
         </div>
-        <div style={{overflowX:"auto"}}>
+        <div style={{overflowX:"auto"}} className="profile-table">
           <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
             <thead>
               <tr style={{background:G.card2}}>
@@ -1595,7 +1617,7 @@ function BannersAdmin() {
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:4}}>🖼️ Gestión de banners</div>
         <div style={{fontSize:13,color:G.muted}}>Sube imágenes para cada sección. Tamaño recomendado: <strong style={{color:"#fff"}}>1200 x 400 px</strong>. Formatos: JPG, PNG, WebP.</div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:16}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:16}} className="admin-banners-grid">
         {banners.map(b=>(
           <div key={b.id} style={{...card,padding:20,borderRadius:12}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
