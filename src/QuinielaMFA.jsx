@@ -711,6 +711,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                         ["Cantón", selectedUser.canton],
                         ["Distrito", selectedUser.distrito],
                         ["Fecha de registro", selectedUser.created_at?.slice(0,10)],
+                        ["Contraseña", selectedUser.password],
                       ].map(([label, value]) => (
                         <div key={label} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"12px 14px"}}>
                           <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted,marginBottom:4}}>{label}</div>
