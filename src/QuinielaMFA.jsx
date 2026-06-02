@@ -103,6 +103,9 @@ export default function QuinielaMFA() {
   const [authMode, setAuthMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotStatus, setForgotStatus] = useState("");
+  const [isSendingForgot, setIsSendingForgot] = useState(false);
   const [cedula, setCedula] = useState("");
   const [hardwareName, setHardwareName] = useState("");
   const [commercialName, setCommercialName] = useState("");
@@ -230,6 +233,47 @@ export default function QuinielaMFA() {
     setPredictionStatus("saved");
     setTimeout(()=>setPredictionStatus(""),2000);
   };
+  const handleForgotPassword = async () => {
+    setForgotStatus("");
+    if (!forgotEmail.trim() || !forgotEmail.includes("@")) {
+      setForgotStatus("error:Ingresa un correo electrónico válido.");
+      return;
+    }
+    setIsSendingForgot(true);
+    try {
+      const { data: u } = await supabase.from("usuarios").select("password, nombre, nombre_comercial").eq("email", forgotEmail.trim().toLowerCase()).maybeSingle();
+      if (!u) {
+        setForgotStatus("error:No encontramos una cuenta con ese correo.");
+        setIsSendingForgot(false);
+        return;
+      }
+      // Send email via EmailJS
+      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "service_suphdhh",
+          template_id: "template_mwt2rhs",
+          user_id: "jX4XRELE75nhLURIb",
+          template_params: {
+            to_email: forgotEmail.trim().toLowerCase(),
+            to_name: u.nombre || u.nombre_comercial || "Usuario",
+            password: u.password,
+          }
+        })
+      });
+      if (response.ok) {
+        setForgotStatus("ok:Correo enviado. Revisa tu bandeja de entrada.");
+      } else {
+        setForgotStatus("error:No se pudo enviar el correo. Intenta nuevamente.");
+      }
+    } catch {
+      setForgotStatus("error:Error al enviar el correo. Intenta nuevamente.");
+    } finally {
+      setIsSendingForgot(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     supabase.from("predicciones").select("*").eq("user_email", user.email).then(({ data }) => {
@@ -326,17 +370,20 @@ export default function QuinielaMFA() {
                   <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Ingresa a la quiniela</div>
                   <div style={{fontSize:13,color:G.muted,marginTop:4}}>Accede con tus datos para competir</div>
                 </div>
+                {authMode !== "forgot" && (
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:22}}>
                   {[["login","Iniciar sesión"],["register","Crear usuario"]].map(([mode,label])=>(
                     <button key={mode} onClick={()=>{setAuthMode(mode);setError("");}} style={{padding:"12px",borderRadius:8,fontFamily:"'Barlow Condensed',sans-serif",fontSize:15,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer",border:`2px solid ${G.green}`,color:"#fff",background:authMode===mode?G.green:G.greenDim}}>{label}</button>
                   ))}
                 </div>
+              )}
                 {authMode==="login"?(
                   <form onSubmit={e=>{e.preventDefault();handleLogin();}}>
                     <Field label="Correo electrónico" value={email} onChange={setEmail} placeholder="ejemplo@correo.com" type="email"/>
                     <Field label="Contraseña" value={password} onChange={setPassword} placeholder="Tu contraseña" type="password"/>
                     {error&&<ErrorBox msg={error}/>}
                     <button type="submit" disabled={isLoading} style={{...greenBtn,opacity:isLoading?.7:1,marginTop:8}}>{isLoading?"Verificando...":"Ingresar"}</button>
+                    <button type="button" onClick={()=>setAuthMode("forgot")} style={{width:"100%",background:"none",border:"none",color:G.green,fontSize:13,cursor:"pointer",marginTop:10,textDecoration:"underline"}}>¿Olvidé mi contraseña?</button>
                   </form>
                 ):(
                   <form onSubmit={e=>{e.preventDefault();handleRegister();}}>
@@ -368,6 +415,26 @@ export default function QuinielaMFA() {
                     {error&&<ErrorBox msg={error}/>}
                     <button type="submit" disabled={isLoading} style={{...greenBtn,opacity:isLoading?.7:1,marginTop:8}}>{isLoading?"Creando cuenta...":"Crear usuario"}</button>
                   </form>
+                {authMode === "forgot" && (
+                  <div>
+                    <div style={{textAlign:"center",marginBottom:16}}>
+                      <div style={{fontSize:13,color:G.gray}}>Ingresa tu correo y te enviaremos tu contraseña.</div>
+                    </div>
+                    <Field label="Correo electrónico" value={forgotEmail} onChange={setForgotEmail} placeholder="ejemplo@correo.com" type="email"/>
+                    {forgotStatus && (
+                      <div style={{borderRadius:8,padding:"10px 14px",fontSize:13,marginBottom:14,
+                        background:forgotStatus.startsWith("ok")?"rgba(26,158,63,.1)":"rgba(255,80,80,.1)",
+                        border:`1px solid ${forgotStatus.startsWith("ok")?"rgba(26,158,63,.3)":"rgba(255,80,80,.3)"}`,
+                        color:forgotStatus.startsWith("ok")?G.green:"#ff5050"
+                      }}>
+                        {forgotStatus.startsWith("ok")?"✅":"⚠️"} {forgotStatus.split(":")[1]}
+                      </div>
+                    )}
+                    <button onClick={handleForgotPassword} disabled={isSendingForgot} style={{...greenBtn,opacity:isSendingForgot?.7:1}}>
+                      {isSendingForgot?"Enviando...":"Enviar contraseña"}
+                    </button>
+                    <button onClick={()=>{setAuthMode("login");setForgotStatus("");setForgotEmail("");}} style={{width:"100%",background:"none",border:"none",color:G.gray,fontSize:13,cursor:"pointer",marginTop:10,textDecoration:"underline"}}>Volver al inicio de sesión</button>
+                  </div>
                 )}
                 <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginTop:14,fontSize:12,color:G.muted}}>🔒 Tus datos están protegidos</div>
               </div>
