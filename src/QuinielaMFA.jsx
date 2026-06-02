@@ -531,7 +531,7 @@ export default function QuinielaMFA() {
         if (data.bono_goleador) setBonosGoleador(data.bono_goleador);
         if (data.bono_mvp) setBonosMVP(data.bono_mvp);
         if (!data.bonos_completado) setShowBonos(true);
-        else setBonosSaved(true);
+
       } else {
         setShowBonos(true);
       }
