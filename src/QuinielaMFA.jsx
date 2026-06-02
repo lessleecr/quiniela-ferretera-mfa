@@ -418,9 +418,13 @@ export default function QuinielaMFA() {
 
     return (
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
-        <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}}>
           <Header subtitle="Mayoreo Ferretería y Acabados" />
-          <div style={{display:"grid",gridTemplateColumns:"1fr 390px",gap:32,alignItems:"start"}}>
+          <div style={{display:"grid",gridTemplateColumns:"160px 1fr 390px",gap:16,alignItems:"start"}}>
+            {/* Banner #2 - lateral izquierdo inicio */}
+            <div style={{position:"sticky",top:24}}>
+              <BannerDisplay slot={2} vertical={true}/>
+            </div>
             <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.5}}>
               <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(26,158,63,.12)",border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"6px 14px",fontSize:12,fontWeight:700,color:G.green,textTransform:"uppercase",letterSpacing:1,marginBottom:20}}>⚽ Ya inició la competencia</div>
               <h2 style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:80,fontWeight:900,lineHeight:.9,textTransform:"uppercase",marginBottom:16}}>
@@ -429,7 +433,8 @@ export default function QuinielaMFA() {
                 <span style={{color:G.green}}>sabes de</span><br/>
                 <span style={{WebkitTextStroke:`2px ${G.green}`,color:"transparent"}}>fútbol</span>
               </h2>
-              <p style={{fontSize:16,color:G.gray,lineHeight:1.6,maxWidth:480,marginBottom:32}}>Participa en la Quiniela Ferretera MFA, predice los marcadores del Mundial 2026, suma puntos y compite por grandes premios.</p>
+              <p style={{fontSize:16,color:G.gray,lineHeight:1.6,maxWidth:480,marginBottom:24}}>Participa en la Quiniela Ferretera MFA, predice los marcadores del Mundial 2026, suma puntos y compite por grandes premios.</p>
+              <BannerDisplay slot={1}/>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:32}}>
                 {[["🎯","Predice","los marcadores"],["📊","Suma","puntos"],["🏆","Gana","premios"]].map(([icon,title,desc])=>(
                   <div key={title} style={{...card,padding:16,textAlign:"center"}}>
@@ -614,6 +619,8 @@ export default function QuinielaMFA() {
           </div>
         </div>
 
+        {/* Banner #4 - superior dashboard */}
+        <BannerDisplay slot={4}/>
         <div style={{display:"flex",gap:6,marginBottom:24,flexWrap:"wrap"}}>
           {tabs.map(([id,icon,label])=>(
             <button key={id} onClick={()=>setView(id)} style={{padding:"10px 16px",borderRadius:8,border:`1px solid ${view===id?G.green:G.border}`,background:view===id?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{icon} {label}</button>
@@ -653,13 +660,21 @@ export default function QuinielaMFA() {
             </div>
           </div>
         )}
-        {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
-        {view==="chat"&&<ChatView user={user}/>}
-        {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
-        {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
-        {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
-        {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults} calcPoints={calcPoints}/>}
-        {view==="rules"&&<RulesView/>}
+        <div style={{display:"grid",gridTemplateColumns:"140px 1fr 140px",gap:16,alignItems:"start"}}>
+          {/* Banner #6 - lateral izquierdo dashboard */}
+          <div style={{position:"sticky",top:24}}><BannerDisplay slot={6} vertical={true}/></div>
+          <div>
+            {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
+            {view==="chat"&&<ChatView user={user}/>}
+            {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
+            {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
+            {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
+            {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults} calcPoints={calcPoints}/>}
+            {view==="rules"&&<RulesView/>}
+          </div>
+          {/* Banner #7 - lateral derecho dashboard */}
+          <div style={{position:"sticky",top:24}}><BannerDisplay slot={7} vertical={true}/></div>
+        </div>
       </div>
     </div>
   );
@@ -925,13 +940,15 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
   return (
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:20}}>
-        {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"]].map(([s,l])=>(
+      <div style={{display:"flex",gap:6,marginBottom:20,flexWrap:"wrap"}}>
+        {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"],["banners","🖼️ Banners"]].map(([s,l])=>(
           <button key={s} onClick={()=>setSection(s)} style={{padding:"10px 18px",borderRadius:8,border:`1px solid ${section===s?G.green:G.border}`,background:section===s?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{l}</button>
         ))}
       </div>
 
-      {section==="scores" ? (
+      {section==="banners" ? (
+        <BannersAdmin/>
+      ) : section==="scores" ? (
         <div>
           <div style={{...card,padding:16,borderRadius:12,marginBottom:16}}>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Cargar marcadores oficiales</div>
@@ -1444,6 +1461,112 @@ function ChatView({ user }) {
         <button onClick={sendMessage} disabled={sending||!newMsg.trim()} style={{background:G.green,border:"none",borderRadius:10,padding:"10px 18px",color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,cursor:"pointer",opacity:sending||!newMsg.trim()?.5:1,whiteSpace:"nowrap"}}>
           {sending?"...":"Enviar ➤"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+function BannerDisplay({ slot, vertical=false }) {
+  const [banner, setBanner] = React.useState(null);
+  React.useEffect(() => {
+    supabase.from("banners").select("*").eq("orden", slot).eq("activo", true).single().then(({data}) => {
+      if (data?.imagen_url) setBanner(data);
+    });
+  }, [slot]);
+  if (!banner) return null;
+  return (
+    <div style={{width:"100%",marginBottom:16,borderRadius:12,overflow:"hidden",border:`1px solid ${G.border}`}}>
+      <img src={banner.imagen_url} alt={banner.nombre} style={{width:"100%",height:vertical?"400px":"auto",maxHeight:vertical?"100vh":"200px",objectFit:"cover",display:"block"}}/>
+    </div>
+  );
+}
+
+function BannersAdmin() {
+  const [banners, setBanners] = React.useState([]);
+  const [uploading, setUploading] = React.useState(null);
+
+  const loadBanners = React.useCallback(async () => {
+    const { data } = await supabase.from("banners").select("*").order("orden");
+    if (data) setBanners(data);
+  }, []);
+
+  React.useEffect(() => { loadBanners(); }, [loadBanners]);
+
+  const uploadBanner = async (bannerId, file) => {
+    if (!file) return;
+    setUploading(bannerId);
+    const fileName = `banner_${bannerId}_${Date.now()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
+    if (!error) {
+      const { data: urlData } = supabase.storage.from("banners").getPublicUrl(fileName);
+      await supabase.from("banners").update({ imagen_url: urlData.publicUrl, updated_at: new Date().toISOString() }).eq("id", bannerId);
+      await loadBanners();
+    }
+    setUploading(null);
+  };
+
+  const toggleBanner = async (bannerId, activo) => {
+    await supabase.from("banners").update({ activo: !activo }).eq("id", bannerId);
+    await loadBanners();
+  };
+
+  const removeBanner = async (bannerId) => {
+    await supabase.from("banners").update({ imagen_url: null }).eq("id", bannerId);
+    await loadBanners();
+  };
+
+  return (
+    <div>
+      <div style={{...card,padding:16,borderRadius:12,marginBottom:20}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:4}}>🖼️ Gestión de banners</div>
+        <div style={{fontSize:13,color:G.muted}}>Sube imágenes para cada sección. Tamaño recomendado: <strong style={{color:"#fff"}}>1200 x 400 px</strong>. Formatos: JPG, PNG, WebP.</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:16}}>
+        {banners.map(b=>(
+          <div key={b.id} style={{...card,padding:20,borderRadius:12}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:"#fff",textTransform:"uppercase"}}>{b.nombre}</div>
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:100,border:"1px solid",
+                  ...(b.activo?{borderColor:"rgba(26,158,63,.4)",background:"rgba(26,158,63,.1)",color:G.green}:{borderColor:"rgba(255,80,80,.4)",background:"rgba(255,80,80,.1)",color:"#ff5050"})
+                }}>{b.activo?"Activo":"Inactivo"}</span>
+              </div>
+            </div>
+
+            {/* Preview */}
+            <div style={{width:"100%",height:140,background:G.card2,border:`1px solid ${G.border}`,borderRadius:10,marginBottom:12,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              {b.imagen_url ? (
+                <img src={b.imagen_url} alt={b.nombre} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              ) : (
+                <div style={{textAlign:"center",color:G.muted}}>
+                  <div style={{fontSize:28,marginBottom:6}}>🖼️</div>
+                  <div style={{fontSize:12}}>Sin imagen</div>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              <label style={{cursor:"pointer"}}>
+                <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>uploadBanner(b.id, e.target.files[0])}/>
+                <div style={{background:G.green,borderRadius:8,padding:"9px",textAlign:"center",fontSize:13,fontWeight:700,color:"#fff",opacity:uploading===b.id?.7:1}}>
+                  {uploading===b.id?"Subiendo...":"📤 Subir imagen"}
+                </div>
+              </label>
+              <button onClick={()=>toggleBanner(b.id, b.activo)} style={{background:b.activo?"rgba(255,80,80,.1)":"rgba(26,158,63,.1)",border:`1px solid ${b.activo?"rgba(255,80,80,.3)":"rgba(26,158,63,.3)"}`,borderRadius:8,padding:"9px",fontSize:13,fontWeight:700,color:b.activo?"#ff5050":G.green,cursor:"pointer"}}>
+                {b.activo?"⏸️ Desactivar":"▶️ Activar"}
+              </button>
+            </div>
+            {b.imagen_url && (
+              <button onClick={()=>removeBanner(b.id)} style={{width:"100%",marginTop:8,background:"transparent",border:`1px solid ${G.border}`,borderRadius:8,padding:"7px",fontSize:12,color:G.muted,cursor:"pointer"}}>
+                🗑️ Quitar imagen
+              </button>
+            )}
+            {b.updated_at && b.imagen_url && (
+              <div style={{fontSize:10,color:G.muted,marginTop:8,textAlign:"center"}}>Actualizado: {new Date(new Date(b.updated_at).getTime()-6*60*60*1000).toLocaleString("es-CR")}</div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
