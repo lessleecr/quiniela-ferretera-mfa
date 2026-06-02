@@ -284,10 +284,8 @@ export default function QuinielaMFA() {
   const [bonosCampeon, setBonosCampeon] = useState("");
   const [bonosGoleador, setBonosGoleador] = useState("");
   const [bonosMVP, setBonosMVP] = useState("");
-  const [bonosCampeonOtro, setBonosCampeonOtro] = useState("");
   const [bonosGoleadorOtro, setBonosGoleadorOtro] = useState("");
   const [bonosMVPOtro, setBonosMVPOtro] = useState("");
-  const [bonosSaved, setBonosSaved] = useState(false);
   const [predictions, setPredictions] = useState({});
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
@@ -424,7 +422,7 @@ export default function QuinielaMFA() {
   };
 
   const saveBonos = async () => {
-    const campeon = bonosCampeon === "Otro" ? bonosCampeonOtro.trim() : bonosCampeon;
+    const campeon = bonosCampeon.trim();
     const goleador = bonosGoleador === "Otro" ? bonosGoleadorOtro.trim() : bonosGoleador;
     const mvp = bonosMVP === "Otro" ? bonosMVPOtro.trim() : bonosMVP;
     if (!campeon || !goleador || !mvp) { alert("Por favor completa los tres campos de bonificación."); return; }
@@ -432,7 +430,6 @@ export default function QuinielaMFA() {
       bono_campeon: campeon, bono_goleador: goleador, bono_mvp: mvp, bonos_completado: true
     }).eq("email", user.email);
     if (error) { alert("Error al guardar bonificaciones: " + error.message); return; }
-    setBonosSaved(true);
     setShowBonos(false);
   };
 
