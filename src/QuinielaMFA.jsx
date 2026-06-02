@@ -1391,6 +1391,46 @@ const pred = allPredicciones.find(p=>p.match_id===m.id&&p.user_email===selectedU
   );
 }
 
+function BonificacionesDisplay({ email }) {
+  const [bonos, setBonos] = React.useState(null);
+  React.useEffect(() => {
+    supabase.from("usuarios").select("bono_campeon,bono_goleador,bono_mvp,bonos_completado").eq("email", email).single().then(({ data }) => {
+      if (data) setBonos(data);
+    });
+  }, [email]);
+
+  const items = [
+    { icon:"🏆", label:"Campeón del torneo", pts:"20 pts", value: bonos?.bono_campeon },
+    { icon:"⚽", label:"Goleador del torneo", pts:"10 pts", value: bonos?.bono_goleador },
+    { icon:"🌟", label:"MVP del torneo",      pts:"10 pts", value: bonos?.bono_mvp },
+  ];
+
+  if (!bonos?.bonos_completado) {
+    return (
+      <div style={{background:"rgba(255,180,0,.06)",border:"1px solid rgba(255,180,0,.2)",borderRadius:10,padding:"14px 16px",fontSize:13,color:"#ffb400",textAlign:"center"}}>
+        ⚠️ Aún no has completado tus bonificaciones especiales.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{display:"grid",gap:10}}>
+      {items.map(({icon,label,pts,value})=>(
+        <div key={label} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:10,padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:20}}>{icon}</span>
+            <div>
+              <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{label}</div>
+              <div style={{fontSize:15,fontWeight:700,color:"#fff",marginTop:2}}>{value || "—"}</div>
+            </div>
+          </div>
+          <span style={{background:"rgba(26,158,63,.15)",color:G.green,border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"3px 10px",fontSize:12,fontWeight:700,whiteSpace:"nowrap"}}>{pts}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
@@ -1446,6 +1486,12 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
         <div style={{marginTop:14,background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"12px 14px",fontSize:12,color:G.muted}}>
           Para actualizar tus datos de ferretería, contacta al administrador.
         </div>
+      </div>
+
+      {/* Bonificaciones especiales */}
+      <div style={{...card,padding:24,borderRadius:16}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>⭐ Bonificaciones especiales</div>
+        <BonificacionesDisplay email={user.email}/>
       </div>
 
       {/* Resumen predicciones */}
