@@ -786,7 +786,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     );
   };
 
-  const sendBackupEmail = async (usuarios, predicciones) => {
+  const sendBackupEmail = React.useCallback(async (usuarios, predicciones) => {
     try {
       const fecha = new Date().toLocaleString("es-CR", { timeZone: "America/Costa_Rica" });
       const detalle = usuarios.map((u, i) =>
@@ -810,7 +810,9 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     } catch(e) { console.error("Backup email error:", e); }
   };
 
-  const loadUsers = async () => {
+  }, []);
+
+  const loadUsers = React.useCallback(async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
     const { data: preds } = await supabase.from("predicciones").select("*");
@@ -819,7 +821,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
       sendBackupEmail(data, preds || []);
     }
     setLoadingUsers(false);
-  };
+  }, [sendBackupEmail]);
 
   React.useEffect(() => { if (section === "users") loadUsers(); }, [section, loadUsers]);
 
