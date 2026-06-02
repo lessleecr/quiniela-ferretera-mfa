@@ -378,11 +378,24 @@ export default function QuinielaMFA() {
   };
 
   const updatePrediction = async (matchId, team, value) => {
+    // Security: verify match is still open before allowing any edit
+    const match = matchList.find(m => m.id === matchId);
+    if (!match) return;
+    const status = getMatchStatus(match.date, match.time);
+    if (status === "Cerrado") return; // silently block closed matches
+
     const v = value.replace(/[^0-9]/g,"").slice(0,2);
     const updated = { ...predictions, [matchId]: { ...(predictions[matchId]||{}), [team]: v } };
     setPredictions(updated);
     const pred = updated[matchId];
     if (pred.home !== undefined && pred.home !== "" && pred.away !== undefined && pred.away !== "") {
+      // Double-check status right before saving (in case time passed while typing)
+      const statusNow = getMatchStatus(match.date, match.time);
+      if (statusNow === "Cerrado") {
+        setPredictionStatus("closed");
+        setTimeout(()=>setPredictionStatus(""),3000);
+        return;
+      }
       await supabase.from("predicciones").upsert({
         user_email: user.email,
         match_id: matchId,
@@ -395,9 +408,17 @@ export default function QuinielaMFA() {
     }
   };
   const savePredictions = async () => {
+    const now = new Date();
     const entries = Object.entries(predictions)
-      .filter(([,p]) => p.home !== undefined && p.home !== "" && p.away !== undefined && p.away !== "")
-      .map(([matchId, p]) => ({ user_email: user.email, match_id: Number(matchId), home: p.home, away: p.away, updated_at: new Date().toISOString() }));
+      .filter(([matchId, p]) => {
+        if (p.home === undefined || p.home === "" || p.away === undefined || p.away === "") return false;
+        // Security: only save predictions for open matches
+        const match = matchList.find(m => m.id === Number(matchId));
+        if (!match) return false;
+        const status = getMatchStatus(match.date, match.time);
+        return status !== "Cerrado";
+      })
+      .map(([matchId, p]) => ({ user_email: user.email, match_id: Number(matchId), home: p.home, away: p.away, updated_at: now.toISOString() }));
     if (entries.length > 0) {
       await supabase.from("predicciones").upsert(entries, { onConflict: "user_email,match_id" });
     }
@@ -462,8 +483,19 @@ export default function QuinielaMFA() {
     setAdminResults(c=>({...c,[matchId]:{...c[matchId],[team]:clean}}));
   };
   const publishResult = async (matchId) => {
+    // Security: only ADMIN_EMAILS can publish results
+    if (!ADMIN_EMAILS.includes(user?.email)) return;
     const r = adminResults[matchId];
     if (!r || r.home === "" || r.away === "" || r.home === undefined || r.away === undefined) return;
+    // Security: match must be closed before publishing result
+    const match = matchList.find(m => m.id === matchId);
+    if (match) {
+      const status = getMatchStatus(match.date, match.time);
+      if (status !== "Cerrado") {
+        alert("⚠️ No se puede publicar el resultado antes del cierre del partido.");
+        return;
+      }
+    }
     await supabase.from("resultados").upsert({
       match_id: matchId, home: Number(r.home), away: Number(r.away), locked: true, updated_at: new Date().toISOString()
     }, { onConflict: "match_id" });
@@ -806,6 +838,11 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
       {predictionStatus==="saved"&&(
         <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",color:G.green,fontSize:13}}>
           ✅ Predicción guardada automáticamente.
+        </div>
+      )}
+      {predictionStatus==="closed"&&(
+        <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",color:"#ff5050",fontSize:13}}>
+          🔒 Este partido ya cerró. No se puede modificar la predicción.
         </div>
       )}
       <button onClick={savePredictions} style={{...greenBtn,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Save size={18}/> Guardar predicciones</button>
