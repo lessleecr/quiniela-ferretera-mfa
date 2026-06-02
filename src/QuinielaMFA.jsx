@@ -415,6 +415,7 @@ export default function QuinielaMFA() {
                     {error&&<ErrorBox msg={error}/>}
                     <button type="submit" disabled={isLoading} style={{...greenBtn,opacity:isLoading?.7:1,marginTop:8}}>{isLoading?"Creando cuenta...":"Crear usuario"}</button>
                   </form>
+                )}
                 {authMode === "forgot" && (
                   <div>
                     <div style={{textAlign:"center",marginBottom:16}}>
