@@ -273,7 +273,6 @@ export default function QuinielaMFA() {
   const [districts, setDistricts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConsulting, setIsConsulting] = useState(false);
-  const [aceptoTerminos, setAceptoTerminos] = useState(false);
   const [haciendaOk, setHaciendaOk] = useState("");
   const [isConsultingCedula, setIsConsultingCedula] = useState(false);
   const [cedulaPersonalStatus, setCedulaPersonalStatus] = useState("");
@@ -391,15 +390,7 @@ export default function QuinielaMFA() {
     try {
       const { data:u, error:e } = await supabase.from("usuarios").select("*").eq("email",email.trim().toLowerCase()).eq("password",password.trim()).maybeSingle();
       if (e) throw new Error(e.message);
-      if (!u) {
-        // Log failed attempt
-        await supabase.from("access_log").insert({ email: email.trim().toLowerCase(), evento: "login_fallido", timestamp: new Date().toISOString() }).catch(()=>{});
-        setError("Correo o contraseña incorrectos."); setIsLoading(false); return;
-      }
-      // Log successful login with IP (via ipify)
-      const ipResp = await fetch("https://api.ipify.org?format=json").catch(()=>({json:()=>({ip:"desconocida"})}));
-      const { ip } = await ipResp.json().catch(()=>({ip:"desconocida"}));
-      await supabase.from("access_log").insert({ email: u.email, evento: "login_exitoso", ip, user_agent: navigator.userAgent, timestamp: new Date().toISOString() }).catch(()=>{});
+      if (!u) { setError("Correo o contraseña incorrectos."); setIsLoading(false); return; }
       setUser({ name:u.nombre_comercial, legalName:u.razon_social, cedula:u.cedula, contact:u.contacto, email:u.email, province:u.provincia, canton:u.canton, district:u.distrito, phone:u.whatsapp_usuario, firstName:u.nombre, lastName1:u.primer_apellido, lastName2:u.segundo_apellido, esAdmin:u.es_admin||false });
     } catch(err) { setError(err.message||"Error al iniciar sesión."); }
     finally { setIsLoading(false); }
@@ -425,9 +416,6 @@ export default function QuinielaMFA() {
         nombre:firstName, primer_apellido:lastName1, segundo_apellido:lastName2, cedula_personal:cedulaPersonal,
       });
       if (ie) throw new Error(ie.message);
-      const ipR = await fetch("https://api.ipify.org?format=json").catch(()=>({json:()=>({ip:"desconocida"})}));
-      const { ip: ipReg } = await ipR.json().catch(()=>({ip:"desconocida"}));
-      await supabase.from("access_log").insert({ email: email.trim().toLowerCase(), evento: "registro", ip: ipReg, user_agent: navigator.userAgent, timestamp: new Date().toISOString() }).catch(()=>{});
       setUser({ name:commercialName, legalName:hardwareName, cedula, contact:email.split("@")[0], email, province:selProv, canton:selCant, district:selDist, phone:userWhatsapp, businessWhatsapp, firstName, lastName1, lastName2, cedulaPersonal });
     } catch(err) { setError(err.message||"Error al crear el usuario."); }
     finally { setIsLoading(false); }
@@ -710,10 +698,7 @@ export default function QuinielaMFA() {
                 ):(
                   <form onSubmit={e=>{e.preventDefault();handleRegister();}}>
                     <Divider label="Datos de la ferretería"/>
-                    <div style={{marginBottom:4}}>
-                      <Field label="Cédula física o jurídica de la ferretería" value={cedula} onChange={setCedula} placeholder="Ej: 3101234567 o 112345678"/>
-                    </div>
-                    <div style={{fontSize:11,color:G.muted,marginBottom:12,lineHeight:1.5}}>📄 Ingresa la cédula tal como aparece en las facturas de MFA (física o jurídica).</div>
+                    <Field label="Cédula jurídica" value={cedula} onChange={setCedula} placeholder="Cédula jurídica"/>
                     <button type="button" onClick={consultHacienda} disabled={isConsulting} style={{width:"100%",background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:11,fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:G.green,cursor:"pointer",marginBottom:14}}>{isConsulting?"Consultando...":"🔍 Consultar Hacienda"}</button>
                     {haciendaOk&&<div style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"10px 14px",fontSize:13,color:G.green,marginBottom:14}}>✅ {haciendaOk}</div>}
                     <Field label="Nombre de la ferretería" value={hardwareName} onChange={setHardwareName} placeholder="Nombre legal"/>
@@ -764,13 +749,7 @@ export default function QuinielaMFA() {
                     <Field label="Correo electrónico" value={email} onChange={setEmail} placeholder="ejemplo@correo.com" type="email"/>
                     <Field label="Contraseña" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" type="password"/>
                     {error&&<ErrorBox msg={error}/>}
-                    <div style={{display:"flex",alignItems:"flex-start",gap:10,margin:"14px 0",padding:"14px",background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:10}}>
-                      <input type="checkbox" id="terminos" checked={aceptoTerminos} onChange={e=>setAceptoTerminos(e.target.checked)} style={{marginTop:3,width:16,height:16,accentColor:G.green,cursor:"pointer",flexShrink:0}}/>
-                      <label htmlFor="terminos" style={{fontSize:12,color:G.gray,lineHeight:1.6,cursor:"pointer"}}>
-                        Declaro que soy cliente activo de MFA, que los datos de la ferretería son verídicos y que tengo vínculo laboral o de representación con el establecimiento indicado. Acepto las <span style={{color:G.green,fontWeight:700}}>reglas y condiciones</span> de la Quiniela Ferretera MFA, incluyendo que MFA podrá verificar mis datos y suspender mi participación en caso de uso fraudulento.
-                      </label>
-                    </div>
-                    <button type="submit" disabled={isLoading||!aceptoTerminos} style={{...greenBtn,opacity:(isLoading||!aceptoTerminos)?.5:1,marginTop:4}}>{isLoading?"Creando cuenta...":"Crear usuario"}</button>
+                    <button type="submit" disabled={isLoading} style={{...greenBtn,opacity:isLoading?.7:1,marginTop:8}}>{isLoading?"Creando cuenta...":"Crear usuario"}</button>
                   </form>
                 )}
 
@@ -1110,94 +1089,6 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
   );
 }
 
-
-function AccessLogView() {
-  const [logs, setLogs] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [filtroEvento, setFiltroEvento] = React.useState("all");
-
-  React.useEffect(() => {
-    supabase.from("access_log").select("*").order("timestamp", {ascending:false}).limit(200).then(({data}) => {
-      if (data) setLogs(data);
-      setLoading(false);
-    });
-  }, []);
-
-  const toCR = (ts) => {
-    if (!ts) return "—";
-    return new Date(ts).toLocaleString("es-CR", {timeZone:"America/Costa_Rica",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  };
-
-  const colorEvento = (e) => ({
-    "login_exitoso": {bg:"rgba(26,158,63,.1)",color:"#1a9e3f",border:"rgba(26,158,63,.3)"},
-    "login_fallido": {bg:"rgba(255,80,80,.1)",color:"#ff5050",border:"rgba(255,80,80,.3)"},
-    "registro":      {bg:"rgba(255,180,0,.1)",color:"#ffb400",border:"rgba(255,180,0,.3)"},
-  }[e] || {bg:"rgba(100,100,100,.1)",color:"#aaa",border:"rgba(100,100,100,.3)"});
-
-  const filtered = filtroEvento === "all" ? logs : logs.filter(l => l.evento === filtroEvento);
-
-  // Detect suspicious: same IP multiple failed logins
-  const ipFails = {};
-  logs.filter(l=>l.evento==="login_fallido").forEach(l => { ipFails[l.ip] = (ipFails[l.ip]||0)+1; });
-  const suspiciousIPs = new Set(Object.entries(ipFails).filter(([,c])=>c>=3).map(([ip])=>ip));
-
-  return (
-    <div>
-      <div style={{...card,padding:16,borderRadius:12,marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-        <div>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>🔍 Log de accesos</div>
-          <div style={{fontSize:13,color:G.muted,marginTop:4}}>Últimos 200 eventos · hora Costa Rica</div>
-        </div>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-          {[["all","Todos"],["login_exitoso","✅ Exitosos"],["login_fallido","❌ Fallidos"],["registro","🆕 Registros"]].map(([v,l])=>(
-            <button key={v} onClick={()=>setFiltroEvento(v)} style={{padding:"6px 12px",borderRadius:8,border:`1px solid ${filtroEvento===v?G.green:G.border}`,background:filtroEvento===v?G.green:G.card2,color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>{l}</button>
-          ))}
-        </div>
-      </div>
-
-      {suspiciousIPs.size > 0 && (
-        <div style={{background:"rgba(255,80,80,.08)",border:"1px solid rgba(255,80,80,.3)",borderRadius:10,padding:"12px 16px",marginBottom:16,fontSize:13,color:"#ff5050"}}>
-          ⚠️ <strong>IPs sospechosas</strong> ({suspiciousIPs.size} con 3+ intentos fallidos): {[...suspiciousIPs].join(", ")}
-        </div>
-      )}
-
-      {loading ? (
-        <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Cargando registros...</div>
-      ) : (
-        <div style={{overflowX:"auto"}}>
-          <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
-            <thead>
-              <tr style={{background:G.card2}}>
-                {["Fecha/Hora CR","Email","Evento","IP","Dispositivo"].map(h=>(
-                  <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((log,i)=>{
-                const c = colorEvento(log.evento);
-                const suspicious = suspiciousIPs.has(log.ip);
-                return (
-                  <tr key={i} style={{borderBottom:`1px solid ${G.border}`,background:suspicious&&log.evento==="login_fallido"?"rgba(255,80,80,.04)":"transparent"}}>
-                    <td style={{padding:"10px 12px",fontSize:12,color:G.gray,whiteSpace:"nowrap"}}>{toCR(log.timestamp)}</td>
-                    <td style={{padding:"10px 12px",fontSize:13}}>{log.email||"—"}</td>
-                    <td style={{padding:"10px 12px"}}>
-                      <span style={{fontSize:11,fontWeight:700,padding:"3px 8px",borderRadius:100,border:`1px solid ${c.border}`,background:c.bg,color:c.color,whiteSpace:"nowrap"}}>{log.evento}</span>
-                    </td>
-                    <td style={{padding:"10px 12px",fontSize:12,color:suspicious?"#ff5050":G.gray,fontWeight:suspicious?700:400}}>{log.ip||"—"}{suspicious&&" ⚠️"}</td>
-                    <td style={{padding:"10px 12px",fontSize:11,color:G.muted,maxWidth:200,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{log.user_agent||"—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {filtered.length === 0 && <div style={{textAlign:"center",padding:"40px 0",color:G.muted}}>Sin registros.</div>}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function AdminView({ matches, updateResult, publishResult, clearResult, adminResults, calcPoints }) {
   const [section, setSection] = React.useState("scores");
   const [dbUsers, setDbUsers] = React.useState([]);
@@ -1322,15 +1213,13 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   return (
     <div>
       <div style={{display:"flex",gap:6,marginBottom:20,flexWrap:"wrap"}} className="admin-tabs">
-        {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"],["banners","🖼️ Banners"],["log","🔍 Log de accesos"]].map(([s,l])=>(
+        {[["scores","⚽ Cargar marcadores"],["users","👥 Ver usuarios"],["banners","🖼️ Banners"]].map(([s,l])=>(
           <button key={s} onClick={()=>setSection(s)} style={{padding:"10px 18px",borderRadius:8,border:`1px solid ${section===s?G.green:G.border}`,background:section===s?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{l}</button>
         ))}
       </div>
 
       {section==="banners" ? (
         <BannersAdmin/>
-      ) : section==="log" ? (
-        <AccessLogView/>
       ) : section==="scores" ? (
         <div>
           <div style={{...card,padding:16,borderRadius:12,marginBottom:16}}>
@@ -2018,76 +1907,26 @@ function BannersAdmin() {
 }
 
 function RulesView() {
-  const seccion = (titulo, icono, items) => (
-    <div style={{...card,padding:20,borderRadius:12}}>
-      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,textTransform:"uppercase",color:"#fff",marginBottom:14}}>{icono} {titulo}</div>
-      {items.map(([l,p])=>(
-        <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,padding:"8px 0",borderBottom:`1px solid ${G.border}`}}>
-          <span style={{fontSize:13,color:G.gray,lineHeight:1.5}}>{l}</span>
-          {p && <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:15,fontWeight:700,color:G.green,whiteSpace:"nowrap"}}>{p}</span>}
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}} className="rules-grid">
+      {[
+        {title:"Reglas generales",items:["Ingresa tus predicciones antes del inicio de cada partido.","Una vez iniciado el partido, las predicciones quedan bloqueadas.","Los resultados oficiales son los publicados al finalizar cada encuentro.","El ranking se actualiza automáticamente después de cada partido."]},
+        {title:"Fase de grupos",rows:[["Marcador exacto","5 pts"],["Ganador correcto","3 pts"],["Empate correcto","3 pts"],["Diferencia correcta","+1 pt"]]},
+        {title:"Fases eliminatorias",rows:[["Octavos - marcador exacto","7 pts"],["Cuartos - marcador exacto","10 pts"],["Semifinal - marcador exacto","12 pts"],["Final - marcador exacto","15 pts"],["Campeón correcto","20 pts"]]},
+        {title:"Bonificaciones especiales",rows:[["Campeón del torneo","20 pts"],["Goleador del torneo","10 pts"],["MVP del torneo","10 pts"]]},
+      ].map(s=>(
+        <div key={s.title} style={{...card,padding:20,borderRadius:12}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,textTransform:"uppercase",color:"#fff",marginBottom:14}}>{s.title}</div>
+          {s.items?s.items.map(item=>(
+            <div key={item} style={{fontSize:13,color:G.gray,padding:"6px 0",borderBottom:`1px solid ${G.border}`,lineHeight:1.5}}>• {item}</div>
+          )):s.rows.map(([l,p])=>(
+            <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:`1px solid ${G.border}`}}>
+              <span style={{fontSize:13,color:G.gray}}>{l}</span>
+              <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{p}</span>
+            </div>
+          ))}
         </div>
       ))}
-    </div>
-  );
-
-  return (
-    <div style={{display:"grid",gap:16}}>
-
-      {/* Elegibilidad */}
-      {seccion("Elegibilidad y participación","🏪",[
-        ["La Quiniela Ferretera MFA es una dinámica promocional exclusiva para clientes activos de Mayoreo Ferretería y Acabados (MFA).",""],
-        ["Solo pueden participar personas mayores de 18 años que trabajen o representen a una ferretería cliente de MFA.",""],
-        ["Se permite un único registro por cédula jurídica de ferretería y por cédula de identidad personal. Registros duplicados serán eliminados sin previo aviso.",""],
-        ["Un registro por correo electrónico. No se permite usar correos temporales o falsos.",""],
-        ["Al registrarse, el participante declara bajo su responsabilidad que los datos de ferretería son verídicos y que efectivamente labora o representa a dicho establecimiento.",""],
-      ])}
-
-      {/* Predicciones */}
-      {seccion("Predicciones","🎯",[
-        ["Las predicciones deben ingresarse antes del inicio oficial de cada partido según el horario de Costa Rica (UTC-6).",""],
-        ["Una vez iniciado el partido, las predicciones quedan bloqueadas automáticamente y no pueden modificarse.",""],
-        ["Los resultados oficiales son los publicados por MFA al finalizar el tiempo reglamentario (90 minutos). No se consideran prórrogas ni penales para la fase de grupos.",""],
-        ["Las bonificaciones especiales (Campeón, Goleador, MVP) deben completarse antes del inicio del torneo (11 JUN).",""],
-        ["El ranking se actualiza automáticamente tras la publicación de cada resultado por el administrador.",""],
-      ])}
-
-      {/* Puntaje */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}} className="rules-grid">
-        {seccion("Fase de grupos","📊",[
-          ["Marcador exacto","5 pts"],
-          ["Ganador o empate correcto","3 pts"],
-          ["Diferencia de goles correcta","+1 pt"],
-        ])}
-        {seccion("Bonificaciones especiales","⭐",[
-          ["Campeón del torneo","20 pts"],
-          ["Goleador del torneo","10 pts"],
-          ["MVP del torneo","10 pts"],
-        ])}
-      </div>
-
-      {/* Premios y verificación */}
-      {seccion("Reclamación de premios","🏆",[
-        ["Los premios serán entregados únicamente a los ganadores del ranking final, una vez concluido el torneo.",""],
-        ["Para reclamar un premio, el ganador deberá demostrar fehacientemente que trabaja o representa a la ferretería indicada en su registro. MFA podrá solicitar cualquier documentación que considere necesaria.",""],
-        ["Si el ganador no puede verificar su vínculo con la ferretería registrada, el premio pasará al siguiente participante en el ranking.",""],
-        ["Los premios no son transferibles, canjeables por dinero en efectivo ni acumulables.",""],
-        ["MFA se reserva el derecho de modificar los premios sin previo aviso.",""],
-      ])}
-
-      {/* Conducta y fraude */}
-      {seccion("Conducta y uso fraudulento","🛡️",[
-        ["Queda estrictamente prohibido el uso de herramientas automatizadas, bots o cualquier medio artificial para ingresar predicciones.",""],
-        ["Cualquier intento de manipular el sistema, los resultados o el ranking será motivo de descalificación inmediata y permanente.",""],
-        ["En caso de detectarse uso fraudulento, suplantación de identidad o datos falsos, MFA podrá suspender, limitar o eliminar la participación del usuario sin previo aviso y sin responsabilidad de ningún tipo.",""],
-        ["MFA se reserva el derecho de auditar predicciones, registros y actividad en cualquier momento.",""],
-        ["Las decisiones del administrador de MFA sobre descalificaciones o disputas son finales e inapelables.",""],
-      ])}
-
-      {/* Disclaimer */}
-      <div style={{background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:12,padding:"16px 20px",fontSize:12,color:G.muted,lineHeight:1.7}}>
-        <strong style={{color:G.green,display:"block",marginBottom:6}}>⚖️ Disposiciones generales</strong>
-        La Quiniela Ferretera MFA es una dinámica promocional sin costo de participación, organizada por Mayoreo Ferretería y Acabados. La participación implica la aceptación total de estas reglas. MFA se reserva el derecho de modificar, suspender o cancelar la dinámica en cualquier momento por razones operativas, de fuerza mayor o por incumplimiento masivo de las normas. Para consultas o reclamos: <strong style={{color:"#fff"}}>lvillegasv@mfamayoreo.com</strong>
-      </div>
     </div>
   );
 }
