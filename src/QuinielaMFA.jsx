@@ -808,8 +808,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
         })
       });
     } catch(e) { console.error("Backup email error:", e); }
-  };
-
   }, []);
 
   const loadUsers = React.useCallback(async () => {
