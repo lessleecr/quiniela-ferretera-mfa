@@ -420,31 +420,14 @@ export default function QuinielaMFA() {
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
         <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}}>
           <Header subtitle="Mayoreo Ferretería y Acabados" />
-          <div style={{display:"grid",gridTemplateColumns:"160px 1fr 390px",gap:16,alignItems:"start"}}>
+          <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"start"}}>
             {/* Banner #2 - lateral izquierdo inicio */}
             <div style={{position:"sticky",top:24}}>
               <BannerDisplay slot={2} vertical={true}/>
             </div>
             <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.5}}>
-              <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(26,158,63,.12)",border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"6px 14px",fontSize:12,fontWeight:700,color:G.green,textTransform:"uppercase",letterSpacing:1,marginBottom:20}}>⚽ Ya inició la competencia</div>
-              <h2 style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:80,fontWeight:900,lineHeight:.9,textTransform:"uppercase",marginBottom:16}}>
-                <span style={{WebkitTextStroke:`2px ${G.green}`,color:"transparent"}}>Demuestra</span><br/>
-                <span style={{WebkitTextStroke:`2px ${G.green}`,color:"transparent"}}>que</span><br/>
-                <span style={{color:G.green}}>sabes de</span><br/>
-                <span style={{WebkitTextStroke:`2px ${G.green}`,color:"transparent"}}>fútbol</span>
-              </h2>
-              <p style={{fontSize:16,color:G.gray,lineHeight:1.6,maxWidth:480,marginBottom:24}}>Participa en la Quiniela Ferretera MFA, predice los marcadores del Mundial 2026, suma puntos y compite por grandes premios.</p>
               <BannerDisplay slot={1}/>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:32}}>
-                {[["🎯","Predice","los marcadores"],["📊","Suma","puntos"],["🏆","Gana","premios"]].map(([icon,title,desc])=>(
-                  <div key={title} style={{...card,padding:16,textAlign:"center"}}>
-                    <div style={{fontSize:24,marginBottom:8}}>{icon}</div>
-                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>{title}</div>
-                    <div style={{fontSize:11,color:G.muted,marginTop:2}}>{desc}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
                 <div style={{...card,padding:16}}>
                   <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>🏅 Top 10 de la quiniela</div>
                   {liveStandings.length === 0 ? (
@@ -471,21 +454,6 @@ export default function QuinielaMFA() {
                     </div>
                   ))}
                 </div>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-                {[["🏆","Grandes premios","Para los mejores al final del torneo"],["⭐","Marcador exacto","Predice bien y gana más puntos"]].map(([icon,title,desc])=>(
-                  <div key={title} style={{background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:12,padding:16,display:"flex",alignItems:"center",gap:12}}>
-                    <span style={{fontSize:28}}>{icon}</span>
-                    <div>
-                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:G.green,textTransform:"uppercase"}}>{title}</div>
-                      <div style={{fontSize:12,color:G.muted,marginTop:2}}>{desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{...card,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
-                <span style={{fontSize:14,color:G.green}}>🛡️</span>
-                <p style={{fontSize:11,color:G.muted,lineHeight:1.5}}>La Quiniela Ferretera MFA es una dinámica promocional exclusiva para clientes MFA. Aplican condiciones del concurso.</p>
               </div>
             </motion.div>
 
