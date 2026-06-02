@@ -1443,7 +1443,7 @@ function BannerDisplay({ slot, vertical=false, height=null, maxHeight=null, stre
   }, [slot]);
   if (!banner) return null;
   const imgHeight = height || (vertical ? "400px" : "auto");
-  const imgMaxHeight = maxHeight || (vertical ? "100vh" : "200px");
+  const imgMaxHeight = maxHeight || (vertical ? "100vh" : "400px");
   return (
     <div style={{width:"100%",height:stretch?"100%":undefined,marginBottom:stretch?0:16,borderRadius:12,overflow:"hidden",border:`1px solid ${G.border}`}}>
       <img src={banner.imagen_url} alt={banner.nombre} style={{width:"100%",height:stretch?"100%":imgHeight,maxHeight:stretch?"none":imgMaxHeight,objectFit:"cover",display:"block"}}/>
