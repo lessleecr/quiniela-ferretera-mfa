@@ -135,9 +135,28 @@ export default function QuinielaMFA() {
   const [matchFilter, setMatchFilter] = useState("all");
   const [adminResults, setAdminResults] = useState({ 1:{home:2,away:0}, 2:{home:1,away:1} });
 
-  const matches = matchList.map((m, i) => ({
+  const getMatchStatus = (date, time) => {
+    // Parse match date and time (Costa Rica time UTC-6)
+    const months = { "JUN": 5 };
+    const [day, monthStr] = date.split(" ");
+    const [hourStr, minuteStr] = time.replace(" PM","").replace(" AM","").split(":");
+    let hour = parseInt(hourStr);
+    const isPM = time.includes("PM");
+    if (isPM && hour !== 12) hour += 12;
+    if (!isPM && hour === 12) hour = 0;
+    // Costa Rica is UTC-6, convert to UTC for comparison
+    const matchDate = new Date(Date.UTC(2026, months[monthStr], parseInt(day), hour + 6, parseInt(minuteStr)));
+    const now = new Date();
+    const diffMs = matchDate - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    if (diffMs <= 0) return "Cerrado";
+    if (diffHours <= 2) return "Cierra pronto";
+    return "Abierto";
+  };
+
+  const matches = matchList.map((m) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
-    status: i < 40 ? "Abierto" : i < 56 ? "Cierra pronto" : "Cerrado",
+    status: getMatchStatus(m.date, m.time),
     result: adminResults[m.id] && adminResults[m.id].home !== "" && adminResults[m.id].away !== ""
       ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away) } : null,
   }));
