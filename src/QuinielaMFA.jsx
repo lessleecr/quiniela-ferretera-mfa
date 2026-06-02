@@ -9,6 +9,7 @@ const supabase = createClient(
 );
 
 const ADMIN_EMAILS = ["lvillegasv@mfamayoreo.com"];
+const isAdmin = (user) => user && (ADMIN_EMAILS.includes(user.email) || user.esAdmin === true);
 
 const G = {
   green:"#1a9e3f", greenDark:"#0f6b2a", greenDim:"#1e3d28", greenLight:"#22c44f",
@@ -347,7 +348,7 @@ export default function QuinielaMFA() {
       const { data:u, error:e } = await supabase.from("usuarios").select("*").eq("email",email.trim().toLowerCase()).eq("password",password.trim()).maybeSingle();
       if (e) throw new Error(e.message);
       if (!u) { setError("Correo o contraseña incorrectos."); setIsLoading(false); return; }
-      setUser({ name:u.nombre_comercial, legalName:u.razon_social, cedula:u.cedula, contact:u.contacto, email:u.email, province:u.provincia, canton:u.canton, district:u.distrito, phone:u.whatsapp_usuario, firstName:u.nombre, lastName1:u.primer_apellido, lastName2:u.segundo_apellido });
+      setUser({ name:u.nombre_comercial, legalName:u.razon_social, cedula:u.cedula, contact:u.contacto, email:u.email, province:u.provincia, canton:u.canton, district:u.distrito, phone:u.whatsapp_usuario, firstName:u.nombre, lastName1:u.primer_apellido, lastName2:u.segundo_apellido, esAdmin:u.es_admin||false });
     } catch(err) { setError(err.message||"Error al iniciar sesión."); }
     finally { setIsLoading(false); }
   };
@@ -484,7 +485,7 @@ export default function QuinielaMFA() {
   };
   const publishResult = async (matchId) => {
     // Security: only ADMIN_EMAILS can publish results
-    if (!ADMIN_EMAILS.includes(user?.email)) return;
+    if (!isAdmin(user)) return;
     const r = adminResults[matchId];
     if (!r || r.home === "" || r.away === "" || r.home === undefined || r.away === undefined) return;
     // Security: match must be closed before publishing result
@@ -690,7 +691,7 @@ export default function QuinielaMFA() {
     );
   }
 
-  const isAdmin = ADMIN_EMAILS.includes(user.email);
+  const isAdminUser = isAdmin(user);
   const tabs = [
     ["predictions","🎯","Mis predicciones"],
     ["results","📊","Mis resultados"],
@@ -967,12 +968,20 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
 
   const isUserAdmin = (email) => ADMIN_EMAILS.includes(email) || extraAdmins.includes(email);
 
-  const toggleAdmin = (email) => {
-    if (email === SUPERUSER) return; // superuser cannot be removed
+  // Load extra admins from Supabase on mount
+  React.useEffect(() => {
+    supabase.from("usuarios").select("email").eq("es_admin", true).then(({ data }) => {
+      if (data) setExtraAdmins(data.map(u => u.email));
+    });
+  }, []);
+
+  const toggleAdmin = async (email) => {
+    if (email === SUPERUSER) return;
+    const isAdmin = isUserAdmin(email);
+    const { error } = await supabase.from("usuarios").update({ es_admin: !isAdminUser }).eq("email", email);
+    if (error) { alert("Error al actualizar permisos: " + error.message); return; }
     setExtraAdmins(current =>
-      current.includes(email)
-        ? current.filter(e => e !== email)
-        : [...current, email]
+      isAdmin ? current.filter(e => e !== email) : [...current, email]
     );
   };
 
@@ -1395,7 +1404,7 @@ function ChatView({ user }) {
   const [uploadingImg, setUploadingImg] = React.useState(false);
   const bottomRef = React.useRef(null);
   const fileInputRef = React.useRef(null);
-  const isAdmin = ADMIN_EMAILS.includes(user.email);
+  const isAdminUser = isAdmin(user);
   const userName = [user.firstName, user.lastName1].filter(Boolean).join(" ") || user.name || "Usuario";
 
   const loadMessages = React.useCallback(async () => {
@@ -1495,7 +1504,7 @@ function ChatView({ user }) {
               <div style={{fontSize:11,color:G.muted}}>Visible para todos · Se actualiza cada 5 seg</div>
             </div>
           </div>
-          {isAdmin && (
+          {isAdminUser && (
             <div style={{display:"flex",gap:8}}>
               <button onClick={()=>setShowPollForm(!showPollForm)} style={{background:showPollForm?"rgba(255,180,0,.2)":"rgba(26,158,63,.1)",border:`1px solid ${showPollForm?"rgba(255,180,0,.4)":"rgba(26,158,63,.3)"}`,borderRadius:8,padding:"6px 12px",color:showPollForm?"#ffb400":G.green,fontSize:12,fontWeight:700,cursor:"pointer"}}>📊 Encuesta</button>
               <button onClick={()=>fileInputRef.current?.click()} disabled={uploadingImg} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"6px 12px",color:G.green,fontSize:12,fontWeight:700,cursor:"pointer",opacity:uploadingImg?.6:1}}>{uploadingImg?"Subiendo...":"📷 Foto"}</button>
@@ -1505,7 +1514,7 @@ function ChatView({ user }) {
         </div>
 
         {/* Poll form */}
-        {showPollForm && isAdmin && (
+        {showPollForm && isAdminUser && (
           <div style={{padding:"14px 20px",borderBottom:`1px solid ${G.border}`,background:"rgba(255,180,0,.05)"}}>
             <div style={{fontSize:12,fontWeight:700,color:"#ffb400",textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Nueva encuesta</div>
             <input value={pollQuestion} onChange={e=>setPollQuestion(e.target.value)} placeholder="Pregunta de la encuesta..." style={{...inp,marginBottom:8}}/>
