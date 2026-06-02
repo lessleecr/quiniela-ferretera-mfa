@@ -579,6 +579,19 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
   const [loadingUsers, setLoadingUsers] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [search, setSearch] = React.useState("");
+  const [extraAdmins, setExtraAdmins] = React.useState([]);
+  const SUPERUSER = "lvillegasv@mfamayoreo.com";
+
+  const isUserAdmin = (email) => ADMIN_EMAILS.includes(email) || extraAdmins.includes(email);
+
+  const toggleAdmin = (email) => {
+    if (email === SUPERUSER) return; // superuser cannot be removed
+    setExtraAdmins(current =>
+      current.includes(email)
+        ? current.filter(e => e !== email)
+        : [...current, email]
+    );
+  };
 
   const loadUsers = async () => {
     setLoadingUsers(true);
@@ -718,6 +731,25 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                           <div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{value||"—"}</div>
                         </div>
                       ))}
+                    </div>
+                    <div style={{marginTop:16,display:"flex",alignItems:"center",gap:12}}>
+                      {selectedUser.email === SUPERUSER ? (
+                        <div style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"10px 16px",fontSize:13,fontWeight:700,color:G.green}}>
+                          ⭐ Superusuario — no se puede modificar
+                        </div>
+                      ) : (
+                        <button onClick={()=>toggleAdmin(selectedUser.email)} style={{
+                          padding:"10px 20px", borderRadius:8, fontWeight:700, fontSize:13, cursor:"pointer",
+                          border: isUserAdmin(selectedUser.email) ? "1px solid rgba(255,80,80,.4)" : "1px solid rgba(26,158,63,.4)",
+                          background: isUserAdmin(selectedUser.email) ? "rgba(255,80,80,.1)" : "rgba(26,158,63,.1)",
+                          color: isUserAdmin(selectedUser.email) ? "#ff5050" : G.green,
+                        }}>
+                          {isUserAdmin(selectedUser.email) ? "❌ Quitar Admin" : "✅ Asignar como Admin"}
+                        </button>
+                      )}
+                      <div style={{fontSize:12,color:G.muted}}>
+                        Rol actual: <span style={{color:isUserAdmin(selectedUser.email)?G.green:G.gray,fontWeight:700}}>{isUserAdmin(selectedUser.email)?"Administrador":"Usuario"}</span>
+                      </div>
                     </div>
                   </div>
                 )}
