@@ -94,7 +94,97 @@ function Header({ subtitle }) {
         <div style={{ width:8, height:8, background:G.green, borderRadius:"50%", animation:"pulse 2s infinite" }}></div>
         <span style={{ fontSize:12, color:G.gray }}>Quiniela Ferretera MFA · Mundial 2026</span>
       </div>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
+      <style>{`
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ─── RESPONSIVE MÓVIL ─── */
+@media (max-width: 768px) {
+
+  /* Landing: grid de 3 cols → 1 col */
+  .landing-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  /* Ocultar banners laterales en móvil */
+  .banner-lateral { display: none !important; }
+
+  /* Login panel full width */
+  .login-panel { width: 100% !important; }
+
+  /* Dashboard: ocultar banners laterales */
+  .dashboard-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .dashboard-sidebar { display: none !important; }
+
+  /* Tabs: scroll horizontal */
+  .tabs-row {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 6px !important;
+    gap: 6px !important;
+  }
+  .tabs-row button {
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* Predicciones: tarjetas full width */
+  .predictions-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Standings table: scroll horizontal */
+  .standings-table { overflow-x: auto !important; }
+
+  /* Profile: 1 columna */
+  .profile-grid { grid-template-columns: 1fr !important; }
+
+  /* Rules: 1 columna */
+  .rules-grid { grid-template-columns: 1fr !important; }
+
+  /* Admin scores: 1 columna */
+  .admin-scores-grid { grid-template-columns: 1fr !important; }
+
+  /* Top10 y próximos partidos: 1 columna */
+  .landing-info-grid { grid-template-columns: 1fr !important; }
+
+  /* Header pill oculto en móvil */
+  .header-pill { display: none !important; }
+
+  /* Header padding reducido */
+  .header-bar { padding-bottom: 16px !important; }
+
+  /* Padding general reducido */
+  .main-padding { padding: 12px !important; }
+
+  /* Bienvenida modal más compacto */
+  .welcome-modal { padding: 20px !important; }
+
+  /* Chat height reducido */
+  .chat-container { height: 65vh !important; }
+
+  /* Inputs y botones full width en login */
+  .auth-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ─── RESPONSIVE TABLET ─── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .landing-grid {
+    grid-template-columns: 160px 1fr !important;
+  }
+  .login-panel-col { display: none !important; }
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .dashboard-sidebar { display: none !important; }
+  .landing-info-grid { grid-template-columns: 1fr 1fr !important; }
+}
+`}</style>
     </div>
   );
 }
@@ -418,16 +508,16 @@ export default function QuinielaMFA() {
 
     return (
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
-        <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}} className="main-padding">
           <Header subtitle="Mayoreo Ferretería y Acabados" />
-          <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"stretch"}}>
+          <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"stretch"}} className="landing-grid">
             {/* Banner #2 - lateral izquierdo inicio */}
-            <div style={{minHeight:"100%"}}>
+            <div style={{minHeight:"100%"}} className="banner-lateral">
               <BannerDisplay slot={2} stretch={true}/>
             </div>
             <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.5}}>
               <BannerDisplay slot={1}/>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}} className="landing-info-grid">
                 <div style={{...card,padding:16}}>
                   <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>🏅 Top 10 de la quiniela</div>
                   {liveStandings.length === 0 ? (
@@ -559,7 +649,7 @@ export default function QuinielaMFA() {
 
   return (
     <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
-      <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}} className="main-padding">
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingBottom:24}}>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
             <div style={{width:44,height:44,background:G.green,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:"#fff"}}>M</div>
@@ -589,7 +679,7 @@ export default function QuinielaMFA() {
 
         {/* Banner #4 - superior dashboard */}
         <BannerDisplay slot={4}/>
-        <div style={{display:"flex",gap:6,marginBottom:24,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:6,marginBottom:24,flexWrap:"wrap"}} className="tabs-row">
           {tabs.map(([id,icon,label])=>(
             <button key={id} onClick={()=>setView(id)} style={{padding:"10px 16px",borderRadius:8,border:`1px solid ${view===id?G.green:G.border}`,background:view===id?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{icon} {label}</button>
           ))}
@@ -628,9 +718,9 @@ export default function QuinielaMFA() {
             </div>
           </div>
         )}
-        <div style={{display:"grid",gridTemplateColumns:"140px 1fr 140px",gap:16,alignItems:"start"}}>
+        <div style={{display:"grid",gridTemplateColumns:"140px 1fr 140px",gap:16,alignItems:"start"}} className="dashboard-grid">
           {/* Banner #6 - lateral izquierdo dashboard */}
-          <div style={{position:"sticky",top:24}}><BannerDisplay slot={6} vertical={true}/></div>
+          <div style={{position:"sticky",top:24}} className="dashboard-sidebar"><BannerDisplay slot={6} vertical={true}/></div>
           <div>
             {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
             {view==="chat"&&<ChatView user={user}/>}
@@ -641,7 +731,7 @@ export default function QuinielaMFA() {
             {view==="rules"&&<RulesView/>}
           </div>
           {/* Banner #7 - lateral derecho dashboard */}
-          <div style={{position:"sticky",top:24}}><BannerDisplay slot={7} vertical={true}/></div>
+          <div style={{position:"sticky",top:24}} className="dashboard-sidebar"><BannerDisplay slot={7} vertical={true}/></div>
         </div>
       </div>
     </div>
@@ -669,7 +759,7 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
       {Object.entries(groups).filter(([,gm])=>gm.length>0).map(([group,gMatches])=>(
         <div key={group} style={{...card,padding:20,borderRadius:16,marginBottom:16}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:16}}>Grupo {group}</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}} className="predictions-grid">
             {gMatches.map(m=>{
               const pred=predictions[m.id]||{};
               return (
@@ -785,7 +875,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       {loading ? (
         <div style={{...card,padding:40,textAlign:"center",color:G.muted,borderRadius:12}}>Cargando posiciones...</div>
       ) : (
-        <div style={{...card,borderRadius:12,overflow:"hidden"}}>
+        <div style={{...card,borderRadius:12,overflow:"hidden"}} className="standings-table">
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead>
               <tr style={{background:G.card2}}>
@@ -922,7 +1012,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Cargar marcadores oficiales</div>
             <div style={{fontSize:13,color:G.muted,marginTop:4}}>Al publicar un marcador se actualizan los puntos automáticamente.</div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}} className="admin-scores-grid">
             {matches.map(m=>(
               <div key={m.id} style={{...card,padding:14,borderRadius:12}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
@@ -1127,7 +1217,7 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
   ];
 
   return (
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,alignItems:"start"}}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,alignItems:"start"}} className="profile-grid">
       {/* Datos del usuario */}
       <div style={{...card,padding:24,borderRadius:16}}>
         <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Mis datos</div>
@@ -1322,7 +1412,7 @@ function ChatView({ user }) {
   const totalVotos = (enc) => enc.votos.reduce((t,v)=>t+(v||0),0);
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"75vh",gap:0}}>
+    <div style={{display:"flex",flexDirection:"column",height:"75vh",gap:0}} className="chat-container">
       <div style={{...card,borderRadius:"16px 16px 0 0",flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
         <div style={{padding:"14px 20px",borderBottom:`1px solid ${G.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -1443,7 +1533,7 @@ function BannerDisplay({ slot, vertical=false, height=null, maxHeight=null, stre
   }, [slot]);
   if (!banner) return null;
   const imgHeight = height || (vertical ? "400px" : "auto");
-  const imgMaxHeight = maxHeight || (vertical ? "100vh" : "900px");
+  const imgMaxHeight = maxHeight || (vertical ? "100vh" : "200px");
   return (
     <div style={{width:"100%",height:stretch?"100%":undefined,marginBottom:stretch?0:16,borderRadius:12,overflow:"hidden",border:`1px solid ${G.border}`}}>
       <img src={banner.imagen_url} alt={banner.nombre} style={{width:"100%",height:stretch?"100%":imgHeight,maxHeight:stretch?"none":imgMaxHeight,objectFit:"cover",display:"block"}}/>
@@ -1558,7 +1648,7 @@ function BannersAdmin() {
 
 function RulesView() {
   return (
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}} className="rules-grid">
       {[
         {title:"Reglas generales",items:["Ingresa tus predicciones antes del inicio de cada partido.","Una vez iniciado el partido, las predicciones quedan bloqueadas.","Los resultados oficiales son los publicados al finalizar cada encuentro.","El ranking se actualiza automáticamente después de cada partido."]},
         {title:"Fase de grupos",rows:[["Marcador exacto","5 pts"],["Ganador correcto","3 pts"],["Empate correcto","3 pts"],["Diferencia correcta","+1 pt"]]},
