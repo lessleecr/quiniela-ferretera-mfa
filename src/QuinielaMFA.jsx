@@ -124,6 +124,8 @@ export default function QuinielaMFA() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConsulting, setIsConsulting] = useState(false);
   const [haciendaOk, setHaciendaOk] = useState("");
+  const [isConsultingCedula, setIsConsultingCedula] = useState(false);
+  const [cedulaPersonalStatus, setCedulaPersonalStatus] = useState("");
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
   const [view, setView] = useState("predictions");
@@ -150,6 +152,32 @@ export default function QuinielaMFA() {
     if (!province||!canton) { setDistricts([]); return; }
     fetch(`https://ubicaciones.paginasweb.cr/provincia/${province}/canton/${canton}/distritos.json`).then(r=>r.json()).then(d=>setDistricts(Object.entries(d).map(([id,name])=>({id,name})))).catch(()=>{});
   }, [province, canton]);
+
+  const consultCedulaPersonal = async (value) => {
+    const clean = value.replace(/[^0-9]/g, "");
+    setCedulaPersonal(clean);
+    setCedulaPersonalStatus("");
+    if (clean.length < 9) return;
+    setIsConsultingCedula(true);
+    try {
+      const r = await fetch(`https://apis.gometa.org/cedulas/${clean}`);
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      if (d && d.results && d.results.length > 0) {
+        const person = d.results[0];
+        setFirstName(person.firstname || "");
+        setLastName1(person.lastname1 || "");
+        setLastName2(person.lastname2 || "");
+        setCedulaPersonalStatus("ok");
+      } else {
+        setCedulaPersonalStatus("error");
+      }
+    } catch {
+      setCedulaPersonalStatus("error");
+    } finally {
+      setIsConsultingCedula(false);
+    }
+  };
 
   const consultHacienda = async () => {
     setError(""); setHaciendaOk("");
@@ -465,7 +493,33 @@ export default function QuinielaMFA() {
                       <Field label="Primer apellido" value={lastName1} onChange={setLastName1} placeholder="Primer apellido"/>
                       <Field label="Segundo apellido" value={lastName2} onChange={setLastName2} placeholder="Segundo apellido"/>
                     </div>
-                    <Field label="Cédula de identidad" value={cedulaPersonal} onChange={setCedulaPersonal} placeholder="Ej: 1-1234-5678"/>
+                    <div style={{marginBottom:14}}>
+                      <label style={lbl}>Cédula de identidad</label>
+                      <div style={{position:"relative"}}>
+                        <input
+                          type="text"
+                          value={cedulaPersonal}
+                          onChange={e=>consultCedulaPersonal(e.target.value)}
+                          placeholder="Ej: 112345678"
+                          style={{...inp,paddingRight:40}}
+                        />
+                        {isConsultingCedula && (
+                          <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:16}}>⏳</span>
+                        )}
+                        {!isConsultingCedula && cedulaPersonalStatus==="ok" && (
+                          <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:16}}>✅</span>
+                        )}
+                        {!isConsultingCedula && cedulaPersonalStatus==="error" && (
+                          <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:16}}>❌</span>
+                        )}
+                      </div>
+                      {cedulaPersonalStatus==="ok" && (
+                        <div style={{fontSize:12,color:G.green,marginTop:6}}>✅ Datos encontrados — nombre y apellidos completados automáticamente.</div>
+                      )}
+                      {cedulaPersonalStatus==="error" && (
+                        <div style={{fontSize:12,color:"#ff5050",marginTop:6}}>❌ Cédula no encontrada. Completa los datos manualmente.</div>
+                      )}
+                    </div>
                     <Divider label="Acceso"/>
                     <Field label="Correo electrónico" value={email} onChange={setEmail} placeholder="ejemplo@correo.com" type="email"/>
                     <Field label="Contraseña" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" type="password"/>
