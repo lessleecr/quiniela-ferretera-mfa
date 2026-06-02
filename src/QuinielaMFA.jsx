@@ -297,6 +297,38 @@ export default function QuinielaMFA() {
   };
 
   if (!user) {
+    if (authMode === "forgot") {
+      return (
+        <div style={{background:G.bg,minHeight:"100vh",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.4}} style={{width:"100%",maxWidth:420,padding:"0 20px"}}>
+            <div style={{textAlign:"center",marginBottom:28}}>
+              <div style={{width:64,height:64,background:"rgba(26,158,63,.1)",border:`2px solid ${G.green}`,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:28}}>🔑</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:900,letterSpacing:1,textTransform:"uppercase",color:"#fff"}}>¿Olvidaste tu contraseña?</div>
+              <div style={{fontSize:14,color:G.muted,marginTop:8}}>Ingresa tu correo y te enviaremos tu contraseña.</div>
+            </div>
+            <div style={{...card,padding:28,borderRadius:20}}>
+              <Field label="Correo electrónico" value={forgotEmail} onChange={setForgotEmail} placeholder="ejemplo@correo.com" type="email"/>
+              {forgotStatus && (
+                <div style={{borderRadius:8,padding:"10px 14px",fontSize:13,marginBottom:14,
+                  background:forgotStatus.startsWith("ok")?"rgba(26,158,63,.1)":"rgba(255,80,80,.1)",
+                  border:`1px solid ${forgotStatus.startsWith("ok")?"rgba(26,158,63,.3)":"rgba(255,80,80,.3)"}`,
+                  color:forgotStatus.startsWith("ok")?G.green:"#ff5050"
+                }}>
+                  {forgotStatus.startsWith("ok")?"✅":"⚠️"} {forgotStatus.split(":")[1]}
+                </div>
+              )}
+              <button onClick={handleForgotPassword} disabled={isSendingForgot} style={{...greenBtn,opacity:isSendingForgot?.7:1}}>
+                {isSendingForgot?"Enviando...":"Enviar contraseña"}
+              </button>
+              <button onClick={()=>{setAuthMode("login");setForgotStatus("");setForgotEmail("");}} style={{width:"100%",background:"none",border:"none",color:G.gray,fontSize:13,cursor:"pointer",marginTop:12,textDecoration:"underline"}}>
+                ← Volver al inicio de sesión
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
+
     return (
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
         <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}}>
@@ -416,27 +448,7 @@ export default function QuinielaMFA() {
                     <button type="submit" disabled={isLoading} style={{...greenBtn,opacity:isLoading?.7:1,marginTop:8}}>{isLoading?"Creando cuenta...":"Crear usuario"}</button>
                   </form>
                 )}
-                {authMode === "forgot" && (
-                  <div>
-                    <div style={{textAlign:"center",marginBottom:16}}>
-                      <div style={{fontSize:13,color:G.gray}}>Ingresa tu correo y te enviaremos tu contraseña.</div>
-                    </div>
-                    <Field label="Correo electrónico" value={forgotEmail} onChange={setForgotEmail} placeholder="ejemplo@correo.com" type="email"/>
-                    {forgotStatus && (
-                      <div style={{borderRadius:8,padding:"10px 14px",fontSize:13,marginBottom:14,
-                        background:forgotStatus.startsWith("ok")?"rgba(26,158,63,.1)":"rgba(255,80,80,.1)",
-                        border:`1px solid ${forgotStatus.startsWith("ok")?"rgba(26,158,63,.3)":"rgba(255,80,80,.3)"}`,
-                        color:forgotStatus.startsWith("ok")?G.green:"#ff5050"
-                      }}>
-                        {forgotStatus.startsWith("ok")?"✅":"⚠️"} {forgotStatus.split(":")[1]}
-                      </div>
-                    )}
-                    <button onClick={handleForgotPassword} disabled={isSendingForgot} style={{...greenBtn,opacity:isSendingForgot?.7:1}}>
-                      {isSendingForgot?"Enviando...":"Enviar contraseña"}
-                    </button>
-                    <button onClick={()=>{setAuthMode("login");setForgotStatus("");setForgotEmail("");}} style={{width:"100%",background:"none",border:"none",color:G.gray,fontSize:13,cursor:"pointer",marginTop:10,textDecoration:"underline"}}>Volver al inicio de sesión</button>
-                  </div>
-                )}
+
                 <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,marginTop:14,fontSize:12,color:G.muted}}>🔒 Tus datos están protegidos</div>
               </div>
             </motion.div>
