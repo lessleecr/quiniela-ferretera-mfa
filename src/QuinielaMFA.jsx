@@ -297,6 +297,29 @@ export default function QuinielaMFA() {
   };
 
   if (!user) {
+    // Live standings loaded from Supabase
+    const [liveStandings, setLiveStandings] = React.useState([]);
+    React.useEffect(() => {
+      const loadStandings = async () => {
+        const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
+        const { data: preds } = await supabase.from("predicciones").select("*");
+        if (!usuarios || !preds) return;
+        const matchesWithResult = matchList.map((m,i)=>({...m,homeTeam:teams[m.home],awayTeam:teams[m.away],status:i<40?"Abierto":i<56?"Cierra pronto":"Cerrado",result:null}));
+        const standing = usuarios.map(u => {
+          const userPreds = preds.filter(p => p.user_email === u.email);
+          const pts = userPreds.reduce((total, p) => {
+            const match = matchesWithResult.find(m => m.id === p.match_id);
+            if (!match || !match.result) return total;
+            return total + calcPoints({ home: p.home, away: p.away }, match.result);
+          }, 0);
+          const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
+          return { name, pts, preds: userPreds.length };
+        }).sort((a,b) => b.pts - a.pts || b.preds - a.preds).slice(0, 10);
+        setLiveStandings(standing);
+      };
+      loadStandings();
+    }, []);
+
     if (authMode === "forgot") {
       return (
         <div style={{background:G.bg,minHeight:"100vh",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -354,15 +377,17 @@ export default function QuinielaMFA() {
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
                 <div style={{...card,padding:16}}>
-                  <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>🏅 Top 3 de la quiniela</div>
-                  {[{name:"Juan P.",pts:125},{name:"María G.",pts:118},{name:"Carlos V.",pts:109}].map((p,i)=>(
-                    <div key={p.name} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<2?`1px solid ${G.border}`:"none"}}>
+                  <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>🏅 Top 10 de la quiniela</div>
+                  {liveStandings.length === 0 ? (
+                    <div style={{fontSize:13,color:G.muted,textAlign:"center",padding:"16px 0"}}>Aún no hay participantes.</div>
+                  ) : liveStandings.map((p,i)=>(
+                    <div key={p.name+i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<liveStandings.length-1?`1px solid ${G.border}`:"none"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,width:20}}>{i+1}</span>
+                        <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:i<3?G.green:G.muted,width:22}}>{i+1}</span>
                         <div style={{width:28,height:28,borderRadius:"50%",background:G.card2,border:`1px solid ${G.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:G.gray}}>{p.name[0]}</div>
                         <span style={{fontSize:13}}>{p.name}</span>
                       </div>
-                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{p.pts} pts</span>
+                      <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:15,fontWeight:700,color:G.green}}>{p.pts} pts</span>
                     </div>
                   ))}
                 </div>
