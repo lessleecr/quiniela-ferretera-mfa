@@ -1338,15 +1338,15 @@ function ChatView({ user }) {
     const file = e.target.files[0];
     if (!file) return;
     setUploadingImg(true);
-    const fileName = `${Date.now()}_${file.name}`;
-    const { error } = await supabase.storage.from("chat-images").upload(fileName, file);
-    if (!error) {
+    try {
+      const fileName = `${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from("chat-images").upload(fileName, file, { contentType: file.type });
+      if (error) { alert("Error al subir imagen: " + error.message); setUploadingImg(false); e.target.value = ""; return; }
       const { data:urlData } = supabase.storage.from("chat-images").getPublicUrl(fileName);
       await supabase.from("chat").insert({ user_email:user.email, user_name:userName, mensaje:"📷 Imagen", tipo:"imagen", imagen_url:urlData.publicUrl });
       await loadMessages();
-    }
-    setUploadingImg(false);
-    e.target.value = "";
+    } catch(err) { alert("Error inesperado: " + err.message); }
+    finally { setUploadingImg(false); e.target.value = ""; }
   };
 
   const handleKey = (e) => { if (e.key==="Enter"&&!e.shiftKey) { e.preventDefault(); sendMessage(); } };
@@ -1495,14 +1495,28 @@ function BannersAdmin() {
   const uploadBanner = async (bannerId, file) => {
     if (!file) return;
     setUploading(bannerId);
-    const fileName = `banner_${bannerId}_${Date.now()}.${file.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
-    if (!error) {
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `banner_${bannerId}_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true, contentType: file.type });
+      if (uploadError) {
+        alert("Error al subir imagen: " + uploadError.message);
+        setUploading(null);
+        return;
+      }
       const { data: urlData } = supabase.storage.from("banners").getPublicUrl(fileName);
-      await supabase.from("banners").update({ imagen_url: urlData.publicUrl, updated_at: new Date().toISOString() }).eq("id", bannerId);
+      const { error: updateError } = await supabase.from("banners").update({ imagen_url: urlData.publicUrl, updated_at: new Date().toISOString() }).eq("id", bannerId);
+      if (updateError) {
+        alert("Error al guardar URL: " + updateError.message);
+        setUploading(null);
+        return;
+      }
       await loadBanners();
+    } catch(e) {
+      alert("Error inesperado: " + e.message);
+    } finally {
+      setUploading(null);
     }
-    setUploading(null);
   };
 
   const toggleBanner = async (bannerId, activo) => {
