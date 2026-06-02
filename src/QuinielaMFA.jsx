@@ -943,11 +943,31 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
     try {
       const fecha = new Date().toLocaleString("es-CR", { timeZone: "America/Costa_Rica" });
 
-      // Build full detail per user with all predictions
+      // Helper: format UTC timestamp to Costa Rica time (UTC-6)
+      const toCR = (ts) => {
+        if (!ts) return "—";
+        const d = new Date(ts);
+        const cr = new Date(d.getTime() - 6*60*60*1000);
+        const pad = n => String(n).padStart(2,"0");
+        return `${pad(cr.getUTCDate())}/${pad(cr.getUTCMonth()+1)}/${cr.getUTCFullYear()} ${pad(cr.getUTCHours())}:${pad(cr.getUTCMinutes())}`;
+      };
+
+      // Match lookup map
+      const matchMap = {};
+      matchList.forEach(m => { matchMap[m.id] = m; });
+
+      // Build full detail per user with enriched predictions
       const detalle = usuarios.map((u, i) => {
-        const userPreds = predicciones.filter(p => p.user_email === u.email);
+        const userPreds = predicciones.filter(p => p.user_email === u.email)
+          .sort((a,b) => a.match_id - b.match_id);
         const predsStr = userPreds.length > 0
-          ? userPreds.map(p => `    Partido ${p.match_id}: ${p.home} - ${p.away}`).join("\n")
+          ? userPreds.map(p => {
+              const m = matchMap[p.match_id];
+              const nombre = m ? `${m.home} vs ${m.away}` : `Partido ${p.match_id}`;
+              const guardado = toCR(p.updated_at);
+              const cierre = m ? `${m.date} ${m.time} CR` : "—";
+              return `    Partido ${p.match_id} · ${nombre} | Predicción: ${p.home}-${p.away} | Guardado: ${guardado} CR | Cierre: ${cierre}`;
+            }).join("\n")
           : "    Sin predicciones";
         return `${i+1}. ${u.nombre_comercial||""} | ${u.nombre||""} ${u.primer_apellido||""} ${u.segundo_apellido||""} | ${u.email} | ${u.cedula||""} | ${u.cedula_personal||""} | ${u.whatsapp_usuario||""} | ${u.provincia||""} ${u.canton||""} ${u.distrito||""} | Registro: ${u.created_at?.slice(0,10)||""}\n  Predicciones (${userPreds.length}):\n${predsStr}`;
       }).join("\n\n");
