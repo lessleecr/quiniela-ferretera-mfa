@@ -450,6 +450,7 @@ export default function QuinielaMFA() {
     ["predictions","🎯","Mis predicciones"],
     ["results","📊","Mis resultados"],
     ["standings","🏅","Posiciones"],
+    ["profile","👤","Mi perfil"],
     ...(isAdmin ? [["admin","⚙️","Admin"]] : []),
     ["rules","📋","Reglas"]
   ];
@@ -490,6 +491,7 @@ export default function QuinielaMFA() {
           ))}
         </div>
 
+        {view==="profile"&&<ProfileView user={user} setUser={setUser}/>}
         {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
         {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
         {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
@@ -825,6 +827,87 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function ProfileView({ user, setUser }) {
+  const [currentPassword, setCurrentPassword] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [pwStatus, setPwStatus] = React.useState("");
+  const [isChanging, setIsChanging] = React.useState(false);
+
+  const handleChangePassword = async () => {
+    setPwStatus("");
+    if (!currentPassword.trim()) { setPwStatus("error:Ingresa tu contraseña actual."); return; }
+    if (newPassword.trim().length < 6) { setPwStatus("error:La nueva contraseña debe tener al menos 6 caracteres."); return; }
+    if (newPassword !== confirmPassword) { setPwStatus("error:Las contraseñas no coinciden."); return; }
+    setIsChanging(true);
+    try {
+      const { data: u } = await supabase.from("usuarios").select("id").eq("email", user.email).eq("password", currentPassword.trim()).maybeSingle();
+      if (!u) { setPwStatus("error:La contraseña actual es incorrecta."); setIsChanging(false); return; }
+      const { error } = await supabase.from("usuarios").update({ password: newPassword.trim() }).eq("email", user.email);
+      if (error) throw new Error(error.message);
+      setPwStatus("ok:Contraseña actualizada correctamente.");
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+    } catch(err) { setPwStatus("error:" + (err.message || "Error al cambiar contraseña.")); }
+    finally { setIsChanging(false); }
+  };
+
+  const dataFields = [
+    ["Nombre comercial", user.name],
+    ["Razón social", user.legalName],
+    ["Cédula jurídica", user.cedula],
+    ["Contacto", user.contact],
+    ["Correo electrónico", user.email],
+    ["Teléfono / WhatsApp", user.phone],
+    ["Provincia", user.province],
+    ["Cantón", user.canton],
+    ["Distrito", user.district],
+  ];
+
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,alignItems:"start"}}>
+      {/* Datos del usuario */}
+      <div style={{...card,padding:24,borderRadius:16}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:20}}>Mis datos</div>
+        <div style={{display:"grid",gap:10}}>
+          {dataFields.map(([label,value])=>(
+            <div key={label} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"12px 14px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{label}</span>
+              <span style={{fontSize:14,fontWeight:600,color:"#fff",textAlign:"right",maxWidth:"55%"}}>{value||"—"}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:14,background:"rgba(26,158,63,.06)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"12px 14px",fontSize:12,color:G.muted}}>
+          Para actualizar tus datos de ferretería, contacta al administrador.
+        </div>
+      </div>
+
+      {/* Cambiar contraseña */}
+      <div style={{...card,padding:24,borderRadius:16}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:6}}>Cambiar contraseña</div>
+        <div style={{fontSize:13,color:G.muted,marginBottom:20}}>Actualiza tu contraseña de acceso a la quiniela.</div>
+
+        <Field label="Contraseña actual" value={currentPassword} onChange={setCurrentPassword} placeholder="Tu contraseña actual" type="password"/>
+        <Field label="Nueva contraseña" value={newPassword} onChange={setNewPassword} placeholder="Mínimo 6 caracteres" type="password"/>
+        <Field label="Confirmar nueva contraseña" value={confirmPassword} onChange={setConfirmPassword} placeholder="Repite la nueva contraseña" type="password"/>
+
+        {pwStatus && (
+          <div style={{borderRadius:8,padding:"10px 14px",fontSize:13,marginBottom:14,
+            background:pwStatus.startsWith("ok")?"rgba(26,158,63,.1)":"rgba(255,80,80,.1)",
+            border:`1px solid ${pwStatus.startsWith("ok")?"rgba(26,158,63,.3)":"rgba(255,80,80,.3)"}`,
+            color:pwStatus.startsWith("ok")?G.green:"#ff5050"
+          }}>
+            {pwStatus.startsWith("ok")?"✅":"⚠️"} {pwStatus.split(":")[1]}
+          </div>
+        )}
+
+        <button onClick={handleChangePassword} disabled={isChanging} style={{...greenBtn,opacity:isChanging?.7:1}}>
+          {isChanging?"Actualizando...":"Cambiar contraseña"}
+        </button>
+      </div>
     </div>
   );
 }
