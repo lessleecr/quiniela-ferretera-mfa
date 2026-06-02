@@ -29,6 +29,43 @@ const matchList = [
   {id:1,group:"A",home:"MEX",away:"RSA",date:"11 JUN",time:"1:00 PM"},{id:2,group:"A",home:"KOR",away:"CZE",date:"11 JUN",time:"8:00 PM"},{id:3,group:"B",home:"CAN",away:"BIH",date:"12 JUN",time:"1:00 PM"},{id:4,group:"D",home:"USA",away:"PAR",date:"12 JUN",time:"7:00 PM"},{id:5,group:"B",home:"QAT",away:"SUI",date:"13 JUN",time:"1:00 PM"},{id:6,group:"C",home:"BRA",away:"MAR",date:"13 JUN",time:"4:00 PM"},{id:7,group:"C",home:"HAI",away:"SCO",date:"13 JUN",time:"7:00 PM"},{id:8,group:"D",home:"AUS",away:"TUR",date:"13 JUN",time:"10:00 PM"},{id:9,group:"E",home:"GER",away:"CUW",date:"14 JUN",time:"11:00 AM"},{id:10,group:"F",home:"NED",away:"JPN",date:"14 JUN",time:"2:00 PM"},{id:11,group:"E",home:"CIV",away:"ECU",date:"14 JUN",time:"5:00 PM"},{id:12,group:"F",home:"TUN",away:"SWE",date:"14 JUN",time:"8:00 PM"},{id:13,group:"H",home:"ESP",away:"CPV",date:"15 JUN",time:"10:00 AM"},{id:14,group:"G",home:"BEL",away:"EGY",date:"15 JUN",time:"1:00 PM"},{id:15,group:"H",home:"KSA",away:"URU",date:"15 JUN",time:"4:00 PM"},{id:16,group:"G",home:"IRN",away:"NZL",date:"15 JUN",time:"7:00 PM"},{id:17,group:"I",home:"FRA",away:"SEN",date:"16 JUN",time:"1:00 PM"},{id:18,group:"I",home:"IRQ",away:"NOR",date:"16 JUN",time:"4:00 PM"},{id:19,group:"J",home:"ARG",away:"ALG",date:"16 JUN",time:"7:00 PM"},{id:20,group:"J",home:"AUT",away:"JOR",date:"16 JUN",time:"10:00 PM"},{id:21,group:"K",home:"POR",away:"COD",date:"17 JUN",time:"11:00 AM"},{id:22,group:"L",home:"ENG",away:"CRO",date:"17 JUN",time:"2:00 PM"},{id:23,group:"L",home:"GHA",away:"PAN",date:"17 JUN",time:"5:00 PM"},{id:24,group:"K",home:"UZB",away:"COL",date:"17 JUN",time:"8:00 PM"},{id:25,group:"A",home:"CZE",away:"RSA",date:"18 JUN",time:"10:00 AM"},{id:26,group:"B",home:"SUI",away:"BIH",date:"18 JUN",time:"1:00 PM"},{id:27,group:"B",home:"CAN",away:"QAT",date:"18 JUN",time:"4:00 PM"},{id:28,group:"A",home:"MEX",away:"KOR",date:"18 JUN",time:"7:00 PM"},{id:29,group:"D",home:"USA",away:"AUS",date:"19 JUN",time:"1:00 PM"},{id:30,group:"C",home:"SCO",away:"MAR",date:"19 JUN",time:"1:00 PM"},{id:31,group:"C",home:"BRA",away:"HAI",date:"19 JUN",time:"7:00 PM"},{id:32,group:"D",home:"TUR",away:"PAR",date:"19 JUN",time:"10:00 PM"},{id:33,group:"F",home:"NED",away:"SWE",date:"20 JUN",time:"11:00 AM"},{id:34,group:"E",home:"GER",away:"CIV",date:"20 JUN",time:"2:00 PM"},{id:35,group:"E",home:"ECU",away:"CUW",date:"20 JUN",time:"6:00 PM"},{id:36,group:"F",home:"TUN",away:"JPN",date:"20 JUN",time:"10:00 PM"},{id:37,group:"H",home:"ESP",away:"KSA",date:"21 JUN",time:"10:00 AM"},{id:38,group:"G",home:"BEL",away:"IRN",date:"21 JUN",time:"1:00 PM"},{id:39,group:"H",home:"URU",away:"CPV",date:"21 JUN",time:"4:00 PM"},{id:40,group:"G",home:"NZL",away:"EGY",date:"21 JUN",time:"7:00 PM"},{id:41,group:"J",home:"ARG",away:"AUT",date:"22 JUN",time:"11:00 AM"},{id:42,group:"I",home:"FRA",away:"IRQ",date:"22 JUN",time:"3:00 PM"},{id:43,group:"I",home:"NOR",away:"SEN",date:"22 JUN",time:"6:00 PM"},{id:44,group:"J",home:"JOR",away:"ALG",date:"22 JUN",time:"9:00 PM"},{id:45,group:"K",home:"POR",away:"UZB",date:"23 JUN",time:"11:00 AM"},{id:46,group:"L",home:"ENG",away:"GHA",date:"23 JUN",time:"2:00 PM"},{id:47,group:"L",home:"PAN",away:"CRO",date:"23 JUN",time:"5:00 PM"},{id:48,group:"K",home:"COL",away:"COD",date:"23 JUN",time:"8:00 PM"},{id:49,group:"B",home:"SUI",away:"CAN",date:"24 JUN",time:"1:00 PM"},{id:50,group:"B",home:"BIH",away:"QAT",date:"24 JUN",time:"1:00 PM"},{id:51,group:"C",home:"BRA",away:"SCO",date:"24 JUN",time:"4:00 PM"},{id:52,group:"C",home:"MAR",away:"HAI",date:"24 JUN",time:"4:00 PM"},{id:53,group:"A",home:"MEX",away:"CZE",date:"24 JUN",time:"7:00 PM"},{id:54,group:"A",home:"KOR",away:"RSA",date:"24 JUN",time:"7:00 PM"},{id:55,group:"E",home:"ECU",away:"GER",date:"25 JUN",time:"2:00 PM"},{id:56,group:"E",home:"CUW",away:"CIV",date:"25 JUN",time:"2:00 PM"},{id:57,group:"F",home:"TUN",away:"NED",date:"25 JUN",time:"5:00 PM"},{id:58,group:"F",home:"JPN",away:"SWE",date:"25 JUN",time:"5:00 PM"},{id:59,group:"D",home:"USA",away:"TUR",date:"25 JUN",time:"8:00 PM"},{id:60,group:"D",home:"PAR",away:"AUS",date:"25 JUN",time:"8:00 PM"},{id:61,group:"I",home:"NOR",away:"FRA",date:"26 JUN",time:"1:00 PM"},{id:62,group:"I",home:"SEN",away:"IRQ",date:"26 JUN",time:"1:00 PM"},{id:63,group:"H",home:"URU",away:"ESP",date:"26 JUN",time:"6:00 PM"},{id:64,group:"H",home:"CPV",away:"KSA",date:"26 JUN",time:"6:00 PM"},{id:65,group:"G",home:"NZL",away:"BEL",date:"26 JUN",time:"9:00 PM"},{id:66,group:"G",home:"EGY",away:"IRN",date:"26 JUN",time:"9:00 PM"},{id:67,group:"L",home:"PAN",away:"ENG",date:"27 JUN",time:"3:00 PM"},{id:68,group:"L",home:"CRO",away:"GHA",date:"27 JUN",time:"3:00 PM"},{id:69,group:"K",home:"COL",away:"POR",date:"27 JUN",time:"5:30 PM"},{id:70,group:"K",home:"COD",away:"UZB",date:"27 JUN",time:"5:30 PM"},{id:71,group:"J",home:"ARG",away:"JOR",date:"27 JUN",time:"8:00 PM"},{id:72,group:"J",home:"ALG",away:"AUT",date:"27 JUN",time:"8:00 PM"},
 ];
 
+
+const SELECCIONES_MUNDIAL = [
+  "México","Sudáfrica","Corea del Sur","Chequia","Canadá","Bosnia","Qatar","Suiza",
+  "Brasil","Marruecos","Haití","Escocia","EE.UU.","Paraguay","Australia","Turquía",
+  "Alemania","Curazao","Costa de Marfil","Ecuador","Países Bajos","Japón","Suecia",
+  "Túnez","Bélgica","Egipto","Irán","Nueva Zelanda","España","Cabo Verde",
+  "Arabia Saudita","Uruguay","Francia","Senegal","Irak","Noruega","Argentina",
+  "Argelia","Austria","Jordania","Portugal","Congo DR","Uzbekistán","Colombia",
+  "Inglaterra","Croacia","Ghana","Panamá"
+];
+
+const TOP_JUGADORES = [
+  "Lionel Messi","Cristiano Ronaldo","Kylian Mbappé","Erling Haaland","Vinicius Jr.",
+  "Rodri","Lamine Yamal","Jude Bellingham","Phil Foden","Bukayo Saka",
+  "Pedri","Gavi","Federico Valverde","Toni Kroos","Kevin De Bruyne",
+  "Mohamed Salah","Harry Kane","Robert Lewandowski","Antoine Griezmann","Romelu Lukaku",
+  "Riyad Mahrez","Son Heung-min","Dusan Vlahovic","Rafael Leão","Khvicha Kvaratskhelia",
+  "Jamal Musiala","Florian Wirtz","Marcus Rashford","Bruno Fernandes","Bernardo Silva",
+  "Ruben Dias","Virgil van Dijk","Achraf Hakimi","Theo Hernández","Leroy Sané",
+  "Serge Gnabry","Takumi Minamino","Hiroki Sakai","Ritsu Doan","Paulo Dybala",
+  "Lautaro Martínez","Julián Álvarez","Rodrigo De Paul","Alexis Mac Allister","Enzo Fernández",
+  "Neymar Jr.","Richarlison","Gabriel Martinelli","Endrick","Raphinha",
+  "Achraf Hakimi","Sofyan Amrabat","Hakim Ziyech","Youssef En-Nesyri","Azzedine Ounahi",
+  "Sadio Mané","Édouard Mendy","Ismaïla Sarr","Boulaye Dia","Nicolas Jackson",
+  "Kaoru Mitoma","Wataru Endo","Shunsuke Nakamura","Ao Tanaka","Daichi Kamada",
+  "Cody Gakpo","Memphis Depay","Virgil van Dijk","Xavi Simons","Tijjani Reijnders",
+  "Ivan Toney","Jordan Pickford","Declan Rice","Trent Alexander-Arnold","Kobbie Mainoo",
+  "Pedri González","Álvaro Morata","Mikel Merino","Martín Zubimendi","Aymeric Laporte",
+  "Ousmane Dembélé","Aurélien Tchouaméni","Eduardo Camavinga","Adrien Rabiot","Marcus Thuram",
+  "Granit Xhaka","Xherdan Shaqiri","Breel Embolo","Manuel Akanji","Yann Sommer",
+  "Dusan Tadic","Aleksandar Mitrovic","Sergej Milinkovic-Savic","Luka Modric","Ivan Perisic",
+  "Heung-Min Son","Lee Kang-in","Cho Gue-sung","Kim Min-jae","Hwang Hee-chan",
+  "Hirving Lozano","Guillermo Ochoa","Raúl Jiménez","Edson Álvarez","Santiago Giménez",
+  "Christian Pulisic","Tyler Adams","Matt Turner","Weston McKennie","Ricardo Pepi",
+  "Enner Valencia","Moisés Caicedo","Jeremy Sarmiento","Gonzalo Plata","Piero Hincapié"
+];
+
 function calcPoints(pred, result) {
   if (!pred || pred.home === "" || pred.away === "") return 0;
   const h = Number(pred.home), a = Number(pred.away);
@@ -243,6 +280,14 @@ export default function QuinielaMFA() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("predictions");
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showBonos, setShowBonos] = useState(false);
+  const [bonosCampeon, setBonosCampeon] = useState("");
+  const [bonosGoleador, setBonosGoleador] = useState("");
+  const [bonosMVP, setBonosMVP] = useState("");
+  const [bonosCampeonOtro, setBonosCampeonOtro] = useState("");
+  const [bonosGoleadorOtro, setBonosGoleadorOtro] = useState("");
+  const [bonosMVPOtro, setBonosMVPOtro] = useState("");
+  const [bonosSaved, setBonosSaved] = useState(false);
   const [predictions, setPredictions] = useState({});
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
@@ -378,6 +423,19 @@ export default function QuinielaMFA() {
     finally { setIsLoading(false); }
   };
 
+  const saveBonos = async () => {
+    const campeon = bonosCampeon === "Otro" ? bonosCampeonOtro.trim() : bonosCampeon;
+    const goleador = bonosGoleador === "Otro" ? bonosGoleadorOtro.trim() : bonosGoleador;
+    const mvp = bonosMVP === "Otro" ? bonosMVPOtro.trim() : bonosMVP;
+    if (!campeon || !goleador || !mvp) { alert("Por favor completa los tres campos de bonificación."); return; }
+    const { error } = await supabase.from("usuarios").update({
+      bono_campeon: campeon, bono_goleador: goleador, bono_mvp: mvp, bonos_completado: true
+    }).eq("email", user.email);
+    if (error) { alert("Error al guardar bonificaciones: " + error.message); return; }
+    setBonosSaved(true);
+    setShowBonos(false);
+  };
+
   const updatePrediction = async (matchId, team, value) => {
     // Security: verify match is still open before allowing any edit
     const match = matchList.find(m => m.id === matchId);
@@ -466,6 +524,22 @@ export default function QuinielaMFA() {
       setIsSendingForgot(false);
     }
   };
+
+  // Load bonos when user logs in
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("usuarios").select("bono_campeon,bono_goleador,bono_mvp,bonos_completado").eq("email", user.email).single().then(({ data }) => {
+      if (data) {
+        if (data.bono_campeon) setBonosCampeon(data.bono_campeon);
+        if (data.bono_goleador) setBonosGoleador(data.bono_goleador);
+        if (data.bono_mvp) setBonosMVP(data.bono_mvp);
+        if (!data.bonos_completado) setShowBonos(true);
+        else setBonosSaved(true);
+      } else {
+        setShowBonos(true);
+      }
+    });
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -710,7 +784,7 @@ export default function QuinielaMFA() {
             <div style={{width:44,height:44,background:G.green,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:"#fff"}}>M</div>
             <div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,letterSpacing:2,lineHeight:1}}>MFA</div>
-              <div style={{fontSize:10,color:G.gray,letterSpacing:1,textTransform:"uppercase"}}>Quiniela Ferretera · Mundial 2026</div>
+              <div style={{fontSize:10,color:G.gray,letterSpacing:1,textTransform:"uppercase"}}>{user.name}</div>
             </div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -739,6 +813,67 @@ export default function QuinielaMFA() {
             <button key={id} onClick={()=>setView(id)} style={{padding:"10px 16px",borderRadius:8,border:`1px solid ${view===id?G.green:G.border}`,background:view===id?G.green:G.card,color:"#fff",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{icon} {label}</button>
           ))}
         </div>
+
+      {showBonos && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.92)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+          <div style={{background:G.card,border:`1px solid ${G.green}`,borderRadius:20,padding:32,maxWidth:520,width:"100%",maxHeight:"90vh",overflowY:"auto"}}>
+            <div style={{textAlign:"center",marginBottom:24}}>
+              <div style={{fontSize:40,marginBottom:10}}>⭐</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:26,fontWeight:900,color:G.green,textTransform:"uppercase",letterSpacing:1}}>Bonificaciones Especiales</div>
+              <div style={{fontSize:13,color:G.gray,marginTop:6}}>Estas predicciones otorgan puntos extra al final del torneo</div>
+            </div>
+
+            {/* Campeón */}
+            <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:20,marginBottom:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#fff"}}>🏆 Campeón del torneo</div>
+                <span style={{background:"rgba(26,158,63,.15)",color:G.green,border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"3px 10px",fontSize:12,fontWeight:700}}>20 pts</span>
+              </div>
+              <div style={{position:"relative"}}>
+                <input list="campeon-list" value={bonosCampeon} onChange={e=>setBonosCampeon(e.target.value)} placeholder="Escribe o selecciona una selección..." style={{...inp,paddingRight:32}}/>
+                <datalist id="campeon-list">
+                  {SELECCIONES_MUNDIAL.map(s=><option key={s} value={s}/>)}
+                </datalist>
+              </div>
+            </div>
+
+            {/* Goleador */}
+            <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:20,marginBottom:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#fff"}}>⚽ Goleador del torneo</div>
+                <span style={{background:"rgba(26,158,63,.15)",color:G.green,border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"3px 10px",fontSize:12,fontWeight:700}}>10 pts</span>
+              </div>
+              <input list="goleador-list" value={bonosGoleador} onChange={e=>setBonosGoleador(e.target.value)} placeholder="Escribe o selecciona un jugador..." style={inp}/>
+              <datalist id="goleador-list">
+                {TOP_JUGADORES.map(j=><option key={j} value={j}/>)}
+                <option value="Otro"/>
+              </datalist>
+              {bonosGoleador === "Otro" && (
+                <input value={bonosGoleadorOtro} onChange={e=>setBonosGoleadorOtro(e.target.value)} placeholder="Escribe el nombre del jugador..." style={{...inp,marginTop:8}}/>
+              )}
+            </div>
+
+            {/* MVP */}
+            <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:20,marginBottom:24}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#fff"}}>🌟 MVP del torneo</div>
+                <span style={{background:"rgba(26,158,63,.15)",color:G.green,border:"1px solid rgba(26,158,63,.3)",borderRadius:100,padding:"3px 10px",fontSize:12,fontWeight:700}}>10 pts</span>
+              </div>
+              <input list="mvp-list" value={bonosMVP} onChange={e=>setBonosMVP(e.target.value)} placeholder="Escribe o selecciona un jugador..." style={inp}/>
+              <datalist id="mvp-list">
+                {TOP_JUGADORES.map(j=><option key={j} value={j}/>)}
+                <option value="Otro"/>
+              </datalist>
+              {bonosMVP === "Otro" && (
+                <input value={bonosMVPOtro} onChange={e=>setBonosMVPOtro(e.target.value)} placeholder="Escribe el nombre del jugador..." style={{...inp,marginTop:8}}/>
+              )}
+            </div>
+
+            <div style={{fontSize:11,color:G.muted,textAlign:"center",marginBottom:16}}>⚠️ Solo podrás modificar estas predicciones antes del inicio del torneo (11 JUN)</div>
+            <button onClick={saveBonos} style={{...greenBtn,fontSize:16}}>✅ Guardar bonificaciones</button>
+          </div>
+        </div>
+      )}
 
         {showWelcome && (
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.85)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
