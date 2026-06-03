@@ -945,7 +945,7 @@ export default function QuinielaMFA() {
 
 function PredictionsView({ matches, predictions, updatePrediction, savePredictions, predictionStatus, matchFilter, setMatchFilter, calcPoints }) {
   const groups = matches.reduce((acc,m)=>{
-    if(matchFilter==="all"||m.status===matchFilter){acc[m.group]=acc[m.group]||[];acc[m.group].push(m);}
+    if(matchFilter==="all"||m.status===matchFilter){acc[m.date]=acc[m.date]||[];acc[m.date].push(m);}
     return acc;
   },{});
   return (
@@ -963,7 +963,7 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
       </div>
       {Object.entries(groups).filter(([,gm])=>gm.length>0).map(([group,gMatches])=>(
         <div key={group} style={{...card,padding:20,borderRadius:16,marginBottom:16}}>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:16}}>Grupo {group}</div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:16}}>📅 {group}</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}} className="predictions-grid">
             {gMatches.map(m=>{
               const pred=predictions[m.id]||{};
