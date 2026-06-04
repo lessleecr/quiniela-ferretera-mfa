@@ -1090,7 +1090,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead>
               <tr style={{background:G.card2}}>
-                {["#","Ferretería","Contacto","Provincia","Predicciones","Puntos"].map(h=>(
+                {["#","Contacto","Provincia","Predicciones","Puntos"].map(h=>(
                   <th key={h} style={{padding:"12px 16px",textAlign:"left",fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.muted}}>{h}</th>
                 ))}
               </tr>
@@ -1099,8 +1099,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
               {standings.map((u,i)=>(
                 <tr key={u.name+i} style={{borderBottom:`1px solid ${G.border}`,background:u.isMe?"rgba(26,158,63,.08)":"transparent"}}>
                   <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:i<3?G.green:G.muted}}>{i+1}</td>
-                  <td style={{padding:"12px 16px",fontWeight:600,color:u.isMe?G.green:"#fff"}}>{u.name}{u.isMe&&<span style={{fontSize:10,marginLeft:6,color:G.green,fontStyle:"italic"}}>← tú</span>}</td>
-                  <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.contactName}</td>
+                  <td style={{padding:"12px 16px",fontWeight:600,color:u.isMe?G.green:"#fff"}}>{u.contactName}{u.isMe&&<span style={{fontSize:10,marginLeft:6,color:G.green,fontStyle:"italic"}}>← tú</span>}</td>
                   <td style={{padding:"12px 16px",color:G.gray,fontSize:13}}>{u.province}</td>
                   <td style={{padding:"12px 16px",textAlign:"center",fontWeight:600}}>{u.preds}</td>
                   <td style={{padding:"12px 16px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green}}>{u.pts}</td>
