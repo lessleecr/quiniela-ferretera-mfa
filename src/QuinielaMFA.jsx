@@ -805,12 +805,12 @@ export default function QuinielaMFA() {
             <div style={{width:44,height:44,background:G.green,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:"#fff"}}>M</div>
             <div>
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,letterSpacing:2,lineHeight:1}}>MFA</div>
-              <div style={{fontSize:10,color:G.gray,letterSpacing:1,textTransform:"uppercase"}}>{user.name}</div>
+              <div style={{fontSize:10,color:G.gray,letterSpacing:1,textTransform:"uppercase"}}>{user.firstName} {user.lastName1}</div>
             </div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <div style={{textAlign:"right"}}>
-              <div style={{fontSize:13,fontWeight:600}}>{user.name}</div>
+              <div style={{fontSize:13,fontWeight:600}}>{user.firstName} {user.lastName1}</div>
               <div style={{fontSize:11,color:G.muted}}>{user.email}</div>
             </div>
             <button onClick={()=>setUser(null)} style={{background:"rgba(255,255,255,.05)",border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",color:G.gray,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",gap:6}}>
@@ -1071,7 +1071,8 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
         const pts = matches.filter(m => m.result).reduce((t, m) => t + calcPoints(predMap[m.id] || {}, m.result), 0);
         const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
         const isMe = u.email === user.email;
-        return { name: u.nombre_comercial || "—", contactName, province: u.provincia || "—", pts, preds: userPreds.length, isMe };
+        const fullName = [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || "—";
+        return { name: fullName, contactName, province: u.provincia || "—", pts, preds: userPreds.length, isMe };
       }).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
       setStandings(ranked);
       setLoading(false);
@@ -1596,8 +1597,6 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
 
   const fullContactName = [user.firstName, user.lastName1, user.lastName2].filter(Boolean).join(" ") || user.contact || "—";
   const dataFields = [
-    ["Nombre comercial", user.name],
-    ["Razón social", user.legalName],
     ["Cédula jurídica", user.cedula],
     ["Nombre del contacto", fullContactName],
     ["Cédula de identidad", user.cedulaPersonal],
