@@ -2092,9 +2092,14 @@ function RulesView() {
       </div>
 
       {/* Premios y verificación */}
+      {seccion("Premios de bonificaciones especiales","⭐",[
+        ["Los premios por Campeón del torneo, Goleador del torneo y MVP del torneo serán rifados exclusivamente entre los participantes que acertaron el resultado correspondiente.",""],
+        ["Si nadie acierta alguna de estas bonificaciones, el premio de esa categoría queda desierto o podrá ser reasignado a criterio de MFA.",""],
+        ["La rifa se realizará de forma transparente por MFA una vez concluido el torneo y anunciados los resultados oficiales de cada categoría.",""],
+      ])}
       {seccion("Reclamación de premios","🏆",[
-        ["Los premios serán entregados únicamente a los ganadores del ranking final, una vez concluido el torneo.",""],
-        ["Para reclamar un premio, el ganador deberá demostrar fehacientemente que trabaja o representa a la ferretería indicada en su registro. MFA podrá solicitar cualquier documentación que considere necesaria.",""],
+        ["Los premios del ranking final serán entregados a los participantes con mayor puntaje al cierre del torneo.",""],
+        ["Para reclamar cualquier premio, el ganador deberá demostrar fehacientemente que trabaja o representa a la ferretería indicada en su registro. MFA podrá solicitar cualquier documentación que considere necesaria.",""],
         ["Si el ganador no puede verificar su vínculo con la ferretería registrada, el premio pasará al siguiente participante en el ranking.",""],
         ["Los premios no son transferibles, canjeables por dinero en efectivo ni acumulables.",""],
         ["MFA se reserva el derecho de modificar los premios sin previo aviso.",""],
