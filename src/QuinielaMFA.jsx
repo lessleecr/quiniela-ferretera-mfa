@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
 import { Save, LogOut } from "lucide-react";
@@ -282,6 +282,7 @@ export default function QuinielaMFA() {
   const [view, setView] = useState("predictions");
   const [showWelcome, setShowWelcome] = useState(true);
   const [showBonos, setShowBonos] = useState(false);
+  const [tick, setTick] = useState(0); // forces re-render every minute to update match statuses
   const [bonosCampeon, setBonosCampeon] = useState("");
   const [bonosGoleador, setBonosGoleador] = useState("");
   const [bonosMVP, setBonosMVP] = useState("");
@@ -322,7 +323,7 @@ export default function QuinielaMFA() {
     return "Abierto";
   };
 
-  const matches = matchList.map((m) => ({
+  const matches = useMemo(() => matchList.map((m) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
     status: adminResults[m.id]?.locked ? "Cerrado" : getMatchStatus(m.date, m.time),
     // result is only visible to users when published=true
@@ -330,7 +331,8 @@ export default function QuinielaMFA() {
       ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away), locked:adminResults[m.id].locked, published:true } : null,
     // adminResult always visible to admin regardless of published state
     adminResult: adminResults[m.id] || null,
-  }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [adminResults, tick]);
 
   useEffect(() => {
     fetch("https://ubicaciones.paginasweb.cr/provincias.json").then(r=>r.json()).then(d=>setProvinces(Object.entries(d).map(([id,name])=>({id,name})))).catch(()=>{});
@@ -539,6 +541,12 @@ export default function QuinielaMFA() {
       setIsSendingForgot(false);
     }
   };
+
+  // Auto-refresh match statuses every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Load bonos when user logs in
   useEffect(() => {
