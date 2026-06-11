@@ -324,7 +324,7 @@ export default function QuinielaMFA() {
 
   const matches = matchList.map((m) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
-    status: getMatchStatus(m.date, m.time),
+    status: adminResults[m.id]?.locked ? "Cerrado" : getMatchStatus(m.date, m.time),
     // result is only visible to users when published=true
     result: adminResults[m.id]?.published && adminResults[m.id].home !== "" && adminResults[m.id].away !== ""
       ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away), locked:adminResults[m.id].locked, published:true } : null,
