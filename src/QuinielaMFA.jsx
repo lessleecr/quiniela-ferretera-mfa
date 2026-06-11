@@ -638,16 +638,19 @@ export default function QuinielaMFA() {
     const loadStandings = async () => {
       const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
       const { data: preds } = await supabase.from("predicciones").select("*");
+      const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
       if (!usuarios || !preds) return;
       const predMap = {};
       preds.forEach(p => {
         if (!predMap[p.user_email]) predMap[p.user_email] = {};
         predMap[p.user_email][p.match_id] = { home: String(p.home), away: String(p.away) };
       });
+      const resultMap = {};
+      (resultados || []).forEach(r => { resultMap[r.match_id] = { home: Number(r.home), away: Number(r.away) }; });
       const standing = usuarios.map(u => {
         const userPreds = preds.filter(p => p.user_email === u.email);
-        const pts = matches.filter(m => m.result).reduce((total, m) => {
-          return total + calcPoints(predMap[u.email]?.[m.id] || {}, m.result);
+        const pts = Object.keys(resultMap).reduce((total, matchId) => {
+          return total + calcPoints(predMap[u.email]?.[matchId] || {}, resultMap[matchId]);
         }, 0);
         const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
         return { name, pts, preds: userPreds.length };
@@ -1195,13 +1198,20 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       setLoading(true);
       const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido, segundo_apellido, provincia");
       const { data: preds } = await supabase.from("predicciones").select("*");
+      // Load results directly from Supabase to avoid timing issues with matches prop
+      const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
       if (!usuarios) { setLoading(false); return; }
       const allPreds = preds || [];
+      // Build result map directly from DB
+      const resultMap = {};
+      (resultados || []).forEach(r => { resultMap[r.match_id] = { home: Number(r.home), away: Number(r.away) }; });
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         const predMap = {};
         userPreds.forEach(p => { predMap[p.match_id] = { home: String(p.home), away: String(p.away) }; });
-        const pts = matches.filter(m => m.result).reduce((t, m) => t + calcPoints(predMap[m.id] || {}, m.result), 0);
+        const pts = Object.keys(resultMap).reduce((t, matchId) => {
+          return t + calcPoints(predMap[matchId] || {}, resultMap[matchId]);
+        }, 0);
         const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
         const isMe = u.email === user.email;
         const fullName = [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || "—";
@@ -1212,7 +1222,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
     };
     load();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matches, user.email]);
+  }, [user.email]);
 
   return (
     <div>
