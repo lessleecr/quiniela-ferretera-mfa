@@ -711,14 +711,37 @@ export default function QuinielaMFA() {
                 <div style={{...card,padding:16}}>
                   <Countdown matches={matches}/>
                   <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>📅 Próximos partidos</div>
-                  {matches.slice(0,4).map(m=>(
+                  {(() => {
+                    // Show upcoming matches: not yet closed, ordered by date, up to 8 or next 2 days
+                    const now = new Date();
+                    const crNow = new Date(now.getTime() - 6*60*60*1000);
+                    const todayStr = crNow.toISOString().slice(0,10);
+                    const tomorrowStr = new Date(crNow.getTime() + 86400000).toISOString().slice(0,10);
+                    const months = {"JUN":5};
+                    const toDate = (date,time) => {
+                      const [day,mon] = date.split(" ");
+                      const [hm,per] = time.split(" ");
+                      let [h,m] = hm.split(":").map(Number);
+                      if(per==="PM"&&h!==12) h+=12;
+                      if(per==="AM"&&h===12) h=0;
+                      return new Date(Date.UTC(2026,months[mon],parseInt(day),h+6,m));
+                    };
+                    const upcoming = matches.filter(m => toDate(m.date,m.time) > now).slice(0,8);
+                    // Try to show matches from today+tomorrow first, fallback to next 4
+                    const twoDays = upcoming.filter(m => {
+                      const d = toDate(m.date,m.time).toISOString().slice(0,10);
+                      return d === todayStr || d === tomorrowStr;
+                    });
+                    const display = twoDays.length >= 2 ? twoDays : upcoming.slice(0,8);
+                    return display.map(m=>(
                     <div key={m.id} style={{display:"grid",gridTemplateColumns:"1fr auto 1fr auto",gap:8,alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${G.border}`}}>
                       <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.homeTeam.flag} {m.home}</span>
                       <span style={{fontSize:10,fontWeight:700,color:G.green,background:"rgba(26,158,63,.15)",padding:"2px 5px",borderRadius:4}}>VS</span>
                       <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.away} {m.awayTeam.flag}</span>
                       <div style={{textAlign:"right",fontSize:9,color:G.muted,lineHeight:1.4}}>{m.date}<br/>{m.time}</div>
                     </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </motion.div>
