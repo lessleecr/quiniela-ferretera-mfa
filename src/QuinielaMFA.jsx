@@ -588,6 +588,22 @@ export default function QuinielaMFA() {
     }, { onConflict: "match_id" });
     setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:true}}));
   };
+  const lockMatch = async (matchId) => {
+    if (!isAdmin(user)) return;
+    const { error } = await supabase.from("resultados").upsert({
+      match_id: matchId, locked: true, home: adminResults[matchId]?.home ?? null, away: adminResults[matchId]?.away ?? null, updated_at: new Date().toISOString()
+    }, { onConflict: "match_id" });
+    if (error) { alert("Error al cerrar partido: " + error.message); return; }
+    setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:true}}));
+  };
+
+  const unlockMatch = async (matchId) => {
+    if (!isAdmin(user)) return;
+    const { error } = await supabase.from("resultados").update({ locked: false }).eq("match_id", matchId);
+    if (error) { alert("Error al abrir partido: " + error.message); return; }
+    setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:false}}));
+  };
+
   const clearResult = async (matchId) => {
     await supabase.from("resultados").delete().eq("match_id", matchId);
     setAdminResults(c=>{const u={...c};delete u[matchId];return u;});
@@ -935,7 +951,7 @@ export default function QuinielaMFA() {
             {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
             {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
             {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
-            {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} adminResults={adminResults} calcPoints={calcPoints}/>}
+            {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} lockMatch={lockMatch} unlockMatch={unlockMatch} adminResults={adminResults} calcPoints={calcPoints}/>}
             {view==="rules"&&<RulesView/>}
         </div>
       </div>
@@ -1201,7 +1217,7 @@ function AccessLogView() {
   );
 }
 
-function AdminView({ matches, updateResult, publishResult, clearResult, adminResults, calcPoints }) {
+function AdminView({ matches, updateResult, publishResult, clearResult, lockMatch, unlockMatch, adminResults, calcPoints }) {
   const [section, setSection] = React.useState("scores");
   const [dbUsers, setDbUsers] = React.useState([]);
   const [loadingUsers, setLoadingUsers] = React.useState(false);
@@ -1354,23 +1370,30 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}} className="admin-scores-grid">
             {matches.map(m=>(
               <div key={m.id} style={{...card,padding:14,borderRadius:12}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
-                  <span style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</span>
-                  <span style={{fontSize:11,color:m.result?G.green:"#ffb400"}}>{m.result?"✅ Publicado":"⏳ Pendiente"}</span>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                  <span style={{fontSize:11,color:G.muted}}>{m.date} · {m.time}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    {adminResults[m.id]?.locked && <span style={{fontSize:10,fontWeight:700,color:"#ff8c00",background:"rgba(255,140,0,.1)",border:"1px solid rgba(255,140,0,.3)",borderRadius:100,padding:"2px 7px"}}>🔒 CERRADO</span>}
+                    <span style={{fontSize:11,color:m.result?G.green:"#ffb400"}}>{m.result?"✅ Publicado":"⏳ Pendiente"}</span>
+                  </div>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:6,marginBottom:12}}>
                   <div style={{textAlign:"right",fontSize:18}}>{m.homeTeam.flag}</div>
-                  <input disabled={m.result?.locked} value={adminResults[m.id]?.home?.toString()||""} onChange={e=>updateResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
+                  <input disabled={adminResults[m.id]?.locked} value={adminResults[m.id]?.home?.toString()||""} onChange={e=>updateResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:adminResults[m.id]?.locked?.6:1}} placeholder="0"/>
                   <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,color:G.green,fontWeight:700}}>VS</span>
-                  <input disabled={m.result?.locked} value={adminResults[m.id]?.away?.toString()||""} onChange={e=>updateResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px"}} placeholder="0"/>
+                  <input disabled={adminResults[m.id]?.locked} value={adminResults[m.id]?.away?.toString()||""} onChange={e=>updateResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:adminResults[m.id]?.locked?.6:1}} placeholder="0"/>
                   <div style={{fontSize:18}}>{m.awayTeam.flag}</div>
                 </div>
-                {m.result?.locked?(
-                  <div style={{textAlign:"center",padding:"8px",background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,fontSize:12,color:G.green}}>🔒 Resultado bloqueado</div>
-                ):(
+                {adminResults[m.id]?.locked ? (
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <button onClick={()=>clearResult(m.id)} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:"#ff5050",cursor:"pointer"}}>Limpiar</button>
+                    <button onClick={()=>unlockMatch(m.id)} style={{background:"rgba(255,140,0,.1)",border:"1px solid rgba(255,140,0,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:"#ff8c00",cursor:"pointer"}}>🔓 Abrir partido</button>
                     <button onClick={()=>publishResult(m.id)} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"8px",fontSize:12,fontWeight:700,color:G.green,cursor:"pointer"}}>Publicar</button>
+                  </div>
+                ) : (
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+                    <button onClick={()=>clearResult(m.id)} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,color:"#ff5050",cursor:"pointer"}}>🗑 Limpiar</button>
+                    <button onClick={()=>lockMatch(m.id)} style={{background:"rgba(255,140,0,.1)",border:"1px solid rgba(255,140,0,.3)",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,color:"#ff8c00",cursor:"pointer"}}>🔒 Cerrar</button>
+                    <button onClick={()=>publishResult(m.id)} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:8,padding:"8px",fontSize:11,fontWeight:700,color:G.green,cursor:"pointer"}}>✅ Publicar</button>
                   </div>
                 )}
               </div>
