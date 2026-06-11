@@ -297,7 +297,7 @@ export default function QuinielaMFA() {
     supabase.from("resultados").select("*").then(({ data }) => {
       if (data) {
         const map = {};
-        data.forEach(r => { map[r.match_id] = { home: r.home, away: r.away, locked: r.locked }; });
+        data.forEach(r => { map[r.match_id] = { home: r.home, away: r.away, locked: r.locked, published: r.published }; });
         setAdminResults(map);
       }
     });
@@ -325,8 +325,11 @@ export default function QuinielaMFA() {
   const matches = matchList.map((m) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
     status: getMatchStatus(m.date, m.time),
-    result: adminResults[m.id] && adminResults[m.id].home !== "" && adminResults[m.id].away !== ""
-      ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away) } : null,
+    // result is only visible to users when published=true
+    result: adminResults[m.id]?.published && adminResults[m.id].home !== "" && adminResults[m.id].away !== ""
+      ? { home:Number(adminResults[m.id].home), away:Number(adminResults[m.id].away), locked:adminResults[m.id].locked, published:true } : null,
+    // adminResult always visible to admin regardless of published state
+    adminResult: adminResults[m.id] || null,
   }));
 
   useEffect(() => {
@@ -584,15 +587,22 @@ export default function QuinielaMFA() {
       }
     }
     await supabase.from("resultados").upsert({
-      match_id: matchId, home: Number(r.home), away: Number(r.away), locked: true, updated_at: new Date().toISOString()
+      match_id: matchId, home: Number(r.home), away: Number(r.away), locked: true, published: true, updated_at: new Date().toISOString()
     }, { onConflict: "match_id" });
     setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:true}}));
   };
   const lockMatch = async (matchId) => {
     if (!isAdmin(user)) return;
-    const { error } = await supabase.from("resultados").upsert({
-      match_id: matchId, locked: true, home: adminResults[matchId]?.home ?? null, away: adminResults[matchId]?.away ?? null, updated_at: new Date().toISOString()
-    }, { onConflict: "match_id" });
+    // Check if result row already exists
+    const { data: existing } = await supabase.from("resultados").select("id").eq("match_id", matchId).maybeSingle();
+    let error;
+    if (existing) {
+      // Row exists — just update locked flag
+      ({ error } = await supabase.from("resultados").update({ locked: true, updated_at: new Date().toISOString() }).eq("match_id", matchId));
+    } else {
+      // No row yet — insert with home/away = 0 as placeholder
+      ({ error } = await supabase.from("resultados").insert({ match_id: matchId, locked: true, home: 0, away: 0, updated_at: new Date().toISOString() }));
+    }
     if (error) { alert("Error al cerrar partido: " + error.message); return; }
     setAdminResults(c=>({...c,[matchId]:{...c[matchId],locked:true}}));
   };
@@ -1373,8 +1383,8 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                   <span style={{fontSize:11,color:G.muted}}>{m.date} · {m.time}</span>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    {adminResults[m.id]?.locked && <span style={{fontSize:10,fontWeight:700,color:"#ff8c00",background:"rgba(255,140,0,.1)",border:"1px solid rgba(255,140,0,.3)",borderRadius:100,padding:"2px 7px"}}>🔒 CERRADO</span>}
-                    <span style={{fontSize:11,color:m.result?G.green:"#ffb400"}}>{m.result?"✅ Publicado":"⏳ Pendiente"}</span>
+                    {adminResults[m.id]?.locked && !adminResults[m.id]?.published && <span style={{fontSize:10,fontWeight:700,color:"#ff8c00",background:"rgba(255,140,0,.1)",border:"1px solid rgba(255,140,0,.3)",borderRadius:100,padding:"2px 7px"}}>🔒 CERRADO</span>}
+                    {adminResults[m.id]?.published ? <span style={{fontSize:11,color:G.green}}>✅ Publicado</span> : <span style={{fontSize:11,color:"#ffb400"}}>⏳ Pendiente</span>}
                   </div>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:6,marginBottom:12}}>
@@ -1382,6 +1392,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
                   <input disabled={adminResults[m.id]?.locked} value={adminResults[m.id]?.home?.toString()||""} onChange={e=>updateResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:adminResults[m.id]?.locked?.6:1}} placeholder="0"/>
                   <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,color:G.green,fontWeight:700}}>VS</span>
                   <input disabled={adminResults[m.id]?.locked} value={adminResults[m.id]?.away?.toString()||""} onChange={e=>updateResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:adminResults[m.id]?.locked?.6:1}} placeholder="0"/>
+                  {adminResults[m.id]?.locked && !adminResults[m.id]?.published && <div style={{gridColumn:"1/-1",fontSize:10,color:"#ff8c00",textAlign:"center",marginTop:-6}}>⚠️ Cerrado pero no publicado — los puntos no se suman aún</div>}
                   <div style={{fontSize:18}}>{m.awayTeam.flag}</div>
                 </div>
                 {adminResults[m.id]?.locked ? (
