@@ -1210,6 +1210,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       if (!usuarios) { setLoading(false); return; }
       const allPreds = preds || [];
       const resultados2 = resultados || [];
+      alert("DEBUG: resultados=" + JSON.stringify(resultados2.length) + " preds=" + allPreds.length);
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         let pts = 0;
