@@ -643,10 +643,10 @@ export default function QuinielaMFA() {
       const predMap = {};
       preds.forEach(p => {
         if (!predMap[p.user_email]) predMap[p.user_email] = {};
-        predMap[p.user_email][p.match_id] = { home: String(p.home), away: String(p.away) };
+        predMap[p.user_email][String(p.match_id)] = { home: Number(p.home), away: Number(p.away) };
       });
       const resultMap = {};
-      (resultados || []).forEach(r => { resultMap[r.match_id] = { home: Number(r.home), away: Number(r.away) }; });
+      (resultados || []).forEach(r => { resultMap[String(r.match_id)] = { home: Number(r.home), away: Number(r.away) }; });
       const standing = usuarios.map(u => {
         const userPreds = preds.filter(p => p.user_email === u.email);
         const pts = Object.keys(resultMap).reduce((total, matchId) => {
@@ -1204,11 +1204,11 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       const allPreds = preds || [];
       // Build result map directly from DB
       const resultMap = {};
-      (resultados || []).forEach(r => { resultMap[r.match_id] = { home: Number(r.home), away: Number(r.away) }; });
+      (resultados || []).forEach(r => { resultMap[String(r.match_id)] = { home: Number(r.home), away: Number(r.away) }; });
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         const predMap = {};
-        userPreds.forEach(p => { predMap[p.match_id] = { home: String(p.home), away: String(p.away) }; });
+        userPreds.forEach(p => { predMap[String(p.match_id)] = { home: Number(p.home), away: Number(p.away) }; });
         const pts = Object.keys(resultMap).reduce((t, matchId) => {
           return t + calcPoints(predMap[matchId] || {}, resultMap[matchId]);
         }, 0);
