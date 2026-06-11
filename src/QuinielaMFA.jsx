@@ -1013,6 +1013,7 @@ function Countdown({ matches }) {
     calcTimeLeft();
     const i = setInterval(calcTimeLeft, 1000);
     return () => clearInterval(i);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matches]);
 
   if (!nextMatch || !timeLeft) return null;
