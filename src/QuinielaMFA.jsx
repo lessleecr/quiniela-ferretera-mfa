@@ -709,6 +709,7 @@ export default function QuinielaMFA() {
                   ))}
                 </div>
                 <div style={{...card,padding:16}}>
+                  <Countdown matches={matches}/>
                   <div style={{fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:G.gray,marginBottom:12}}>📅 Próximos partidos</div>
                   {matches.slice(0,4).map(m=>(
                     <div key={m.id} style={{display:"grid",gridTemplateColumns:"1fr auto 1fr auto",gap:8,alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${G.border}`}}>
@@ -971,6 +972,70 @@ export default function QuinielaMFA() {
             {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
             {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} lockMatch={lockMatch} unlockMatch={unlockMatch} adminResults={adminResults} calcPoints={calcPoints}/>}
             {view==="rules"&&<RulesView/>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function Countdown({ matches }) {
+  const [timeLeft, setTimeLeft] = React.useState(null);
+  const [nextMatch, setNextMatch] = React.useState(null);
+
+  const getMatchDate = (date, time) => {
+    const months = { "JUN": 5 };
+    const [day, monthStr] = date.split(" ");
+    const [hourMin, period] = time.split(" ");
+    let [hours, minutes] = hourMin.split(":").map(Number);
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    const d = new Date(Date.UTC(2026, months[monthStr], parseInt(day), hours + 6, minutes));
+    return d;
+  };
+
+  const calcTimeLeft = () => {
+    const now = new Date();
+    const upcoming = matches
+      .filter(m => m.status !== "Cerrado" && getMatchDate(m.date, m.time) > now)
+      .sort((a, b) => getMatchDate(a.date, a.time) - getMatchDate(b.date, b.time));
+    if (!upcoming.length) { setNextMatch(null); setTimeLeft(null); return; }
+    const next = upcoming[0];
+    setNextMatch(next);
+    const diff = getMatchDate(next.date, next.time) - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    setTimeLeft({ h, m, s, total: diff });
+  };
+
+  React.useEffect(() => {
+    calcTimeLeft();
+    const i = setInterval(calcTimeLeft, 1000);
+    return () => clearInterval(i);
+  }, [matches]);
+
+  if (!nextMatch || !timeLeft) return null;
+
+  const pad = n => String(n).padStart(2, "0");
+  const urgent = timeLeft.total < 3600000; // less than 1 hour
+
+  return (
+    <div style={{background: urgent ? "rgba(255,80,80,.08)" : "rgba(26,158,63,.06)", border: `1px solid ${urgent ? "rgba(255,80,80,.3)" : "rgba(26,158,63,.25)"}`, borderRadius:12, padding:"12px 16px", marginBottom:12}}>
+      <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:urgent?"#ff5050":G.green,marginBottom:6}}>
+        {urgent ? "⚡ ¡Cierra pronto!" : "⏱ Próximo cierre"}
+      </div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:700}}>
+          {nextMatch.homeTeam?.flag} {nextMatch.home} vs {nextMatch.away} {nextMatch.awayTeam?.flag}
+        </div>
+        <div style={{display:"flex",gap:4,alignItems:"center"}}>
+          {[["h",pad(timeLeft.h)],["m",pad(timeLeft.m)],["s",pad(timeLeft.s)]].map(([label,val])=>(
+            <div key={label} style={{textAlign:"center"}}>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:urgent?"#ff5050":G.green,background: urgent?"rgba(255,80,80,.1)":"rgba(26,158,63,.1)",border:`1px solid ${urgent?"rgba(255,80,80,.3)":"rgba(26,158,63,.3)"}`,borderRadius:6,padding:"2px 7px",minWidth:34}}>{val}</div>
+              <div style={{fontSize:9,color:G.muted,marginTop:2}}>{label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
