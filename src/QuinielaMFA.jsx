@@ -67,10 +67,13 @@ const TOP_JUGADORES = [
 ];
 
 function calcPoints(pred, result) {
-  if (!pred || pred.home === "" || pred.away === "") return 0;
+  if (!result || result.home === undefined || result.away === undefined) return 0;
+  if (!pred || pred.home === undefined || pred.home === null || pred.home === "" || pred.away === undefined || pred.away === null || pred.away === "") return 0;
   const h = Number(pred.home), a = Number(pred.away);
-  if (h === result.home && a === result.away) return 5;
-  const pd = h - a, rd = result.home - result.away;
+  const rh = Number(result.home), ra = Number(result.away);
+  if (isNaN(h) || isNaN(a) || isNaN(rh) || isNaN(ra)) return 0;
+  if (h === rh && a === ra) return 5;
+  const pd = h - a, rd = rh - ra;
   const pw = pd === 0 ? "d" : pd > 0 ? "h" : "a";
   const rw = rd === 0 ? "d" : rd > 0 ? "h" : "a";
   let pts = 0;
@@ -562,7 +565,8 @@ export default function QuinielaMFA() {
         setShowBonos(true);
       }
     });
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, matches]);
 
   useEffect(() => {
     if (!user) return;
@@ -635,14 +639,19 @@ export default function QuinielaMFA() {
       const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
       const { data: preds } = await supabase.from("predicciones").select("*");
       if (!usuarios || !preds) return;
+      const predMap = {};
+      preds.forEach(p => {
+        if (!predMap[p.user_email]) predMap[p.user_email] = {};
+        predMap[p.user_email][p.match_id] = { home: p.home, away: p.away };
+      });
       const standing = usuarios.map(u => {
         const userPreds = preds.filter(p => p.user_email === u.email);
-        const pts = userPreds.reduce((total, p) => {
-          return total;
+        const pts = matches.filter(m => m.result).reduce((total, m) => {
+          return total + calcPoints(predMap[u.email]?.[m.id] || {}, m.result);
         }, 0);
         const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
         return { name, pts, preds: userPreds.length };
-      }).sort((a,b) => b.preds - a.preds).slice(0, 10);
+      }).sort((a,b) => b.pts - a.pts || b.preds - a.preds).slice(0, 10);
       setLiveStandings(standing);
     };
     loadStandings();
@@ -1201,7 +1210,8 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       setLoading(false);
     };
     load();
-  }, [matches, calcPoints, user.email]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matches, user.email]);
 
   return (
     <div>
