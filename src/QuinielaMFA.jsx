@@ -655,7 +655,8 @@ export default function QuinielaMFA() {
       setLiveStandings(standing);
     };
     loadStandings();
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, matches]);
 
   if (!user) {
     if (authMode === "forgot") {
