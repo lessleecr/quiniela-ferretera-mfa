@@ -67,8 +67,8 @@ const TOP_JUGADORES = [
 ];
 
 function calcPoints(pred, result) {
-  if (!result || result.home === undefined || result.away === undefined) return 0;
-  if (!pred || pred.home === undefined || pred.home === null || pred.home === "" || pred.away === undefined || pred.away === null || pred.away === "") return 0;
+  if (!result || result.home === undefined || result.away === undefined || result.home === null || result.away === null) return 0;
+  if (!pred || pred.home === undefined || pred.home === null || String(pred.home) === "" || pred.away === undefined || pred.away === null || String(pred.away) === "") return 0;
   const h = Number(pred.home), a = Number(pred.away);
   const rh = Number(result.home), ra = Number(result.away);
   if (isNaN(h) || isNaN(a) || isNaN(rh) || isNaN(ra)) return 0;
@@ -301,7 +301,7 @@ export default function QuinielaMFA() {
     supabase.from("resultados").select("*").then(({ data }) => {
       if (data) {
         const map = {};
-        data.forEach(r => { map[r.match_id] = { home: r.home, away: r.away, locked: r.locked, published: r.published }; });
+        data.forEach(r => { map[r.match_id] = { home: Number(r.home), away: Number(r.away), locked: r.locked, published: r.published }; });
         setAdminResults(map);
       }
     });
@@ -642,7 +642,7 @@ export default function QuinielaMFA() {
       const predMap = {};
       preds.forEach(p => {
         if (!predMap[p.user_email]) predMap[p.user_email] = {};
-        predMap[p.user_email][p.match_id] = { home: p.home, away: p.away };
+        predMap[p.user_email][p.match_id] = { home: String(p.home), away: String(p.away) };
       });
       const standing = usuarios.map(u => {
         const userPreds = preds.filter(p => p.user_email === u.email);
@@ -1200,7 +1200,7 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         const predMap = {};
-        userPreds.forEach(p => { predMap[p.match_id] = { home: p.home, away: p.away }; });
+        userPreds.forEach(p => { predMap[p.match_id] = { home: String(p.home), away: String(p.away) }; });
         const pts = matches.filter(m => m.result).reduce((t, m) => t + calcPoints(predMap[m.id] || {}, m.result), 0);
         const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
         const isMe = u.email === user.email;
