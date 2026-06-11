@@ -293,7 +293,7 @@ export default function QuinielaMFA() {
   const [matchFilter, setMatchFilter] = useState("all");
   const [adminResults, setAdminResults] = useState({});
 
-  // Load results from Supabase on mount
+  // Load results from Supabase — re-runs every minute via tick so locked/published state stays in sync for all users
   useEffect(() => {
     supabase.from("resultados").select("*").then(({ data }) => {
       if (data) {
@@ -302,7 +302,7 @@ export default function QuinielaMFA() {
         setAdminResults(map);
       }
     });
-  }, []);
+  }, [tick]);
 
   const getMatchStatus = (date, time) => {
     // Parse match date and time (Costa Rica time UTC-6)
@@ -544,7 +544,7 @@ export default function QuinielaMFA() {
 
   // Auto-refresh match statuses every 60 seconds
   useEffect(() => {
-    const interval = setInterval(() => setTick(t => t + 1), 60000);
+    const interval = setInterval(() => setTick(t => t + 1), 30000);
     return () => clearInterval(interval);
   }, []);
 
