@@ -1093,6 +1093,7 @@ export default function QuinielaMFA() {
   ];
 
   return (
+    <>
     <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
       <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}} className="main-padding">
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingBottom:24}}>
@@ -2523,5 +2524,6 @@ function RulesView() {
       </div>
     </div>
     <SoporteChat user={user} isAdmin={isAdmin(user)}/>
+    </>
   );
 }
