@@ -1451,7 +1451,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
   const loadUsers = React.useCallback(async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
-    const { data: preds } = await supabase.from("predicciones").select("*");
+    const { data: preds } = await supabase.from("predicciones").select("*").range(0, 99999);
     if (data) {
       setDbUsers(data);
       setAllPredicciones(preds || []);
