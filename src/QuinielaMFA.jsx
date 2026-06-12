@@ -1236,6 +1236,8 @@ export default function QuinielaMFA() {
         </div>
       </div>
     </div>
+    <SoporteChat user={user} isAdmin={isAdmin(user)}/>
+    </>
   );
 }
 
