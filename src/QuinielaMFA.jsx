@@ -1210,7 +1210,19 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       if (!usuarios) { setLoading(false); return; }
       const allPreds = preds || [];
       const resultados2 = resultados || [];
-      alert("DEBUG: resultados=" + JSON.stringify(resultados2.length) + " preds=" + allPreds.length);
+      // Debug for ditesa
+      const ditesaPreds = allPreds.filter(p => p.user_email === "compras4@ditesacr.com");
+      let ditesaPts = 0;
+      for (const r of resultados2) {
+        const pred = ditesaPreds.find(p => Number(p.match_id) === Number(r.match_id));
+        if (!pred) { continue; }
+        const ph = Number(pred.home), pa = Number(pred.away);
+        const rh = Number(r.home), ra = Number(r.away);
+        if (ph === rh && pa === ra) ditesaPts += 5;
+        else if ((ph-pa > 0 && rh-ra > 0)||(ph-pa < 0 && rh-ra < 0)||(ph-pa === 0 && rh-ra === 0)) ditesaPts += 3;
+        else if ((ph-pa) === (rh-ra) && ph !== rh) ditesaPts += 1;
+      }
+      alert("DEBUG ditesa: preds=" + ditesaPreds.length + " r[0]=" + JSON.stringify(resultados2[0]) + " pred[0]=" + JSON.stringify(ditesaPreds[0]) + " pts=" + ditesaPts);
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         let pts = 0;
