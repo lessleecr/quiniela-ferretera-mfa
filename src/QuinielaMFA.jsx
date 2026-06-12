@@ -1454,7 +1454,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
     } catch(e) { console.error("Backup email error:", e); }
   }, []);
 
-  const [allPredicciones, setAllPredicciones] = React.useState([]);
 
   const loadUsers = React.useCallback(async () => {
     setLoadingUsers(true);
@@ -1462,7 +1461,6 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
     const { data: preds } = await supabase.from("predicciones").select("*").range(0, 99999);
     if (data) {
       setDbUsers(data);
-      setAllPredicciones(preds || []);
       sendBackupEmail(data, preds || []);
     }
     setLoadingUsers(false);
