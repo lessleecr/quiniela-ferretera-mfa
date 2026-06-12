@@ -2525,8 +2525,6 @@ function RulesView() {
         La Quiniela Ferretera MFA es una dinámica promocional sin costo de participación, organizada por Mayoreo Ferretería y Acabados. La participación implica la aceptación total de estas reglas. MFA se reserva el derecho de modificar, suspender o cancelar la dinámica en cualquier momento por razones operativas, de fuerza mayor o por incumplimiento masivo de las normas. Para consultas o reclamos: <strong style={{color:"#fff"}}>lvillegasv@mfamayoreo.com</strong>
       </div>
     </div>
-    <SoporteChat user={user} isAdmin={isAdmin(user)}/>
-    </>
   );
 }
 // force rebuild Fri Jun 12 00:44:10 UTC 2026
