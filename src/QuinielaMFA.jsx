@@ -66,6 +66,215 @@ const TOP_JUGADORES = [
   "Enner Valencia","Moisés Caicedo","Jeremy Sarmiento","Gonzalo Plata","Piero Hincapié"
 ];
 
+
+function SoporteChat({ user, isAdmin }) {
+  const [open, setOpen] = React.useState(false);
+  const [mensaje, setMensaje] = React.useState("");
+  const [mensajes, setMensajes] = React.useState([]);
+  const [unread, setUnread] = React.useState(0);
+  const [showBroadcast, setShowBroadcast] = React.useState(false);
+  const [broadcastMsg, setBroadcastMsg] = React.useState("");
+  const [broadcasting, setBroadcasting] = React.useState(false);
+  const bottomRef = React.useRef(null);
+
+  const loadMensajes = React.useCallback(async () => {
+    const query = isAdmin
+      ? supabase.from("soporte").select("*").order("created_at", { ascending: true })
+      : supabase.from("soporte").select("*").eq("user_email", user.email).order("created_at", { ascending: true });
+    const { data } = await query;
+    if (data) {
+      setMensajes(data);
+      if (!open) {
+        const newUnread = data.filter(m => !m.leido_admin && m.from_user && !isAdmin).length +
+                          data.filter(m => !m.leido_user && !m.from_user && m.user_email === user.email).length;
+        setUnread(newUnread);
+      }
+    }
+  }, [user.email, isAdmin, open]);
+
+  React.useEffect(() => {
+    loadMensajes();
+    const interval = setInterval(loadMensajes, 15000);
+    return () => clearInterval(interval);
+  }, [loadMensajes]);
+
+  React.useEffect(() => {
+    if (open && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      // Mark as read
+      if (isAdmin) {
+        supabase.from("soporte").update({ leido_admin: true }).eq("from_user", true).then(() => {});
+      } else {
+        supabase.from("soporte").update({ leido_user: true }).eq("user_email", user.email).eq("from_user", false).then(() => {});
+      }
+      setUnread(0);
+    }
+  }, [open, mensajes, isAdmin, user.email]);
+
+  const enviar = async () => {
+    if (!mensaje.trim()) return;
+    const userName = [user.firstName, user.lastName1].filter(Boolean).join(" ") || user.name || "Usuario";
+    await supabase.from("soporte").insert({
+      user_email: user.email,
+      user_name: userName,
+      mensaje: mensaje.trim(),
+      from_user: !isAdmin,
+      leido_admin: isAdmin,
+      leido_user: !isAdmin,
+      created_at: new Date().toISOString()
+    });
+    setMensaje("");
+    loadMensajes();
+  };
+
+  const enviarATodos = async () => {
+    if (!broadcastMsg.trim()) return;
+    setBroadcasting(true);
+    // Get all unique users
+    const { data: usuarios } = await supabase.from("usuarios").select("email, nombre, primer_apellido, nombre_comercial");
+    if (usuarios) {
+      const inserts = usuarios.map(u => ({
+        user_email: u.email,
+        user_name: [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || u.email,
+        mensaje: broadcastMsg.trim(),
+        from_user: false,
+        leido_admin: true,
+        leido_user: false,
+        created_at: new Date().toISOString()
+      }));
+      // Insert in batches of 100
+      for (let i = 0; i < inserts.length; i += 100) {
+        await supabase.from("soporte").insert(inserts.slice(i, i + 100));
+      }
+    }
+    setBroadcastMsg("");
+    setShowBroadcast(false);
+    setBroadcasting(false);
+    loadMensajes();
+  };
+
+  // Group messages by user for admin view
+  const conversaciones = isAdmin ? [...new Set(mensajes.map(m => m.user_email))] : null;
+  const [selectedConv, setSelectedConv] = React.useState(null);
+  const convMensajes = isAdmin && selectedConv ? mensajes.filter(m => m.user_email === selectedConv) : mensajes;
+  const convUser = isAdmin && selectedConv ? mensajes.find(m => m.user_email === selectedConv) : null;
+
+  const toCR = (ts) => {
+    if (!ts) return "";
+    return new Date(ts).toLocaleString("es-CR", { timeZone:"America/Costa_Rica", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+  };
+
+  return (
+    <>
+      {/* Floating button */}
+      <div onClick={() => setOpen(!open)} style={{position:"fixed",bottom:24,right:24,width:56,height:56,borderRadius:"50%",background:G.green,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,boxShadow:"0 4px 20px rgba(0,0,0,.4)",zIndex:9999,transition:"transform .2s",transform:open?"scale(0.9)":"scale(1)"}}>
+        {open ? "✕" : "💬"}
+        {!open && unread > 0 && (
+          <div style={{position:"absolute",top:-4,right:-4,width:20,height:20,borderRadius:"50%",background:"#ff5050",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff"}}>{unread}</div>
+        )}
+      </div>
+
+      {/* Chat panel */}
+      {open && (
+        <div style={{position:"fixed",bottom:92,right:24,width:360,height:500,background:G.card,border:`1px solid ${G.green}`,borderRadius:16,display:"flex",flexDirection:"column",zIndex:9998,boxShadow:"0 8px 40px rgba(0,0,0,.5)",overflow:"hidden"}}>
+          {/* Header */}
+          <div style={{background:"rgba(26,158,63,.15)",borderBottom:`1px solid ${G.border}`,padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:900,color:G.green,textTransform:"uppercase"}}>
+                {isAdmin ? "💬 Soporte — Todos los tickets" : "💬 Soporte MFA"}
+              </div>
+              <div style={{fontSize:11,color:G.muted}}>{isAdmin ? `${conversaciones?.length || 0} conversaciones` : "Escríbenos, te respondemos pronto"}</div>
+            </div>
+            {isAdmin && selectedConv && (
+              <button onClick={() => setSelectedConv(null)} style={{background:"transparent",border:"none",color:G.muted,cursor:"pointer",fontSize:12}}>← Volver</button>
+            )}
+          </div>
+
+          {/* Broadcast panel */}
+          {isAdmin && showBroadcast && (
+            <div style={{borderBottom:`1px solid ${G.border}`,padding:"10px 12px",background:"rgba(255,180,0,.05)"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#ffb400",marginBottom:6}}>📢 Mensaje para todos los usuarios</div>
+              <textarea
+                value={broadcastMsg}
+                onChange={e => setBroadcastMsg(e.target.value)}
+                placeholder="Escribe el mensaje que verán todos..."
+                rows={3}
+                style={{...inp,width:"100%",resize:"none",fontSize:12,padding:"8px 10px",marginBottom:6,boxSizing:"border-box"}}
+              />
+              <div style={{display:"flex",gap:6}}>
+                <button onClick={() => setShowBroadcast(false)} style={{flex:1,background:"transparent",border:`1px solid ${G.border}`,borderRadius:8,padding:"7px",fontSize:12,color:G.muted,cursor:"pointer"}}>Cancelar</button>
+                <button onClick={enviarATodos} disabled={broadcasting||!broadcastMsg.trim()} style={{flex:2,background:"rgba(255,180,0,.15)",border:"1px solid rgba(255,180,0,.3)",borderRadius:8,padding:"7px",fontSize:12,fontWeight:700,color:"#ffb400",cursor:"pointer",opacity:broadcasting?.6:1}}>
+                  {broadcasting ? "Enviando..." : "📢 Enviar a todos"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Admin: list of conversations */}
+          {isAdmin && !selectedConv ? (
+            <div style={{flex:1,overflowY:"auto",padding:8}}>
+              {conversaciones?.length === 0 && <div style={{textAlign:"center",padding:"40px 0",color:G.muted,fontSize:13}}>Sin tickets aún</div>}
+              {conversaciones?.map(email => {
+                const conv = mensajes.filter(m => m.user_email === email);
+                const last = conv[conv.length - 1];
+                const hasUnread = conv.some(m => m.from_user && !m.leido_admin);
+                return (
+                  <div key={email} onClick={() => setSelectedConv(email)} style={{padding:"10px 12px",borderRadius:10,cursor:"pointer",background:hasUnread?"rgba(26,158,63,.08)":"transparent",border:`1px solid ${hasUnread?G.green:G.border}`,marginBottom:6}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{last?.user_name || email}</div>
+                      {hasUnread && <span style={{fontSize:10,fontWeight:700,color:G.green,background:"rgba(26,158,63,.15)",padding:"2px 6px",borderRadius:100}}>NUEVO</span>}
+                    </div>
+                    <div style={{fontSize:11,color:G.muted,marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{last?.mensaje}</div>
+                    <div style={{fontSize:10,color:G.muted,marginTop:2}}>{toCR(last?.created_at)}</div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <>
+              {/* Messages */}
+              <div style={{flex:1,overflowY:"auto",padding:"12px 16px",display:"flex",flexDirection:"column",gap:8}}>
+                {convMensajes.length === 0 && (
+                  <div style={{textAlign:"center",padding:"40px 0",color:G.muted,fontSize:13}}>
+                    <div style={{fontSize:32,marginBottom:8}}>👋</div>
+                    ¿Tienes algún problema o consulta? Escríbenos aquí.
+                  </div>
+                )}
+                {convMensajes.map((m, i) => {
+                  const esPropio = isAdmin ? !m.from_user : m.from_user;
+                  return (
+                    <div key={i} style={{display:"flex",justifyContent:esPropio?"flex-end":"flex-start"}}>
+                      <div style={{maxWidth:"80%",background:esPropio?"rgba(26,158,63,.2)":G.card2,border:`1px solid ${esPropio?"rgba(26,158,63,.3)":G.border}`,borderRadius:esPropio?"12px 12px 2px 12px":"12px 12px 12px 2px",padding:"8px 12px"}}>
+                        {!esPropio && isAdmin && <div style={{fontSize:10,fontWeight:700,color:G.green,marginBottom:3}}>{m.user_name}</div>}
+                        {!esPropio && !isAdmin && <div style={{fontSize:10,fontWeight:700,color:G.green,marginBottom:3}}>Admin MFA</div>}
+                        <div style={{fontSize:13,color:"#fff",lineHeight:1.5}}>{m.mensaje}</div>
+                        <div style={{fontSize:10,color:G.muted,marginTop:4,textAlign:"right"}}>{toCR(m.created_at)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={bottomRef}/>
+              </div>
+
+              {/* Input */}
+              <div style={{borderTop:`1px solid ${G.border}`,padding:"10px 12px",display:"flex",gap:8}}>
+                <input
+                  value={mensaje}
+                  onChange={e => setMensaje(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && !e.shiftKey && enviar()}
+                  placeholder={isAdmin && selectedConv ? `Responder a ${convUser?.user_name||selectedConv}...` : "Escribe tu mensaje..."}
+                  style={{...inp,flex:1,padding:"8px 12px",fontSize:13,marginBottom:0}}
+                />
+                <button onClick={enviar} style={{background:G.green,border:"none",borderRadius:8,padding:"8px 14px",color:"#fff",fontWeight:700,cursor:"pointer",fontSize:13}}>↑</button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 function calcPoints(pred, result) {
   if (!result || result.home === undefined || result.away === undefined || result.home === null || result.away === null) return 0;
   if (!pred || pred.home === undefined || pred.home === null || String(pred.home) === "" || pred.away === undefined || pred.away === null || String(pred.away) === "") return 0;
@@ -2313,5 +2522,6 @@ function RulesView() {
         La Quiniela Ferretera MFA es una dinámica promocional sin costo de participación, organizada por Mayoreo Ferretería y Acabados. La participación implica la aceptación total de estas reglas. MFA se reserva el derecho de modificar, suspender o cancelar la dinámica en cualquier momento por razones operativas, de fuerza mayor o por incumplimiento masivo de las normas. Para consultas o reclamos: <strong style={{color:"#fff"}}>lvillegasv@mfamayoreo.com</strong>
       </div>
     </div>
+    <SoporteChat user={user} isAdmin={isAdmin(user)}/>
   );
 }
