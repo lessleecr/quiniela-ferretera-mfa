@@ -287,7 +287,7 @@ function calcPoints(pred, result) {
   const rw = rd === 0 ? "d" : rd > 0 ? "h" : "a";
   let pts = 0;
   if (pw === rw) pts += 3;
-  if (pd === rd && pts < 5) pts += 1;
+  if (pd === rd) pts += 1;
   return pts;
 }
 
@@ -873,8 +873,11 @@ export default function QuinielaMFA() {
           const rh = Number(r.home), ra = Number(r.away);
           if (isNaN(ph) || isNaN(pa)) continue;
           if (ph === rh && pa === ra) { pts += 5; }
-          else if ((ph-pa > 0 && rh-ra > 0) || (ph-pa < 0 && rh-ra < 0) || (ph-pa === 0 && rh-ra === 0)) { pts += 3; }
-          else if ((ph-pa) === (rh-ra) && ph !== rh) { pts += 1; }
+          else {
+            const cw = (ph-pa > 0 && rh-ra > 0)||(ph-pa < 0 && rh-ra < 0)||(ph-pa === 0 && rh-ra === 0);
+            if (cw) pts += 3;
+            if ((ph-pa) === (rh-ra)) pts += 1;
+          }
         }
         const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
         return { name, pts, preds: userPreds.length };
@@ -1448,8 +1451,13 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
           const rh = Number(r.home), ra = Number(r.away);
           if (isNaN(ph) || isNaN(pa)) continue;
           if (ph === rh && pa === ra) { pts += 5; }
-          else if ((ph-pa > 0 && rh-ra > 0)||(ph-pa < 0 && rh-ra < 0)||(ph-pa === 0 && rh-ra === 0)) { pts += 3; }
-          else if ((ph-pa) === (rh-ra) && ph !== rh) { pts += 1; }
+          else {
+            const correctWinner = (ph-pa > 0 && rh-ra > 0)||(ph-pa < 0 && rh-ra < 0)||(ph-pa === 0 && rh-ra === 0);
+            const correctDiff = (ph-pa) === (rh-ra);
+            if (correctWinner) pts += 3;
+            if (correctDiff && !correctWinner) pts += 1;
+            if (correctDiff && correctWinner) pts += 1;
+          }
         }
         const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
         const isMe = u.email === user.email;
