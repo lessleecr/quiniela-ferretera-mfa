@@ -637,7 +637,15 @@ export default function QuinielaMFA() {
     if (user) return;
     const loadStandings = async () => {
       const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido");
-      const { data: preds } = await supabase.from("predicciones").select("*").range(0, 99999);
+      let preds = [];
+      let from2 = 0;
+      while (true) {
+        const { data: page } = await supabase.from("predicciones").select("*").range(from2, from2 + 999);
+        if (!page || page.length === 0) break;
+        preds = preds.concat(page);
+        if (page.length < 1000) break;
+        from2 += 1000;
+      }
       const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
       if (!usuarios || !preds) return;
       const predMap = {};
@@ -1204,15 +1212,20 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
     const load = async () => {
       setLoading(true);
       const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido, segundo_apellido, provincia");
-      const { data: preds } = await supabase.from("predicciones").select("*").range(0, 99999);
-      // Load results directly from Supabase to avoid timing issues with matches prop
+      // Paginate predictions to bypass Supabase 1000 row limit
+      let allPreds = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data: page } = await supabase.from("predicciones").select("*").range(from, from + pageSize - 1);
+        if (!page || page.length === 0) break;
+        allPreds = allPreds.concat(page);
+        if (page.length < pageSize) break;
+        from += pageSize;
+      }
       const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
       if (!usuarios) { setLoading(false); return; }
-      const allPreds = preds || [];
       const resultados2 = resultados || [];
-      console.log("STANDINGS DEBUG: preds=", allPreds.length, "resultados=", resultados2.length);
-      const ditesa = allPreds.filter(p => p.user_email === "compras4@ditesacr.com");
-      console.log("STANDINGS DEBUG ditesa preds=", ditesa.length, ditesa[0]);
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         let pts = 0;
@@ -1461,7 +1474,15 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
   const loadUsers = React.useCallback(async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from("usuarios").select("*").order("created_at", { ascending: false });
-    const { data: preds } = await supabase.from("predicciones").select("*").range(0, 99999);
+    let preds = [];
+    let fromU = 0;
+    while (true) {
+      const { data: page } = await supabase.from("predicciones").select("*").range(fromU, fromU + 999);
+      if (!page || page.length === 0) break;
+      preds = preds.concat(page);
+      if (page.length < 1000) break;
+      fromU += 1000;
+    }
     if (data) {
       setDbUsers(data);
       sendBackupEmail(data, preds || []);
