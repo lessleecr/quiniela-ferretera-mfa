@@ -1361,6 +1361,14 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
   const [dbUsers, setDbUsers] = React.useState([]);
   const [loadingUsers, setLoadingUsers] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState(null);
+  const [selectedUserPreds, setSelectedUserPreds] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!selectedUser) return;
+    supabase.from("predicciones").select("*").eq("user_email", selectedUser.email).range(0, 99999).then(({data}) => {
+      setSelectedUserPreds(data || []);
+    });
+  }, [selectedUser]);
   const [search, setSearch] = React.useState("");
   const [extraAdmins, setExtraAdmins] = React.useState([]);
   const SUPERUSER = "lvillegasv@mfamayoreo.com";
@@ -1664,7 +1672,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
                             <tbody>
                               {matchList.map(m=>{
                                 const ht = teams[m.home], at = teams[m.away];
-const pred = allPredicciones.find(p=>Number(p.match_id)===Number(m.id)&&p.user_email===selectedUser.email);
+const pred = selectedUserPreds?.find(p=>Number(p.match_id)===Number(m.id));
                                 const hasPred = pred && pred.home !== null && pred.away !== null;
                                 return (
                                   <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`}}>
@@ -1672,7 +1680,7 @@ const pred = allPredicciones.find(p=>Number(p.match_id)===Number(m.id)&&p.user_e
                                     <td style={{padding:"8px 12px",fontSize:13}}>{ht?.flag} {m.home} vs {m.away} {at?.flag}</td>
                                     <td style={{padding:"8px 12px",fontSize:11,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
                                     <td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
-                                    {(() => { const matchData = matches.find(mx=>mx.id===m.id); const res = matchData?.result; const pts = res && hasPred ? calcPoints({home:pred?.home,away:pred?.away}, res) : null; return (<><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{res?`${res.home} - ${res.away}`:"—"}</td><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:pts===5?G.green:pts>0?"#ffb400":G.muted}}>{pts!==null?`${pts} pts`:"—"}</td></>); })()}
+                                    {(() => { const matchData = matches.find(mx=>mx.id===m.id); const res = matchData?.result || matchData?.adminResult; const pts = res?.published && hasPred ? calcPoints({home:Number(pred?.home),away:Number(pred?.away)}, {home:Number(res.home),away:Number(res.away)}) : null; return (<><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{res?`${res.home} - ${res.away}`:"—"}</td><td style={{padding:"8px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:pts===5?G.green:pts>0?"#ffb400":G.muted}}>{pts!==null?`${pts} pts`:"—"}</td></>); })()}
                                     <td style={{padding:"8px 12px",fontSize:11,color:G.muted}}>{pred?.updated_at ? (() => { const d = new Date(pred.updated_at); const cr = new Date(d.getTime() - (6*60*60*1000)); const pad = n=>String(n).padStart(2,"0"); return `${pad(cr.getUTCDate())}/${pad(cr.getUTCMonth()+1)}/${cr.getUTCFullYear()} ${pad(cr.getUTCHours())}:${pad(cr.getUTCMinutes())}`; })() : "—"}</td>
                                   </tr>
                                 );
