@@ -1210,6 +1210,9 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
       if (!usuarios) { setLoading(false); return; }
       const allPreds = preds || [];
       const resultados2 = resultados || [];
+      console.log("STANDINGS DEBUG: preds=", allPreds.length, "resultados=", resultados2.length);
+      const ditesa = allPreds.filter(p => p.user_email === "compras4@ditesacr.com");
+      console.log("STANDINGS DEBUG ditesa preds=", ditesa.length, ditesa[0]);
       const ranked = usuarios.map(u => {
         const userPreds = allPreds.filter(p => p.user_email === u.email);
         let pts = 0;
