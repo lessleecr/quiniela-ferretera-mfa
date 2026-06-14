@@ -114,8 +114,11 @@ function SoporteChat({ user, isAdmin }) {
   const enviar = async () => {
     if (!mensaje.trim()) return;
     const userName = [user.firstName, user.lastName1].filter(Boolean).join(" ") || user.name || "Usuario";
+    // Admin: save message under the selected conversation's user_email
+    // User: save under their own email
+    const targetEmail = isAdmin && selectedConv ? selectedConv : user.email;
     await supabase.from("soporte").insert({
-      user_email: user.email,
+      user_email: targetEmail,
       user_name: userName,
       mensaje: mensaje.trim(),
       from_user: !isAdmin,
@@ -665,35 +668,39 @@ export default function QuinielaMFA() {
     setShowBonos(false);
   };
 
-  const updatePrediction = async (matchId, team, value) => {
+  const updatePrediction = (matchId, team, value) => {
     // Security: verify match is still open before allowing any edit
     const match = matchList.find(m => m.id === matchId);
     if (!match) return;
     const status = getMatchStatus(match.date, match.time);
-    if (status === "Cerrado") return; // silently block closed matches
-
+    if (status === "Cerrado") return;
     const v = value.replace(/[^0-9]/g,"").slice(0,2);
-    const updated = { ...predictions, [matchId]: { ...(predictions[matchId]||{}), [team]: v } };
-    setPredictions(updated);
-    const pred = updated[matchId];
-    if (pred.home !== undefined && pred.home !== "" && pred.away !== undefined && pred.away !== "") {
-      // Double-check status right before saving (in case time passed while typing)
-      const statusNow = getMatchStatus(match.date, match.time);
-      if (statusNow === "Cerrado") {
-        setPredictionStatus("closed");
-        setTimeout(()=>setPredictionStatus(""),3000);
-        return;
-      }
-      await supabase.from("predicciones").upsert({
-        user_email: user.email,
-        match_id: matchId,
-        home: pred.home,
-        away: pred.away,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_email,match_id" });
-      setPredictionStatus("saved");
-      setTimeout(()=>setPredictionStatus(""),2000);
+    setPredictions(prev => ({ ...prev, [matchId]: { ...(prev[matchId]||{}), [team]: v } }));
+  };
+
+  const saveMatchPrediction = async (matchId) => {
+    const match = matchList.find(m => m.id === matchId);
+    if (!match) return;
+    const statusNow = getMatchStatus(match.date, match.time);
+    if (statusNow === "Cerrado") {
+      setPredictionStatus("closed");
+      setTimeout(()=>setPredictionStatus(""),3000);
+      return;
     }
+    const pred = predictions[matchId];
+    if (!pred || pred.home === undefined || pred.home === "" || pred.away === undefined || pred.away === "") {
+      alert("Ingresa ambos marcadores antes de guardar.");
+      return;
+    }
+    await supabase.from("predicciones").upsert({
+      user_email: user.email,
+      match_id: matchId,
+      home: pred.home,
+      away: pred.away,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_email,match_id" });
+    setPredictionStatus(matchId);
+    setTimeout(()=>setPredictionStatus(""),2000);
   };
   const savePredictions = async () => {
     const now = new Date();
@@ -775,18 +782,20 @@ export default function QuinielaMFA() {
       }
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, matches]);
+  }, [userEmail]);
 
+  // Load predictions only once when user logs in (using email to avoid re-loading on user object changes)
+  const userEmail = user?.email;
   useEffect(() => {
-    if (!user) return;
-    supabase.from("predicciones").select("*").eq("user_email", user.email).then(({ data }) => {
+    if (!userEmail) return;
+    supabase.from("predicciones").select("*").eq("user_email", userEmail).then(({ data }) => {
       if (data) {
         const map = {};
-        data.forEach(p => { map[p.match_id] = { home: p.home, away: p.away }; });
+        data.forEach(p => { map[p.match_id] = { home: String(p.home), away: String(p.away) }; });
         setPredictions(map);
       }
     });
-  }, [user]);
+  }, [userEmail]);
 
   const updateResult = (matchId, team, value) => {
     if (adminResults[matchId]?.locked) return;
@@ -886,7 +895,7 @@ export default function QuinielaMFA() {
     };
     loadStandings();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, matches]);
+  }, [userEmail]);
 
   if (!user) {
     if (authMode === "forgot") {
@@ -1231,7 +1240,7 @@ export default function QuinielaMFA() {
         <div>
             {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
             {view==="chat"&&<ChatView user={user}/>}
-            {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
+            {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} saveMatchPrediction={saveMatchPrediction} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
             {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
             {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
             {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} lockMatch={lockMatch} unlockMatch={unlockMatch} adminResults={adminResults} calcPoints={calcPoints}/>}
@@ -1309,7 +1318,7 @@ function Countdown({ matches }) {
   );
 }
 
-function PredictionsView({ matches, predictions, updatePrediction, savePredictions, predictionStatus, matchFilter, setMatchFilter, calcPoints }) {
+function PredictionsView({ matches, predictions, updatePrediction, savePredictions, saveMatchPrediction, predictionStatus, matchFilter, setMatchFilter, calcPoints }) {
   const groups = matches.reduce((acc,m)=>{
     if(matchFilter==="all"||m.status===matchFilter){acc[m.date]=acc[m.date]||[];acc[m.date].push(m);}
     return acc;
@@ -1346,6 +1355,11 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
                     <input disabled={m.status==="Cerrado"} value={pred.away||""} onChange={e=>updatePrediction(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px",opacity:m.status==="Cerrado"?.5:1,cursor:m.status==="Cerrado"?"not-allowed":"text"}} placeholder="0"/>
                     <div><div style={{fontSize:20}}>{m.awayTeam.flag}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.away}</div></div>
                   </div>
+                  {m.status!=="Cerrado" && (
+                    <button onClick={()=>saveMatchPrediction(m.id)} style={{width:"100%",marginTop:10,padding:"8px",borderRadius:8,border:"none",background:predictionStatus===m.id?"rgba(26,158,63,.3)":"rgba(26,158,63,.15)",color:predictionStatus===m.id?G.green:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",transition:".2s"}}>
+                      {predictionStatus===m.id ? "✅ Guardado" : "💾 Guardar"}
+                    </button>
+                  )}
                   {m.result&&(
                     <div style={{marginTop:10,background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <span style={{fontSize:12,color:G.green}}>Resultado: {m.result.home} - {m.result.away}</span>
@@ -1358,11 +1372,7 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
           </div>
         </div>
       ))}
-      {predictionStatus==="saved"&&(
-        <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",color:G.green,fontSize:13}}>
-          ✅ Predicción guardada automáticamente.
-        </div>
-      )}
+
       {predictionStatus==="closed"&&(
         <div style={{borderRadius:10,padding:"12px 16px",marginBottom:16,background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",color:"#ff5050",fontSize:13}}>
           🔒 Este partido ya cerró. No se puede modificar la predicción.
