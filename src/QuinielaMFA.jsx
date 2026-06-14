@@ -767,16 +767,17 @@ export default function QuinielaMFA() {
     return () => clearInterval(interval);
   }, []);
 
+  const userEmail = user?.email;
+
   // Load bonos when user logs in
   useEffect(() => {
-    if (!user) return;
-    supabase.from("usuarios").select("bono_campeon,bono_goleador,bono_mvp,bonos_completado").eq("email", user.email).single().then(({ data }) => {
+    if (!userEmail) return;
+    supabase.from("usuarios").select("bono_campeon,bono_goleador,bono_mvp,bonos_completado").eq("email", userEmail).single().then(({ data }) => {
       if (data) {
         if (data.bono_campeon) setBonosCampeon(data.bono_campeon);
         if (data.bono_goleador) setBonosGoleador(data.bono_goleador);
         if (data.bono_mvp) setBonosMVP(data.bono_mvp);
         if (!data.bonos_completado) setShowBonos(true);
-
       } else {
         setShowBonos(true);
       }
@@ -784,8 +785,7 @@ export default function QuinielaMFA() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail]);
 
-  // Load predictions only once when user logs in (using email to avoid re-loading on user object changes)
-  const userEmail = user?.email;
+  // Load predictions only once when user logs in
   useEffect(() => {
     if (!userEmail) return;
     supabase.from("predicciones").select("*").eq("user_email", userEmail).then(({ data }) => {
