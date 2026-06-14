@@ -1406,7 +1406,7 @@ function ResultsView({ matches, predictions, calcPoints }) {
         <div style={{...card,padding:40,textAlign:"center",borderRadius:12,color:G.muted}}>Aún no hay partidos con resultado oficial.</div>
       ):played.map(m=>{
         const pred=predictions[m.id]||{};
-        const hasPred=pred.home!==undefined&&pred.home!==""&&pred.away!==undefined&&pred.away!=="";
+        const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
         const pts=calcPoints(pred,m.result);
         return (
           <div key={m.id} style={{...card,padding:16,borderRadius:12,marginBottom:10}}>
@@ -1615,8 +1615,9 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
   const [selectedUserPreds, setSelectedUserPreds] = React.useState([]);
 
   React.useEffect(() => {
-    if (!selectedUser) return;
-    supabase.from("predicciones").select("*").eq("user_email", selectedUser.email).range(0, 99999).then(({data}) => {
+    if (!selectedUser) { setSelectedUserPreds([]); return; }
+    setSelectedUserPreds([]); // clear before loading new user
+    supabase.from("predicciones").select("*").eq("user_email", selectedUser.email).then(({data}) => {
       setSelectedUserPreds(data || []);
     });
   }, [selectedUser]);
@@ -1930,7 +1931,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
                               {matchList.map(m=>{
                                 const ht = teams[m.home], at = teams[m.away];
 const pred = selectedUserPreds?.find(p=>Number(p.match_id)===Number(m.id));
-                                const hasPred = pred && pred.home !== null && pred.away !== null;
+                                const hasPred = pred && pred.home !== null && pred.home !== undefined && pred.away !== null && pred.away !== undefined;
                                 return (
                                   <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`}}>
                                     <td style={{padding:"8px 12px",fontSize:12,color:G.muted,fontWeight:700}}>{m.group}</td>
@@ -2084,7 +2085,7 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
             <tbody>
               {matches.map(m=>{
                 const pred=predictions[m.id]||{};
-                const hasPred=pred.home!==undefined&&pred.home!==""&&pred.away!==undefined&&pred.away!=="";
+                const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
                 const pts=m.result?calcPoints(pred,m.result):null;
                 return (
                   <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`,background:pts===5?"rgba(26,158,63,.05)":"transparent"}}>
