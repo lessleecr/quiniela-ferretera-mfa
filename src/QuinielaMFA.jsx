@@ -188,9 +188,14 @@ function SoporteChat({ user, isAdmin }) {
               </div>
               <div style={{fontSize:11,color:G.muted}}>{isAdmin ? `${conversaciones?.length || 0} conversaciones` : "Escríbenos, te respondemos pronto"}</div>
             </div>
-            {isAdmin && selectedConv && (
-              <button onClick={() => setSelectedConv(null)} style={{background:"transparent",border:"none",color:G.muted,cursor:"pointer",fontSize:12}}>← Volver</button>
-            )}
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              {isAdmin && !selectedConv && (
+                <button onClick={() => setShowBroadcast(!showBroadcast)} style={{background:"rgba(255,180,0,.1)",border:"1px solid rgba(255,180,0,.3)",borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:700,color:"#ffb400",cursor:"pointer"}}>📢 Todos</button>
+              )}
+              {isAdmin && selectedConv && (
+                <button onClick={() => setSelectedConv(null)} style={{background:"transparent",border:"none",color:G.muted,cursor:"pointer",fontSize:12}}>← Volver</button>
+              )}
+            </div>
           </div>
 
           {/* Broadcast panel */}
