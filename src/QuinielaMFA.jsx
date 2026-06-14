@@ -725,6 +725,7 @@ export default function QuinielaMFA() {
       away: pred.away,
       updated_at: new Date().toISOString(),
     }, { onConflict: "user_email,match_id" });
+    setPredictions(prev => ({ ...prev, [matchId]: { ...(prev[matchId]||{}), _saved: true } }));
     setPredictionStatus(matchId);
     setTimeout(()=>setPredictionStatus(""),2000);
   };
@@ -817,7 +818,7 @@ export default function QuinielaMFA() {
     supabase.from("predicciones").select("*").eq("user_email", userEmail).then(({ data }) => {
       if (data) {
         const map = {};
-        data.forEach(p => { map[p.match_id] = { home: String(p.home), away: String(p.away) }; });
+        data.forEach(p => { map[p.match_id] = { home: String(p.home), away: String(p.away), _saved: true }; });
         setPredictions(map);
       }
     });
@@ -1381,11 +1382,15 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
                     <input disabled={m.status==="Cerrado"} value={pred.away||""} onChange={e=>updatePrediction(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:22,fontWeight:900,padding:"8px 4px",opacity:m.status==="Cerrado"?.5:1,cursor:m.status==="Cerrado"?"not-allowed":"text"}} placeholder="—"/>
                     <div><div style={{fontSize:20}}>{m.awayTeam.flag}</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700}}>{m.away}</div></div>
                   </div>
-                  {m.status!=="Cerrado" && (
-                    <button onClick={()=>saveMatchPrediction(m.id)} style={{width:"100%",marginTop:10,padding:"8px",borderRadius:8,border:"none",background:predictionStatus===m.id?"rgba(26,158,63,.3)":"rgba(26,158,63,.15)",color:predictionStatus===m.id?G.green:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",transition:".2s"}}>
-                      {predictionStatus===m.id ? "✅ Guardado" : "💾 Guardar"}
-                    </button>
-                  )}
+                  {m.status!=="Cerrado" && (() => {
+                    const yaGuardado = pred._saved || predictionStatus===m.id;
+                    const tienePred = pred.home !== undefined && pred.home !== "" && pred.away !== undefined && pred.away !== "";
+                    return (
+                      <button onClick={()=>saveMatchPrediction(m.id)} style={{width:"100%",marginTop:10,padding:"8px",borderRadius:8,border:"none",background:yaGuardado&&tienePred?"rgba(26,158,63,.3)":"rgba(26,158,63,.15)",color:yaGuardado&&tienePred?G.green:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",transition:".2s"}}>
+                        {yaGuardado && tienePred ? "✅ Guardado" : "💾 Guardar"}
+                      </button>
+                    );
+                  })()}
                   {m.result&&(
                     <div style={{marginTop:10,background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <span style={{fontSize:12,color:G.green}}>Resultado: {m.result.home} - {m.result.away}</span>
