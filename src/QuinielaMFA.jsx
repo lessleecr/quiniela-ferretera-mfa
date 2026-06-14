@@ -157,10 +157,33 @@ function SoporteChat({ user, isAdmin }) {
   };
 
   // Group messages by user for admin view
-  const conversaciones = isAdmin ? [...new Set(mensajes.map(m => m.user_email))] : null;
+  const [filtroConv, setFiltroConv] = React.useState("all"); // all | unread | read
   const [selectedConv, setSelectedConv] = React.useState(null);
   const convMensajes = isAdmin && selectedConv ? mensajes.filter(m => m.user_email === selectedConv) : mensajes;
   const convUser = isAdmin && selectedConv ? mensajes.find(m => m.user_email === selectedConv) : null;
+
+  // Build conversation list: one entry per user, sorted by last message (newest first)
+  const conversaciones = isAdmin ? (() => {
+    const userMap = {};
+    mensajes.forEach(m => {
+      if (!userMap[m.user_email]) userMap[m.user_email] = [];
+      userMap[m.user_email].push(m);
+    });
+    return Object.entries(userMap)
+      .map(([email, msgs]) => ({
+        email,
+        msgs,
+        last: msgs[msgs.length - 1],
+        hasUnread: msgs.some(m => m.from_user && !m.leido_admin),
+        lastTime: new Date(msgs[msgs.length - 1]?.created_at || 0)
+      }))
+      .filter(c => {
+        if (filtroConv === "unread") return c.hasUnread;
+        if (filtroConv === "read") return !c.hasUnread;
+        return true;
+      })
+      .sort((a, b) => b.lastTime - a.lastTime);
+  })() : null;
 
   const toCR = (ts) => {
     if (!ts) return "";
@@ -189,9 +212,12 @@ function SoporteChat({ user, isAdmin }) {
               <div style={{fontSize:11,color:G.muted}}>{isAdmin ? `${conversaciones?.length || 0} conversaciones` : "Escríbenos, te respondemos pronto"}</div>
             </div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}>
-              {isAdmin && !selectedConv && (
-                <button onClick={() => setShowBroadcast(!showBroadcast)} style={{background:"rgba(255,180,0,.1)",border:"1px solid rgba(255,180,0,.3)",borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:700,color:"#ffb400",cursor:"pointer"}}>📢 Todos</button>
-              )}
+              {isAdmin && !selectedConv && (<>
+                {[["all","Todos"],["unread","No leídos"],["read","Leídos"]].map(([v,l])=>(
+                  <button key={v} onClick={()=>setFiltroConv(v)} style={{background:filtroConv===v?"rgba(26,158,63,.2)":"transparent",border:`1px solid ${filtroConv===v?G.green:G.border}`,borderRadius:6,padding:"3px 8px",fontSize:10,fontWeight:700,color:filtroConv===v?G.green:G.muted,cursor:"pointer"}}>{l}</button>
+                ))}
+                <button onClick={() => setShowBroadcast(!showBroadcast)} style={{background:"rgba(255,180,0,.1)",border:"1px solid rgba(255,180,0,.3)",borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:700,color:"#ffb400",cursor:"pointer"}}>📢</button>
+              </>)}
               {isAdmin && selectedConv && (
                 <button onClick={() => setSelectedConv(null)} style={{background:"transparent",border:"none",color:G.muted,cursor:"pointer",fontSize:12}}>← Volver</button>
               )}
@@ -222,11 +248,7 @@ function SoporteChat({ user, isAdmin }) {
           {isAdmin && !selectedConv ? (
             <div style={{flex:1,overflowY:"auto",padding:8}}>
               {conversaciones?.length === 0 && <div style={{textAlign:"center",padding:"40px 0",color:G.muted,fontSize:13}}>Sin tickets aún</div>}
-              {conversaciones?.map(email => {
-                const conv = mensajes.filter(m => m.user_email === email);
-                const last = conv[conv.length - 1];
-                const hasUnread = conv.some(m => m.from_user && !m.leido_admin);
-                return (
+              {conversaciones?.map(({email, last, hasUnread}) => (
                   <div key={email} onClick={() => setSelectedConv(email)} style={{padding:"10px 12px",borderRadius:10,cursor:"pointer",background:hasUnread?"rgba(26,158,63,.08)":"transparent",border:`1px solid ${hasUnread?G.green:G.border}`,marginBottom:6}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{last?.user_name || email}</div>
@@ -235,8 +257,7 @@ function SoporteChat({ user, isAdmin }) {
                     <div style={{fontSize:11,color:G.muted,marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{last?.mensaje}</div>
                     <div style={{fontSize:10,color:G.muted,marginTop:2}}>{toCR(last?.created_at)}</div>
                   </div>
-                );
-              })}
+              ))}
             </div>
           ) : (
             <>
@@ -1614,13 +1635,14 @@ function AdminView({ matches, updateResult, publishResult, clearResult, lockMatc
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [selectedUserPreds, setSelectedUserPreds] = React.useState([]);
 
+  const selectedUserEmail = selectedUser?.email;
   React.useEffect(() => {
-    if (!selectedUser) { setSelectedUserPreds([]); return; }
-    setSelectedUserPreds([]); // clear before loading new user
-    supabase.from("predicciones").select("*").eq("user_email", selectedUser.email).then(({data}) => {
+    if (!selectedUserEmail) { setSelectedUserPreds([]); return; }
+    setSelectedUserPreds([]);
+    supabase.from("predicciones").select("*").eq("user_email", selectedUserEmail).then(({data}) => {
       setSelectedUserPreds(data || []);
     });
-  }, [selectedUser]);
+  }, [selectedUserEmail]);
   const [search, setSearch] = React.useState("");
   const [extraAdmins, setExtraAdmins] = React.useState([]);
   const SUPERUSER = "lvillegasv@mfamayoreo.com";
