@@ -1,0 +1,14 @@
+name: Update Match Scores
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  update-scores:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call update-scores endpoint
+        run: |
+          curl -s https://quiniela-ferretera-mfa.vercel.app/api/update-scores
