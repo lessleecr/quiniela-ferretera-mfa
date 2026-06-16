@@ -1087,25 +1087,23 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
   React.useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data: usuarios } = await supabase.from("usuarios").select("email, nombre_comercial, nombre, primer_apellido, segundo_apellido, provincia");
-      const { data: preds } = await supabase.from("predicciones").select("*");
-      if (!usuarios) { setLoading(false); return; }
-      const allPreds = preds || [];
-      const ranked = usuarios.map(u => {
-        const userPreds = allPreds.filter(p => p.user_email === u.email);
-        const predMap = {};
-        userPreds.forEach(p => { predMap[p.match_id] = { home: p.home, away: p.away }; });
-        const pts = matches.filter(m => m.result).reduce((t, m) => t + calcPoints(predMap[m.id] || {}, m.result), 0);
-        const contactName = [u.nombre, u.primer_apellido, u.segundo_apellido].filter(Boolean).join(" ") || "—";
-        const isMe = u.email === user.email;
-        const fullName = [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || "—";
-        return { name: fullName, contactName, province: u.provincia || "—", pts, preds: userPreds.length, isMe };
-      }).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
-      setStandings(ranked);
+      const { data } = await supabase.from("standings_view").select("*");
+      if (data) {
+        const ranked = data.map(u => ({
+          name: [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || "—",
+          contactName: [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || "—",
+          province: u.provincia || "—",
+          pts: u.puntos,
+          preds: u.total_preds,
+          isMe: u.email === user.email
+        })).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
+        setStandings(ranked);
+      }
       setLoading(false);
     };
     load();
-  }, [matches, calcPoints, user.email]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.email]);
 
   return (
     <div>
