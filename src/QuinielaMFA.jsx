@@ -911,6 +911,65 @@ export default function QuinielaMFA() {
   );
 }
 
+// ─── AD MODAL ─────────────────────────────────────────────────────────────────
+function AdModal({ onClose }) {
+  const [seconds, setSeconds] = React.useState(10);
+  const [adUrl, setAdUrl] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    supabase.from("banners").select("imagen_url").eq("orden", 5).eq("activo", true).single()
+      .then(({ data }) => {
+        if (data?.imagen_url) setAdUrl(data.imagen_url);
+        setLoading(false);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    if (seconds <= 0) return;
+    const t = setTimeout(() => setSeconds(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [seconds]);
+
+  const canClose = seconds <= 0;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.92)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{position:"relative",width:"100%",maxWidth:480}}>
+        <div style={{position:"absolute",top:-44,right:0,display:"flex",alignItems:"center",gap:10,zIndex:10}}>
+          {!canClose && (
+            <div style={{display:"flex",alignItems:"center",gap:6,background:"rgba(0,0,0,.6)",borderRadius:100,padding:"6px 14px",border:"1px solid rgba(255,255,255,.15)"}}>
+              <div style={{width:24,height:24,borderRadius:"50%",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",animation:"spin 1s linear infinite"}}/>
+              <span style={{fontSize:13,color:"#fff",fontWeight:700}}>{seconds}s</span>
+            </div>
+          )}
+          <button
+            onClick={canClose ? onClose : undefined}
+            style={{width:36,height:36,borderRadius:"50%",border:"none",background:canClose?"#fff":"rgba(255,255,255,.2)",color:canClose?"#000":"rgba(255,255,255,.4)",fontSize:18,cursor:canClose?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700}}
+          >✕</button>
+        </div>
+        <div style={{borderRadius:16,overflow:"hidden",border:`1px solid ${G.border}`,background:G.card,maxHeight:"80vh",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          {loading ? (
+            <div style={{padding:60,textAlign:"center",color:G.muted,fontSize:13}}>Cargando...</div>
+          ) : adUrl ? (
+            <img src={adUrl} alt="Publicidad MFA" style={{width:"100%",maxHeight:"80vh",objectFit:"contain",display:"block"}}/>
+          ) : (
+            <div style={{padding:60,textAlign:"center"}}>
+              <div style={{fontSize:40,marginBottom:12}}>🏆</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:28,fontWeight:900,color:G.green}}>QUINIELA FERRETERA MFA</div>
+              <div style={{fontSize:14,color:G.gray,marginTop:6}}>Mundial 2026</div>
+            </div>
+          )}
+        </div>
+        <div style={{marginTop:10,height:3,background:"rgba(255,255,255,.1)",borderRadius:3,overflow:"hidden"}}>
+          <div style={{height:"100%",background:G.green,borderRadius:3,width:`${((10-seconds)/10)*100}%`,transition:"width 1s linear"}}/>
+        </div>
+      </div>
+      <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+    </div>
+  );
+}
+
 function PredictionsView({ matches, predictions, updatePrediction, savePredictions, predictionStatus, matchFilter, setMatchFilter, calcPoints }) {
   const groups = matches.reduce((acc,m)=>{
     if(matchFilter==="all"||m.status===matchFilter){acc[m.date]=acc[m.date]||[];acc[m.date].push(m);}
