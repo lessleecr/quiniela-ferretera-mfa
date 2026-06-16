@@ -2546,7 +2546,7 @@ function WelcomeAdModal({ onClose }) {
   }, [countdown]);
 
   return (
-    <div style={{background:G.card,border:`1px solid ${G.green}`,borderRadius:20,padding:24,maxWidth:400,width:"100%",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+    <div style={{background:G.card,border:`1px solid ${G.green}`,borderRadius:20,padding:24,maxWidth:560,width:"100%",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
       <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",letterSpacing:1,textAlign:"center"}}>
         🏆 Quiniela Ferretera MFA
       </div>
@@ -2556,7 +2556,7 @@ function WelcomeAdModal({ onClose }) {
           <img
             src={adBanner.imagen_url}
             alt="Publicidad MFA"
-            style={{width:"100%",height:"auto",maxHeight:400,objectFit:"contain",display:"block"}}
+            style={{width:"100%",height:"auto",maxHeight:"70vh",objectFit:"contain",display:"block"}}
           />
         ) : (
           <div style={{textAlign:"center",padding:40,color:G.muted}}>
