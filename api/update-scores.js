@@ -5,7 +5,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Mapa ESPN team abbreviation → nuestro código
 const ESPN_TO_CODE = {
   "MEX":"MEX","RSA":"RSA","KOR":"KOR","CZE":"CZE","CAN":"CAN","BIH":"BIH",
   "QAT":"QAT","SUI":"SUI","BRA":"BRA","MAR":"MAR","HAI":"HAI","SCO":"SCO",
@@ -15,14 +14,9 @@ const ESPN_TO_CODE = {
   "KSA":"KSA","URU":"URU","FRA":"FRA","SEN":"SEN","IRQ":"IRQ","NOR":"NOR",
   "ARG":"ARG","ALG":"ALG","AUT":"AUT","JOR":"JOR","POR":"POR","COD":"COD",
   "UZB":"UZB","COL":"COL","ENG":"ENG","CRO":"CRO","GHA":"GHA","PAN":"PAN",
-  // Variantes ESPN
-  "CHE":"SUI","CZE":"CZE","NLD":"NED","DEU":"GER","FRA":"FRA","BEL":"BEL",
-  "ARG":"ARG","BRA":"BRA","ESP":"ESP","PRT":"POR","ENG":"ENG","SCO":"SCO",
-  "SWE":"SWE","NOR":"NOR","URU":"URU","COL":"COL","ECU":"ECU","PAR":"PAR",
-  "CRC":"CRC","BOL":"BOL","CHI":"CHI","PER":"PER",
+  "CHE":"SUI","NLD":"NED","DEU":"GER","PRT":"POR",
 };
 
-// Nuestros partidos — home/away en orden
 const MATCH_LIST = [
   {id:1,home:"MEX",away:"RSA"},{id:2,home:"KOR",away:"CZE"},{id:3,home:"CAN",away:"BIH"},
   {id:4,home:"USA",away:"PAR"},{id:5,home:"QAT",away:"SUI"},{id:6,home:"BRA",away:"MAR"},
@@ -52,39 +46,25 @@ const MATCH_LIST = [
 
 export default async function handler(req, res) {
   try {
-    // Obtener scoreboard ESPN del Mundial 2026
     const url = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
-    const response = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" }
-    });
-
-    if (!response.ok) {
-      return res.status(200).json({ ok: false, error: "ESPN no disponible" });
-    }
+    const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+    if (!response.ok) return res.status(200).json({ ok: false, error: "ESPN no disponible" });
 
     const data = await response.json();
     const events = data.events || [];
-
-    let updated = 0;
-    let published = 0;
+    let updated = 0, published = 0;
 
     for (const event of events) {
       const comp = event.competitions?.[0];
       if (!comp) continue;
-
       const competitors = comp.competitors || [];
       if (competitors.length < 2) continue;
 
-      // ESPN: home es index 0, away es index 1
       const homeComp = competitors.find(c => c.homeAway === "home") || competitors[0];
       const awayComp = competitors.find(c => c.homeAway === "away") || competitors[1];
+      const homeCode = ESPN_TO_CODE[homeComp.team?.abbreviation?.toUpperCase()] || homeComp.team?.abbreviation?.toUpperCase();
+      const awayCode = ESPN_TO_CODE[awayComp.team?.abbreviation?.toUpperCase()] || awayComp.team?.abbreviation?.toUpperCase();
 
-      const homeAbbr = homeComp.team?.abbreviation?.toUpperCase();
-      const awayAbbr = awayComp.team?.abbreviation?.toUpperCase();
-      const homeCode = ESPN_TO_CODE[homeAbbr] || homeAbbr;
-      const awayCode = ESPN_TO_CODE[awayAbbr] || awayAbbr;
-
-      // Buscar el partido en nuestra lista
       const match = MATCH_LIST.find(m =>
         (m.home === homeCode && m.away === awayCode) ||
         (m.home === awayCode && m.away === homeCode)
@@ -93,8 +73,6 @@ export default async function handler(req, res) {
 
       const homeScore = parseInt(homeComp.score) || 0;
       const awayScore = parseInt(awayComp.score) || 0;
-
-      // Si los equipos están invertidos, invertir scores
       const isInverted = match.home === awayCode;
       const finalHome = isInverted ? awayScore : homeScore;
       const finalAway = isInverted ? homeScore : awayScore;
@@ -103,44 +81,18 @@ export default async function handler(req, res) {
       const isLive = status?.state === "in";
       const isCompleted = status?.completed === true;
 
-      // Verificar si ya está publicado en nuestra DB
-      const { data: existing } = await supabase
-        .from("resultados")
-        .select("published, locked")
-        .eq("match_id", match.id)
-        .maybeSingle();
-
-      // Si ya está publicado, no tocar
+      const { data: existing } = await supabase.from("resultados").select("published, locked").eq("match_id", match.id).maybeSingle();
       if (existing?.published) continue;
 
       if (isLive || isCompleted) {
-        const upsertData = {
-          match_id: match.id,
-          home: finalHome,
-          away: finalAway,
-          locked: true,
-          updated_at: new Date().toISOString(),
-        };
-
-        if (isCompleted) {
-          upsertData.published = true;
-          published++;
-        }
-
-        await supabase
-          .from("resultados")
-          .upsert(upsertData, { onConflict: "match_id" });
-
+        const upsertData = { match_id: match.id, home: finalHome, away: finalAway, locked: true, updated_at: new Date().toISOString() };
+        if (isCompleted) { upsertData.published = true; published++; }
+        await supabase.from("resultados").upsert(upsertData, { onConflict: "match_id" });
         updated++;
       }
     }
 
-    return res.status(200).json({
-      ok: true,
-      message: `Procesados: ${events.length} eventos. Actualizados: ${updated}. Publicados: ${published}.`,
-      timestamp: new Date().toISOString(),
-    });
-
+    return res.status(200).json({ ok: true, message: `Procesados: ${events.length}. Actualizados: ${updated}. Publicados: ${published}.`, timestamp: new Date().toISOString() });
   } catch (err) {
     return res.status(200).json({ ok: false, error: err.message });
   }
