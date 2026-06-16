@@ -1528,7 +1528,7 @@ function AdminView({ matches, updateResult, publishResult, clearResult, adminRes
                             <tbody>
                               {matchList.map(m=>{
                                 const ht = teams[m.home], at = teams[m.away];
-const pred = allPredicciones.find(p=>p.match_id===m.id&&p.user_email===selectedUser.email);
+const pred = allPredicciones.find(p=>Number(p.match_id)===Number(m.id)&&p.user_email===selectedUser.email);
                                 const hasPred = pred && pred.home !== null && pred.away !== null;
                                 return (
                                   <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`}}>
