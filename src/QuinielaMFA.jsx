@@ -29,6 +29,48 @@ const matchList = [
   {id:1,group:"A",home:"MEX",away:"RSA",date:"11 JUN",time:"1:00 PM"},{id:2,group:"A",home:"KOR",away:"CZE",date:"11 JUN",time:"8:00 PM"},{id:3,group:"B",home:"CAN",away:"BIH",date:"12 JUN",time:"1:00 PM"},{id:4,group:"D",home:"USA",away:"PAR",date:"12 JUN",time:"7:00 PM"},{id:5,group:"B",home:"QAT",away:"SUI",date:"13 JUN",time:"1:00 PM"},{id:6,group:"C",home:"BRA",away:"MAR",date:"13 JUN",time:"4:00 PM"},{id:7,group:"C",home:"HAI",away:"SCO",date:"13 JUN",time:"7:00 PM"},{id:8,group:"D",home:"AUS",away:"TUR",date:"13 JUN",time:"10:00 PM"},{id:9,group:"E",home:"GER",away:"CUW",date:"14 JUN",time:"11:00 AM"},{id:10,group:"F",home:"NED",away:"JPN",date:"14 JUN",time:"2:00 PM"},{id:11,group:"E",home:"CIV",away:"ECU",date:"14 JUN",time:"5:00 PM"},{id:12,group:"F",home:"TUN",away:"SWE",date:"14 JUN",time:"8:00 PM"},{id:13,group:"H",home:"ESP",away:"CPV",date:"15 JUN",time:"10:00 AM"},{id:14,group:"G",home:"BEL",away:"EGY",date:"15 JUN",time:"1:00 PM"},{id:15,group:"H",home:"KSA",away:"URU",date:"15 JUN",time:"4:00 PM"},{id:16,group:"G",home:"IRN",away:"NZL",date:"15 JUN",time:"7:00 PM"},{id:17,group:"I",home:"FRA",away:"SEN",date:"16 JUN",time:"1:00 PM"},{id:18,group:"I",home:"IRQ",away:"NOR",date:"16 JUN",time:"4:00 PM"},{id:19,group:"J",home:"ARG",away:"ALG",date:"16 JUN",time:"7:00 PM"},{id:20,group:"J",home:"AUT",away:"JOR",date:"16 JUN",time:"10:00 PM"},{id:21,group:"K",home:"POR",away:"COD",date:"17 JUN",time:"11:00 AM"},{id:22,group:"L",home:"ENG",away:"CRO",date:"17 JUN",time:"2:00 PM"},{id:23,group:"L",home:"GHA",away:"PAN",date:"17 JUN",time:"5:00 PM"},{id:24,group:"K",home:"UZB",away:"COL",date:"17 JUN",time:"8:00 PM"},{id:25,group:"A",home:"CZE",away:"RSA",date:"18 JUN",time:"10:00 AM"},{id:26,group:"B",home:"SUI",away:"BIH",date:"18 JUN",time:"1:00 PM"},{id:27,group:"B",home:"CAN",away:"QAT",date:"18 JUN",time:"4:00 PM"},{id:28,group:"A",home:"MEX",away:"KOR",date:"18 JUN",time:"7:00 PM"},{id:29,group:"D",home:"USA",away:"AUS",date:"19 JUN",time:"1:00 PM"},{id:30,group:"C",home:"SCO",away:"MAR",date:"19 JUN",time:"4:00 PM"},{id:31,group:"C",home:"BRA",away:"HAI",date:"19 JUN",time:"7:00 PM"},{id:32,group:"D",home:"TUR",away:"PAR",date:"19 JUN",time:"10:00 PM"},{id:33,group:"F",home:"NED",away:"SWE",date:"20 JUN",time:"11:00 AM"},{id:34,group:"E",home:"GER",away:"CIV",date:"20 JUN",time:"2:00 PM"},{id:35,group:"E",home:"ECU",away:"CUW",date:"20 JUN",time:"6:00 PM"},{id:36,group:"F",home:"TUN",away:"JPN",date:"20 JUN",time:"10:00 PM"},{id:37,group:"H",home:"ESP",away:"KSA",date:"21 JUN",time:"10:00 AM"},{id:38,group:"G",home:"BEL",away:"IRN",date:"21 JUN",time:"1:00 PM"},{id:39,group:"H",home:"URU",away:"CPV",date:"21 JUN",time:"4:00 PM"},{id:40,group:"G",home:"NZL",away:"EGY",date:"21 JUN",time:"7:00 PM"},{id:41,group:"J",home:"ARG",away:"AUT",date:"22 JUN",time:"11:00 AM"},{id:42,group:"I",home:"FRA",away:"IRQ",date:"22 JUN",time:"3:00 PM"},{id:43,group:"I",home:"NOR",away:"SEN",date:"22 JUN",time:"6:00 PM"},{id:44,group:"J",home:"JOR",away:"ALG",date:"22 JUN",time:"9:00 PM"},{id:45,group:"K",home:"POR",away:"UZB",date:"23 JUN",time:"11:00 AM"},{id:46,group:"L",home:"ENG",away:"GHA",date:"23 JUN",time:"2:00 PM"},{id:47,group:"L",home:"PAN",away:"CRO",date:"23 JUN",time:"5:00 PM"},{id:48,group:"K",home:"COL",away:"COD",date:"23 JUN",time:"8:00 PM"},{id:49,group:"B",home:"SUI",away:"CAN",date:"24 JUN",time:"1:00 PM"},{id:50,group:"B",home:"BIH",away:"QAT",date:"24 JUN",time:"1:00 PM"},{id:51,group:"C",home:"BRA",away:"SCO",date:"24 JUN",time:"4:00 PM"},{id:52,group:"C",home:"MAR",away:"HAI",date:"24 JUN",time:"4:00 PM"},{id:53,group:"A",home:"MEX",away:"CZE",date:"24 JUN",time:"7:00 PM"},{id:54,group:"A",home:"KOR",away:"RSA",date:"24 JUN",time:"7:00 PM"},{id:55,group:"E",home:"ECU",away:"GER",date:"25 JUN",time:"2:00 PM"},{id:56,group:"E",home:"CUW",away:"CIV",date:"25 JUN",time:"2:00 PM"},{id:57,group:"F",home:"TUN",away:"NED",date:"25 JUN",time:"5:00 PM"},{id:58,group:"F",home:"JPN",away:"SWE",date:"25 JUN",time:"5:00 PM"},{id:59,group:"D",home:"USA",away:"TUR",date:"25 JUN",time:"8:00 PM"},{id:60,group:"D",home:"PAR",away:"AUS",date:"25 JUN",time:"8:00 PM"},{id:61,group:"I",home:"NOR",away:"FRA",date:"26 JUN",time:"1:00 PM"},{id:62,group:"I",home:"SEN",away:"IRQ",date:"26 JUN",time:"1:00 PM"},{id:63,group:"H",home:"URU",away:"ESP",date:"26 JUN",time:"6:00 PM"},{id:64,group:"H",home:"CPV",away:"KSA",date:"26 JUN",time:"6:00 PM"},{id:65,group:"G",home:"NZL",away:"BEL",date:"26 JUN",time:"9:00 PM"},{id:66,group:"G",home:"EGY",away:"IRN",date:"26 JUN",time:"9:00 PM"},{id:67,group:"L",home:"PAN",away:"ENG",date:"27 JUN",time:"3:00 PM"},{id:68,group:"L",home:"CRO",away:"GHA",date:"27 JUN",time:"3:00 PM"},{id:69,group:"K",home:"COL",away:"POR",date:"27 JUN",time:"5:30 PM"},{id:70,group:"K",home:"COD",away:"UZB",date:"27 JUN",time:"5:30 PM"},{id:71,group:"J",home:"ARG",away:"JOR",date:"27 JUN",time:"8:00 PM"},{id:72,group:"J",home:"ALG",away:"AUT",date:"27 JUN",time:"8:00 PM"},
 ];
 
+// ─── PARTIDOS ELIMINATORIA (32avos, 16avos, cuartos, semis, final) ───────────
+// El admin llena homeName/awayName manualmente desde el panel — arrancan vacíos.
+const knockoutMatchList = [
+  // RONDA DE 32 (16 partidos) — Match 73-88
+  {id:101,round:"32avos",matchNum:73,date:"28 JUN",time:"1:00 PM"},
+  {id:102,round:"32avos",matchNum:74,date:"29 JUN",time:"2:30 PM"},
+  {id:103,round:"32avos",matchNum:76,date:"29 JUN",time:"11:00 AM"},
+  {id:104,round:"32avos",matchNum:75,date:"29 JUN",time:"7:00 PM"},
+  {id:105,round:"32avos",matchNum:78,date:"30 JUN",time:"11:00 AM"},
+  {id:106,round:"32avos",matchNum:77,date:"30 JUN",time:"3:00 PM"},
+  {id:107,round:"32avos",matchNum:79,date:"30 JUN",time:"7:00 PM"},
+  {id:108,round:"32avos",matchNum:80,date:"1 JUL",time:"10:00 AM"},
+  {id:109,round:"32avos",matchNum:82,date:"1 JUL",time:"2:00 PM"},
+  {id:110,round:"32avos",matchNum:81,date:"1 JUL",time:"6:00 PM"},
+  {id:111,round:"32avos",matchNum:88,date:"3 JUL",time:"12:00 PM"},
+  {id:112,round:"32avos",matchNum:84,date:"2 JUL",time:"1:00 PM"},
+  {id:113,round:"32avos",matchNum:83,date:"2 JUL",time:"5:00 PM"},
+  {id:114,round:"32avos",matchNum:85,date:"2 JUL",time:"9:00 PM"},
+  {id:115,round:"32avos",matchNum:86,date:"3 JUL",time:"4:00 PM"},
+  {id:116,round:"32avos",matchNum:87,date:"3 JUL",time:"7:30 PM"},
+  // OCTAVOS DE FINAL (8 partidos) — Match 89-96
+  {id:117,round:"16avos",matchNum:90,date:"4 JUL",time:"11:00 AM"},
+  {id:118,round:"16avos",matchNum:89,date:"4 JUL",time:"3:00 PM"},
+  {id:119,round:"16avos",matchNum:91,date:"5 JUL",time:"2:00 PM"},
+  {id:120,round:"16avos",matchNum:92,date:"5 JUL",time:"6:00 PM"},
+  {id:121,round:"16avos",matchNum:93,date:"6 JUL",time:"1:00 PM"},
+  {id:122,round:"16avos",matchNum:94,date:"6 JUL",time:"6:00 PM"},
+  {id:123,round:"16avos",matchNum:95,date:"7 JUL",time:"10:00 AM"},
+  {id:124,round:"16avos",matchNum:96,date:"7 JUL",time:"2:00 PM"},
+  // CUARTOS DE FINAL (4 partidos) — Match 97-100
+  {id:125,round:"cuartos",matchNum:97,date:"9 JUL",time:"2:00 PM"},
+  {id:126,round:"cuartos",matchNum:98,date:"10 JUL",time:"1:00 PM"},
+  {id:127,round:"cuartos",matchNum:99,date:"11 JUL",time:"3:00 PM"},
+  {id:128,round:"cuartos",matchNum:100,date:"11 JUL",time:"7:00 PM"},
+  // SEMIFINALES (2 partidos) — Match 101-102
+  {id:129,round:"semis",matchNum:101,date:"14 JUL",time:"1:00 PM"},
+  {id:130,round:"semis",matchNum:102,date:"15 JUL",time:"1:00 PM"},
+  // TERCER PUESTO Y FINAL
+  {id:131,round:"3er puesto",matchNum:103,date:"18 JUL",time:"3:00 PM"},
+  {id:132,round:"final",matchNum:104,date:"19 JUL",time:"1:00 PM"},
+];
+
 
 const SELECCIONES_MUNDIAL = [
   "México","Sudáfrica","Corea del Sur","Chequia","Canadá","Bosnia","Qatar","Suiza",
@@ -533,6 +575,11 @@ export default function QuinielaMFA() {
   const [predictionStatus, setPredictionStatus] = useState("");
   const [matchFilter, setMatchFilter] = useState("all");
   const [adminResults, setAdminResults] = useState({});
+  const [knockoutEnabled, setKnockoutEnabled] = useState(false);
+  const [knockoutTeams, setKnockoutTeams] = useState({});
+  const [knockoutResults, setKnockoutResults] = useState({});
+  const [knockoutPredictions, setKnockoutPredictions] = useState({});
+  const [knockoutPredStatus, setKnockoutPredStatus] = useState({});
 
   // Load results from Supabase — re-runs every minute via tick so locked/published state stays in sync for all users
   useEffect(() => {
@@ -543,6 +590,29 @@ export default function QuinielaMFA() {
         setAdminResults(map);
       }
     });
+  }, [tick]);
+
+  // Eliminatorias — cargar config de visibilidad, equipos y resultados
+  useEffect(() => {
+    const loadKnockout = async () => {
+      const { data: cfg } = await supabase.from("config").select("*").eq("key", "knockout_enabled").maybeSingle();
+      setKnockoutEnabled(cfg?.value === "true" || cfg?.value === true);
+
+      const { data: teamsData } = await supabase.from("knockout_teams").select("*");
+      if (teamsData) {
+        const map = {};
+        teamsData.forEach(t => { map[t.match_id] = { home: t.home_name, away: t.away_name }; });
+        setKnockoutTeams(map);
+      }
+
+      const { data: resData } = await supabase.from("knockout_resultados").select("*");
+      if (resData) {
+        const map = {};
+        resData.forEach(r => { map[r.match_id] = { home: r.home, away: r.away, locked: r.locked, published: r.published }; });
+        setKnockoutResults(map);
+      }
+    };
+    loadKnockout();
   }, [tick]);
 
   const getMatchStatus = (date, time) => {
@@ -564,6 +634,23 @@ export default function QuinielaMFA() {
     return "Abierto";
   };
 
+  const getKnockoutStatus = (date, time) => {
+    const months = { "JUN": 5, "JUL": 6 };
+    const [day, monthStr] = date.split(" ");
+    const [hourStr, minuteStr] = time.replace(" PM","").replace(" AM","").split(":");
+    let hour = parseInt(hourStr);
+    const isPM = time.includes("PM");
+    if (isPM && hour !== 12) hour += 12;
+    if (!isPM && hour === 12) hour = 0;
+    const matchDate = new Date(Date.UTC(2026, months[monthStr], parseInt(day), hour + 6, parseInt(minuteStr)));
+    const now = new Date();
+    const diffMs = matchDate - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    if (diffMs <= 0) return "Cerrado";
+    if (diffHours <= 2) return "Cierra pronto";
+    return "Abierto";
+  };
+
   const matches = useMemo(() => matchList.map((m) => ({
     ...m, homeTeam:teams[m.home], awayTeam:teams[m.away],
     status: adminResults[m.id]?.locked ? "Cerrado" : getMatchStatus(m.date, m.time),
@@ -574,6 +661,16 @@ export default function QuinielaMFA() {
     adminResult: adminResults[m.id] || null,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [adminResults, tick]);
+
+  const knockoutMatches = useMemo(() => knockoutMatchList.map((m) => ({
+    ...m,
+    homeName: knockoutTeams[m.id]?.home || "",
+    awayName: knockoutTeams[m.id]?.away || "",
+    status: knockoutResults[m.id]?.locked ? "Cerrado" : getKnockoutStatus(m.date, m.time),
+    result: knockoutResults[m.id]?.published && knockoutResults[m.id]?.home !== null && knockoutResults[m.id]?.home !== ""
+      ? { home:Number(knockoutResults[m.id].home), away:Number(knockoutResults[m.id].away) } : null,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })), [knockoutTeams, knockoutResults, tick]);
 
   useEffect(() => {
     fetch("https://ubicaciones.paginasweb.cr/provincias.json").then(r=>r.json()).then(d=>setProvinces(Object.entries(d).map(([id,name])=>({id,name})))).catch(()=>{});
@@ -824,6 +921,23 @@ export default function QuinielaMFA() {
     });
   }, [userEmail]);
 
+  // Load knockout predictions only once when user logs in
+  useEffect(() => {
+    if (!userEmail) return;
+    supabase.from("knockout_predicciones").select("*").eq("user_email", userEmail).then(({ data }) => {
+      if (data) {
+        const map = {};
+        const saved = {};
+        data.forEach(p => {
+          map[p.match_id] = { home: p.home, away: p.away };
+          saved[p.match_id] = "saved";
+        });
+        setKnockoutPredictions(map);
+        setKnockoutPredStatus(saved);
+      }
+    });
+  }, [userEmail]);
+
   const updateResult = (matchId, team, value) => {
     if (adminResults[matchId]?.locked) return;
     const clean = value.replace(/[^0-9]/g,"").slice(0,2);
@@ -874,6 +988,78 @@ export default function QuinielaMFA() {
   const clearResult = async (matchId) => {
     await supabase.from("resultados").delete().eq("match_id", matchId);
     setAdminResults(c=>{const u={...c};delete u[matchId];return u;});
+  };
+
+  // ─── ELIMINATORIAS (admin) ────────────────────────────────────────────────
+  const toggleKnockoutEnabled = async () => {
+    if (!isAdmin(user)) return;
+    const newVal = !knockoutEnabled;
+    await supabase.from("config").upsert({ key:"knockout_enabled", value:String(newVal) }, { onConflict:"key" });
+    setKnockoutEnabled(newVal);
+  };
+
+  const saveKnockoutTeam = async (matchId, side, name) => {
+    if (!isAdmin(user)) return;
+    const existing = knockoutTeams[matchId] || {};
+    const updated = { ...existing, [side]: name };
+    setKnockoutTeams(c=>({...c,[matchId]:updated}));
+    await supabase.from("knockout_teams").upsert({
+      match_id: matchId,
+      home_name: side === "home" ? name : (existing.home || ""),
+      away_name: side === "away" ? name : (existing.away || ""),
+    }, { onConflict:"match_id" });
+  };
+
+  const updateKnockoutResult = (matchId, team, value) => {
+    if (knockoutResults[matchId]?.locked) return;
+    const clean = value.replace(/[^0-9]/g,"").slice(0,2);
+    setKnockoutResults(c=>({...c,[matchId]:{...c[matchId],[team]:clean}}));
+  };
+  const publishKnockoutResult = async (matchId) => {
+    if (!isAdmin(user)) return;
+    const r = knockoutResults[matchId];
+    if (!r || r.home === "" || r.away === "" || r.home === undefined || r.away === undefined) return;
+    await supabase.from("knockout_resultados").upsert({ match_id:matchId, home:Number(r.home), away:Number(r.away), locked:true, published:true, updated_at:new Date().toISOString() }, { onConflict:"match_id" });
+    setKnockoutResults(c=>({...c,[matchId]:{...c[matchId],locked:true,published:true}}));
+  };
+  const unpublishKnockoutResult = async (matchId) => {
+    if (!isAdmin(user)) return;
+    const c = window.confirm("⚠️ Esto desbloqueará el marcador para editarlo. Los puntos se recalcularán cuando lo vuelvas a publicar. ¿Continuar?");
+    if (!c) return;
+    await supabase.from("knockout_resultados").update({ published: false }).eq("match_id", matchId);
+    setKnockoutResults(c=>({...c,[matchId]:{...c[matchId],published:false}}));
+  };
+  const lockKnockoutMatch = async (matchId) => {
+    const existing = knockoutResults[matchId];
+    if (existing?.locked) {
+      await supabase.from("knockout_resultados").update({ locked: false }).eq("match_id", matchId);
+      setKnockoutResults(c=>({...c,[matchId]:{...c[matchId],locked:false}}));
+    } else {
+      await supabase.from("knockout_resultados").upsert({ match_id:matchId, home: existing?.home ?? null, away: existing?.away ?? null, locked:true, updated_at:new Date().toISOString() }, { onConflict:"match_id" });
+      setKnockoutResults(c=>({...c,[matchId]:{...(c[matchId]||{}),locked:true}}));
+    }
+  };
+  const clearKnockoutResult = async (matchId) => {
+    await supabase.from("knockout_resultados").delete().eq("match_id", matchId);
+    setKnockoutResults(c=>{const u={...c};delete u[matchId];return u;});
+  };
+
+  const saveKnockoutPredictions = async () => {
+    const now = new Date();
+    const entries = Object.entries(knockoutPredictions)
+      .filter(([matchId, p]) => {
+        if (p.home === undefined || p.home === "" || p.away === undefined || p.away === "") return false;
+        const match = knockoutMatchList.find(m => m.id === Number(matchId));
+        if (!match) return false;
+        return getKnockoutStatus(match.date, match.time) !== "Cerrado";
+      })
+      .map(([matchId, p]) => ({ user_email:user.email, match_id:Number(matchId), home:p.home, away:p.away, updated_at:now.toISOString() }));
+    if (entries.length > 0) {
+      await supabase.from("knockout_predicciones").upsert(entries, { onConflict:"user_email,match_id" });
+      const newStatus = {};
+      entries.forEach(e => { newStatus[e.match_id] = "saved"; });
+      setKnockoutPredStatus(s => ({...s, ...newStatus}));
+    }
   };
 
   // Live standings loaded from Supabase
@@ -1125,6 +1311,7 @@ export default function QuinielaMFA() {
     ["predictions","🎯","Mis predicciones"],
     ["results","📊","Mis resultados"],
     ["standings","🏅","Posiciones"],
+    ...(knockoutEnabled || isAdminUser ? [["knockout","🏆","Eliminatorias"]] : []),
     ["profile","👤","Mi perfil"],
     ["chat","💬","Chat"],
     ...(isAdminUser ? [["admin","⚙️","Admin"]] : []),
@@ -1237,11 +1424,12 @@ export default function QuinielaMFA() {
           </div>
         )}
         <div>
-            {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints}/>}
+            {view==="profile"&&<ProfileView user={user} setUser={setUser} predictions={predictions} matches={matches} calcPoints={calcPoints} knockoutMatches={knockoutMatches} knockoutPredictions={knockoutPredictions}/>}
             {view==="chat"&&<ChatView user={user}/>}
             {view==="predictions"&&<PredictionsView matches={matches} predictions={predictions} updatePrediction={updatePrediction} savePredictions={savePredictions} saveMatchPrediction={saveMatchPrediction} predictionStatus={predictionStatus} matchFilter={matchFilter} setMatchFilter={setMatchFilter} calcPoints={calcPoints}/>}
-            {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints}/>}
+            {view==="results"&&<ResultsView matches={matches} predictions={predictions} calcPoints={calcPoints} knockoutMatches={knockoutMatches} knockoutPredictions={knockoutPredictions}/>}
             {view==="standings"&&<StandingsView matches={matches} predictions={predictions} calcPoints={calcPoints} user={user}/>}
+            {view==="knockout"&&<KnockoutView matches={knockoutMatches} predictions={knockoutPredictions} setPredictions={setKnockoutPredictions} savePredictions={saveKnockoutPredictions} predictionStatus={knockoutPredStatus} setPredictionStatus={setKnockoutPredStatus} calcPoints={calcPoints} user={user} isAdminUser={isAdminUser} knockoutEnabled={knockoutEnabled} toggleKnockoutEnabled={toggleKnockoutEnabled} saveKnockoutTeam={saveKnockoutTeam} updateKnockoutResult={updateKnockoutResult} publishKnockoutResult={publishKnockoutResult} lockKnockoutMatch={lockKnockoutMatch} clearKnockoutResult={clearKnockoutResult} unpublishKnockoutResult={unpublishKnockoutResult} knockoutResults={knockoutResults}/>}
             {view==="admin"&&<AdminView matches={matches} updateResult={updateResult} publishResult={publishResult} clearResult={clearResult} lockMatch={lockMatch} unlockMatch={unlockMatch} adminResults={adminResults} calcPoints={calcPoints}/>}
             {view==="rules"&&<RulesView/>}
         </div>
@@ -1317,6 +1505,154 @@ function Countdown({ matches }) {
   );
 }
 
+// ─── ELIMINATORIAS ────────────────────────────────────────────────────────────
+function KnockoutView({ matches, predictions, setPredictions, savePredictions, predictionStatus, setPredictionStatus, calcPoints, user, isAdminUser, knockoutEnabled, toggleKnockoutEnabled, saveKnockoutTeam, updateKnockoutResult, publishKnockoutResult, lockKnockoutMatch, clearKnockoutResult, unpublishKnockoutResult, knockoutResults }) {
+  const [adminMode, setAdminMode] = React.useState(false);
+
+  const roundLabels = { "32avos":"🏆 Ronda de 32", "16avos":"⚔️ Octavos de Final", "cuartos":"🔥 Cuartos de Final", "semis":"⭐ Semifinales", "3er puesto":"🥉 Tercer Puesto", "final":"🏆 Gran Final" };
+  const roundOrder = ["32avos","16avos","cuartos","semis","3er puesto","final"];
+  const toSortMs = (m) => {
+    const months = { "JUN": 5, "JUL": 6 };
+    const [day, monthStr] = m.date.split(" ");
+    const [hourStr, minuteStr] = m.time.replace(" PM","").replace(" AM","").split(":");
+    let hour = parseInt(hourStr);
+    const isPM = m.time.includes("PM");
+    if (isPM && hour !== 12) hour += 12;
+    if (!isPM && hour === 12) hour = 0;
+    return new Date(Date.UTC(2026, months[monthStr], parseInt(day), hour, parseInt(minuteStr))).getTime();
+  };
+  const groups = matches.reduce((acc,m)=>{ (acc[m.round]=acc[m.round]||[]).push(m); return acc; },{});
+  Object.values(groups).forEach(arr => arr.sort((a,b)=>toSortMs(a)-toSortMs(b)));
+
+  if (!knockoutEnabled && !isAdminUser) {
+    return (
+      <div style={{...card,padding:40,textAlign:"center",borderRadius:12}}>
+        <div style={{fontSize:40,marginBottom:16}}>🔒</div>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:700,color:G.green}}>Fase eliminatoria aún no disponible</div>
+        <div style={{fontSize:13,color:G.muted,marginTop:8}}>Esta sección se habilitará cuando comience la fase eliminatoria del Mundial.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Eliminatorias</div>
+          <div style={{fontSize:13,color:G.muted}}>Ronda de 32 → Octavos → Cuartos → Semis → Final · Marcador exacto = 5 pts</div>
+        </div>
+        {isAdminUser && (
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={toggleKnockoutEnabled} style={{background:knockoutEnabled?"rgba(26,158,63,.15)":"rgba(255,80,80,.1)",border:`1px solid ${knockoutEnabled?"rgba(26,158,63,.4)":"rgba(255,80,80,.3)"}`,borderRadius:8,padding:"8px 14px",color:knockoutEnabled?G.green:"#ff5050",fontWeight:700,fontSize:12,cursor:"pointer"}}>
+              {knockoutEnabled ? "✅ Visible para clientes" : "🔒 Oculto para clientes"}
+            </button>
+            <button onClick={()=>setAdminMode(a=>!a)} style={{background:adminMode?G.green:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 14px",color:"#fff",fontWeight:700,fontSize:12,cursor:"pointer"}}>
+              {adminMode ? "👁️ Ver como usuario" : "⚙️ Modo edición"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {!knockoutEnabled && isAdminUser && (
+        <div style={{background:"rgba(255,180,0,.08)",border:"1px solid rgba(255,180,0,.3)",borderRadius:10,padding:"12px 16px",marginBottom:20,fontSize:13,color:"#ffb400"}}>
+          ⚠️ Esta sección está oculta para los clientes. Activá la visibilidad cuando estés listo.
+        </div>
+      )}
+
+      {roundOrder.filter(r=>groups[r]).map(round=>(
+        <div key={round} style={{...card,padding:20,borderRadius:16,marginBottom:16}}>
+          <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase",marginBottom:16}}>{roundLabels[round]}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+            {groups[round].map(m=>{
+              const pred = predictions[m.id] || {};
+              const hasTeams = m.homeName && m.awayName;
+              return (
+                <div key={m.id} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:12,padding:14}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                    <span style={{fontSize:11,color:G.muted}}>{m.date} · {m.time}</span>
+                    {!adminMode && hasTeams && (
+                      <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:100,border:"1px solid",...(m.status==="Abierto"?{borderColor:"rgba(26,158,63,.4)",background:"rgba(26,158,63,.1)",color:G.green}:m.status==="Cierra pronto"?{borderColor:"rgba(255,180,0,.4)",background:"rgba(255,180,0,.1)",color:"#ffb400"}:{borderColor:"rgba(255,80,80,.4)",background:"rgba(255,80,80,.1)",color:"#ff5050"})}}>{m.status}</span>
+                    )}
+                  </div>
+
+                  {adminMode ? (
+                    <div>
+                      <input
+                        defaultValue={m.homeName}
+                        onBlur={e=>saveKnockoutTeam(m.id,"home",e.target.value)}
+                        placeholder="Equipo local..."
+                        style={{...inp,marginBottom:8,fontSize:13,padding:"8px 12px"}}
+                      />
+                      <input
+                        defaultValue={m.awayName}
+                        onBlur={e=>saveKnockoutTeam(m.id,"away",e.target.value)}
+                        placeholder="Equipo visitante..."
+                        style={{...inp,marginBottom:12,fontSize:13,padding:"8px 12px"}}
+                      />
+                      <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",alignItems:"center",gap:8,marginBottom:10}}>
+                        <input disabled={knockoutResults[m.id]?.locked} value={knockoutResults[m.id]?.home?.toString()||""} onChange={e=>updateKnockoutResult(m.id,"home",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:18,fontWeight:900,padding:"6px 4px",opacity:knockoutResults[m.id]?.locked?.5:1}} placeholder="0"/>
+                        <span style={{fontSize:12,color:G.green,fontWeight:700}}>VS</span>
+                        <input disabled={knockoutResults[m.id]?.locked} value={knockoutResults[m.id]?.away?.toString()||""} onChange={e=>updateKnockoutResult(m.id,"away",e.target.value)} inputMode="numeric" style={{...inp,textAlign:"center",fontSize:18,fontWeight:900,padding:"6px 4px",opacity:knockoutResults[m.id]?.locked?.5:1}} placeholder="0"/>
+                      </div>
+                      {knockoutResults[m.id]?.published ? (
+                        <div>
+                          <div style={{textAlign:"center",padding:"7px",background:"rgba(26,158,63,.08)",fontSize:11,color:G.green,borderRadius:8,marginBottom:6}}>🔒 Publicado</div>
+                          <button onClick={()=>unpublishKnockoutResult(m.id)} style={{width:"100%",background:"rgba(255,180,0,.1)",border:"1px solid rgba(255,180,0,.3)",borderRadius:6,padding:"7px",fontSize:11,fontWeight:700,color:"#ffb400",cursor:"pointer"}}>✏️ Editar marcador</button>
+                        </div>
+                      ) : (
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+                          <button onClick={()=>clearKnockoutResult(m.id)} style={{background:"rgba(255,80,80,.1)",border:"1px solid rgba(255,80,80,.3)",borderRadius:6,padding:"6px",fontSize:10,fontWeight:700,color:"#ff5050",cursor:"pointer"}}>🗑️</button>
+                          <button onClick={()=>lockKnockoutMatch(m.id)} style={{background:"rgba(255,180,0,.1)",border:"1px solid rgba(255,180,0,.3)",borderRadius:6,padding:"6px",fontSize:10,fontWeight:700,color:"#ffb400",cursor:"pointer"}}>{knockoutResults[m.id]?.locked?"🔓":"🔒"}</button>
+                          <button onClick={()=>publishKnockoutResult(m.id)} style={{background:"rgba(26,158,63,.1)",border:"1px solid rgba(26,158,63,.3)",borderRadius:6,padding:"6px",fontSize:10,fontWeight:700,color:G.green,cursor:"pointer"}}>✅</button>
+                        </div>
+                      )}
+                    </div>
+                  ) : !hasTeams ? (
+                    <div style={{textAlign:"center",padding:"16px 0",color:G.muted,fontSize:13}}>Equipos por definir</div>
+                  ) : (
+                    <>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 52px auto 52px 1fr",alignItems:"center",gap:8}}>
+                        <div style={{textAlign:"right",fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:700}}>{m.homeName}</div>
+                        <input value={pred.home !== undefined && pred.home !== null ? String(pred.home) : ""} onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,"").slice(0,2);setPredictions(c=>({...c,[m.id]:{...(c[m.id]||{}),"home":v}}));setPredictionStatus(s=>({...s,[m.id]:undefined}));}} inputMode="numeric" disabled={m.status==="Cerrado"||!!m.result} style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:m.status==="Cerrado"||m.result?.5:1}} placeholder="–"/>
+                        <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:700,color:G.green}}>VS</span>
+                        <input value={pred.away !== undefined && pred.away !== null ? String(pred.away) : ""} onChange={e=>{const v=e.target.value.replace(/[^0-9]/g,"").slice(0,2);setPredictions(c=>({...c,[m.id]:{...(c[m.id]||{}),"away":v}}));setPredictionStatus(s=>({...s,[m.id]:undefined}));}} inputMode="numeric" disabled={m.status==="Cerrado"||!!m.result} style={{...inp,textAlign:"center",fontSize:20,fontWeight:900,padding:"7px 4px",opacity:m.status==="Cerrado"||m.result?.5:1}} placeholder="–"/>
+                        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,fontWeight:700}}>{m.awayName}</div>
+                      </div>
+                      {m.result && (
+                        <div style={{marginTop:10,background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                          <span style={{fontSize:12,color:G.green}}>Resultado: {m.result.home} - {m.result.away}</span>
+                          <span style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:900,color:G.green}}>{calcPoints(pred,m.result)} pts</span>
+                        </div>
+                      )}
+                      {m.status !== "Cerrado" && !m.result && (
+                        <button
+                          onClick={async()=>{
+                            const p = predictions[m.id];
+                            if (!p || p.home===undefined || p.home==="" || p.away===undefined || p.away==="") return;
+                            await supabase.from("knockout_predicciones").upsert({ user_email:user.email, match_id:m.id, home:p.home, away:p.away, updated_at:new Date().toISOString() }, { onConflict:"user_email,match_id" });
+                            setPredictionStatus(s => ({...s, [m.id]: "saved"}));
+                          }}
+                          style={{marginTop:8,width:"100%",background:predictionStatus[m.id]==="saved"?"rgba(26,158,63,.2)":"rgba(26,158,63,.1)",border:`1px solid ${predictionStatus[m.id]==="saved"?"rgba(26,158,63,.5)":"rgba(26,158,63,.3)"}`,borderRadius:8,padding:"7px",fontSize:12,fontWeight:700,color:G.green,cursor:"pointer"}}
+                        >
+                          {predictionStatus[m.id]==="saved" ? "✅ Guardado" : "💾 Guardar"}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {!adminMode && (
+        <button onClick={savePredictions} style={{...greenBtn,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Save size={18}/> Guardar todas mis predicciones</button>
+      )}
+    </div>
+  );
+}
+
 function PredictionsView({ matches, predictions, updatePrediction, savePredictions, saveMatchPrediction, predictionStatus, matchFilter, setMatchFilter, calcPoints }) {
   const groups = matches.reduce((acc,m)=>{
     if(matchFilter==="all"||m.status===matchFilter){acc[m.date]=acc[m.date]||[];acc[m.date].push(m);}
@@ -1386,48 +1722,82 @@ function PredictionsView({ matches, predictions, updatePrediction, savePredictio
   );
 }
 
-function ResultsView({ matches, predictions, calcPoints }) {
+function ResultsView({ matches, predictions, calcPoints, knockoutMatches, knockoutPredictions }) {
   const played=matches.filter(m=>m.result);  // shows all matches with official result
-  const total=played.reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0);
-  const done=played.filter(m=>{const p=predictions[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length;
+  const knockoutPlayed=(knockoutMatches||[]).filter(m=>m.result);
+  const total=played.reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0)
+    + knockoutPlayed.reduce((t,m)=>t+calcPoints((knockoutPredictions||{})[m.id]||{},m.result),0);
+  const done=played.filter(m=>{const p=predictions[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length
+    + knockoutPlayed.filter(m=>{const p=(knockoutPredictions||{})[m.id]||{};return p.home!==undefined&&p.home!==""&&p.away!==undefined&&p.away!==""}).length;
+  const totalPlayed = played.length + knockoutPlayed.length;
   return (
     <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}} className="results-stats">
-        {[["Puntos ganados",`${total} pts`],["Partidos jugados",played.length],["Predicciones hechas",`${done}/${played.length}`]].map(([t,v])=>(
+        {[["Puntos ganados",`${total} pts`],["Partidos jugados",totalPlayed],["Predicciones hechas",`${done}/${totalPlayed}`]].map(([t,v])=>(
           <div key={t} style={{...card,padding:20,textAlign:"center",borderRadius:12}}>
             <div style={{fontSize:12,color:G.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>{t}</div>
             <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:32,fontWeight:900,color:G.green}}>{v}</div>
           </div>
         ))}
       </div>
-      {played.length===0?(
+      {totalPlayed===0?(
         <div style={{...card,padding:40,textAlign:"center",borderRadius:12,color:G.muted}}>Aún no hay partidos con resultado oficial.</div>
-      ):played.map(m=>{
-        const pred=predictions[m.id]||{};
-        const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
-        const pts=calcPoints(pred,m.result);
-        return (
-          <div key={m.id} style={{...card,padding:16,borderRadius:12,marginBottom:10}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:16,alignItems:"center"}} className="result-row">
-              <div>
-                <div style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</div>
-                <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:700,marginTop:2}}>{m.homeTeam.flag} {m.homeTeam.name} vs {m.awayTeam.flag} {m.awayTeam.name}</div>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}} className="result-scores">
-                <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
-                  <div style={{fontSize:10,color:G.muted}}>Tu predicción</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:hasPred?18:13,fontWeight:900,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"Sin predicción"}</div>
+      ):(
+        <>
+          {played.map(m=>{
+            const pred=predictions[m.id]||{};
+            const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
+            const pts=calcPoints(pred,m.result);
+            return (
+              <div key={"g"+m.id} style={{...card,padding:16,borderRadius:12,marginBottom:10}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:16,alignItems:"center"}} className="result-row">
+                  <div>
+                    <div style={{fontSize:11,color:G.muted}}>Grupo {m.group} · {m.date}</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:700,marginTop:2}}>{m.homeTeam.flag} {m.homeTeam.name} vs {m.awayTeam.flag} {m.awayTeam.name}</div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}} className="result-scores">
+                    <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
+                      <div style={{fontSize:10,color:G.muted}}>Tu predicción</div>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:hasPred?18:13,fontWeight:900,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"Sin predicción"}</div>
+                    </div>
+                    <div style={{background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
+                      <div style={{fontSize:10,color:G.green}}>Resultado real</div>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900}}>{m.result.home} - {m.result.away}</div>
+                    </div>
+                  </div>
+                  <div style={{background:G.green,borderRadius:8,padding:"10px 16px",textAlign:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,minWidth:70}}>{pts} pts</div>
                 </div>
-                <div style={{background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
-                  <div style={{fontSize:10,color:G.green}}>Resultado real</div>
-                  <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900}}>{m.result.home} - {m.result.away}</div>
+              </div>
+            );
+          })}
+          {knockoutPlayed.map(m=>{
+            const pred=(knockoutPredictions||{})[m.id]||{};
+            const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
+            const pts=calcPoints(pred,m.result);
+            return (
+              <div key={"k"+m.id} style={{...card,padding:16,borderRadius:12,marginBottom:10}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:16,alignItems:"center"}} className="result-row">
+                  <div>
+                    <div style={{fontSize:11,color:"#ffb400"}}>🏆 Eliminatoria · {m.date}</div>
+                    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:17,fontWeight:700,marginTop:2}}>{m.homeName} vs {m.awayName}</div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}} className="result-scores">
+                    <div style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
+                      <div style={{fontSize:10,color:G.muted}}>Tu predicción</div>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:hasPred?18:13,fontWeight:900,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"Sin predicción"}</div>
+                    </div>
+                    <div style={{background:"rgba(26,158,63,.08)",border:"1px solid rgba(26,158,63,.2)",borderRadius:8,padding:"8px 12px",textAlign:"center"}}>
+                      <div style={{fontSize:10,color:G.green}}>Resultado real</div>
+                      <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900}}>{m.result.home} - {m.result.away}</div>
+                    </div>
+                  </div>
+                  <div style={{background:G.green,borderRadius:8,padding:"10px 16px",textAlign:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,minWidth:70}}>{pts} pts</div>
                 </div>
               </div>
-              <div style={{background:G.green,borderRadius:8,padding:"10px 16px",textAlign:"center",fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,minWidth:70}}>{pts} pts</div>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }
@@ -1439,18 +1809,63 @@ function StandingsView({ matches, predictions, calcPoints, user }) {
   React.useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase.from("standings_view").select("*");
-      if (data) {
-        const ranked = data.map(u => ({
-          name: [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || u.nombre_comercial || "—",
-          contactName: [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || "—",
-          province: u.provincia || "—",
-          pts: u.puntos,
-          preds: u.total_preds,
-          isMe: u.email === user.email
-        })).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
-        setStandings(ranked);
+      const { data: usuarios } = await supabase.from("usuarios").select("email, nombre, primer_apellido, nombre_comercial, provincia, bloqueado");
+      const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
+      const { data: knockoutResultados } = await supabase.from("knockout_resultados").select("*").eq("published", true);
+
+      // Paginación predicciones de grupos
+      let allPreds = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data: page } = await supabase.from("predicciones").select("*").range(from, from + pageSize - 1);
+        if (!page || page.length === 0) break;
+        allPreds = allPreds.concat(page);
+        if (page.length < pageSize) break;
+        from += pageSize;
       }
+
+      // Paginación predicciones de eliminatorias
+      let allKnockoutPreds = [];
+      from = 0;
+      while (true) {
+        const { data: page } = await supabase.from("knockout_predicciones").select("*").range(from, from + pageSize - 1);
+        if (!page || page.length === 0) break;
+        allKnockoutPreds = allKnockoutPreds.concat(page);
+        if (page.length < pageSize) break;
+        from += pageSize;
+      }
+
+      if (!usuarios) { setLoading(false); return; }
+
+      const resMap = {};
+      (resultados||[]).forEach(r => { resMap[Number(r.match_id)] = { home:Number(r.home), away:Number(r.away) }; });
+      const knockoutResMap = {};
+      (knockoutResultados||[]).forEach(r => { knockoutResMap[Number(r.match_id)] = { home:Number(r.home), away:Number(r.away) }; });
+
+      const ranked = usuarios.filter(u=>!u.bloqueado).map(u => {
+        const userPreds = allPreds.filter(p => p.user_email === u.email);
+        const userKnockoutPreds = allKnockoutPreds.filter(p => p.user_email === u.email);
+        let pts = 0;
+        for (const p of userPreds) {
+          const res = resMap[Number(p.match_id)];
+          if (res) pts += calcPoints({ home: String(p.home), away: String(p.away) }, res);
+        }
+        for (const p of userKnockoutPreds) {
+          const res = knockoutResMap[Number(p.match_id)];
+          if (res) pts += calcPoints({ home: String(p.home), away: String(p.away) }, res);
+        }
+        const contactName = [u.nombre, u.primer_apellido].filter(Boolean).join(" ") || "—";
+        return {
+          name: contactName,
+          contactName,
+          province: u.provincia || "—",
+          pts,
+          preds: userPreds.length + userKnockoutPreds.length,
+          isMe: u.email === user.email
+        };
+      }).sort((a, b) => b.pts - a.pts || b.preds - a.preds);
+      setStandings(ranked);
       setLoading(false);
     };
     load();
@@ -1971,7 +2386,7 @@ function BonificacionesDisplay({ email }) {
   );
 }
 
-function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
+function ProfileView({ user, setUser, predictions, matches, calcPoints, knockoutMatches, knockoutPredictions }) {
   const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -2037,7 +2452,14 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:20,fontWeight:900,color:G.green,textTransform:"uppercase"}}>Resumen de mis predicciones</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}} className="profile-stats">
-            {[["Predicciones",Object.keys(predictions).length],["Con resultado",matches.filter(m=>m.result).length],["Puntos",matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0)+" pts"]].map(([l,v])=>(
+            {[
+              ["Predicciones",Object.keys(predictions).length + Object.keys(knockoutPredictions||{}).length],
+              ["Con resultado",matches.filter(m=>m.result).length + (knockoutMatches||[]).filter(m=>m.result).length],
+              ["Puntos",
+                matches.filter(m=>m.result).reduce((t,m)=>t+calcPoints(predictions[m.id]||{},m.result),0)
+                + (knockoutMatches||[]).filter(m=>m.result).reduce((t,m)=>t+calcPoints((knockoutPredictions||{})[m.id]||{},m.result),0)
+                +" pts"],
+            ].map(([l,v])=>(
               <div key={l} style={{background:G.card2,border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 16px",textAlign:"center",minWidth:110}}>
                 <div style={{fontSize:10,color:G.muted,textTransform:"uppercase",letterSpacing:1}}>{l}</div>
                 <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:900,color:G.green,marginTop:4}}>{v}</div>
@@ -2060,9 +2482,31 @@ function ProfileView({ user, setUser, predictions, matches, calcPoints }) {
                 const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
                 const pts=m.result?calcPoints(pred,m.result):null;
                 return (
-                  <tr key={m.id} style={{borderBottom:`1px solid ${G.border}`,background:pts===5?"rgba(26,158,63,.05)":"transparent"}}>
+                  <tr key={"g"+m.id} style={{borderBottom:`1px solid ${G.border}`,background:pts===5?"rgba(26,158,63,.05)":"transparent"}}>
                     <td style={{padding:"10px 12px",fontSize:13,color:G.muted,fontWeight:700}}>{m.group}</td>
                     <td style={{padding:"10px 12px",fontSize:13}}>{m.homeTeam.flag} {m.home} vs {m.away} {m.awayTeam.flag}</td>
+                    <td style={{padding:"10px 12px",fontSize:12,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{m.result?`${m.result.home} - ${m.result.away}`:"—"}</td>
+                    <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:900,color:pts===5?G.green:pts>0?"#ffb400":G.muted}}>{pts!==null?`${pts} pts`:"—"}</td>
+                    <td style={{padding:"10px 12px"}}>
+                      <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:100,border:"1px solid",
+                        ...(m.status==="Abierto"?{borderColor:"rgba(26,158,63,.4)",background:"rgba(26,158,63,.1)",color:G.green}:
+                           m.status==="Cierra pronto"?{borderColor:"rgba(255,180,0,.4)",background:"rgba(255,180,0,.1)",color:"#ffb400"}:
+                           {borderColor:"rgba(255,80,80,.4)",background:"rgba(255,80,80,.1)",color:"#ff5050"})
+                      }}>{m.status}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {(knockoutMatches||[]).filter(m=>m.homeName && m.awayName).map(m=>{
+                const pred=(knockoutPredictions||{})[m.id]||{};
+                const hasPred=pred.home!==undefined&&pred.home!==null&&pred.home!==""&&pred.away!==undefined&&pred.away!==null&&pred.away!=="";
+                const pts=m.result?calcPoints(pred,m.result):null;
+                return (
+                  <tr key={"k"+m.id} style={{borderBottom:`1px solid ${G.border}`,background:pts===5?"rgba(26,158,63,.05)":"transparent"}}>
+                    <td style={{padding:"10px 12px",fontSize:13,color:"#ffb400",fontWeight:700}}>🏆</td>
+                    <td style={{padding:"10px 12px",fontSize:13}}>{m.homeName} vs {m.awayName}</td>
                     <td style={{padding:"10px 12px",fontSize:12,color:G.muted,whiteSpace:"nowrap"}}>{m.date} {m.time}</td>
                     <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:hasPred?"#fff":G.muted}}>{hasPred?`${pred.home} - ${pred.away}`:"—"}</td>
                     <td style={{padding:"10px 12px",fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:G.green}}>{m.result?`${m.result.home} - ${m.result.away}`:"—"}</td>
