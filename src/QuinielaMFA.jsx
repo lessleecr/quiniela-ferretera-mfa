@@ -2917,8 +2917,8 @@ function RulesView() {
       {seccion("Predicciones","🎯",[
         ["Las predicciones deben ingresarse antes del inicio oficial de cada partido según el horario de Costa Rica (UTC-6).",""],
         ["Una vez iniciado el partido, las predicciones quedan bloqueadas automáticamente y no pueden modificarse.",""],
-        ["Los resultados oficiales son los publicados por MFA al finalizar el tiempo reglamentario (90 minutos) en la fase de grupos.",""],
-        ["En la fase eliminatoria, el marcador oficial es el resultado al finalizar el partido, incluyendo tiempo extra (prórroga) si lo hubiera. Los penales no se toman en cuenta para el marcador ni para el puntaje.",""],
+        ["Los resultados oficiales son los publicados por MFA al finalizar el tiempo reglamentario (90 minutos), tanto en la fase de grupos como en la fase eliminatoria.",""],
+        ["En la fase eliminatoria, si un partido termina empatado, el marcador que se tomará en cuenta para el puntaje es el resultado al finalizar el tiempo reglamentario (90 minutos), sin importar el resultado de la prórroga ni de los penales.",""],
         ["Las bonificaciones especiales (Campeón, Goleador, MVP) deben completarse antes del inicio del torneo (11 JUN).",""],
         ["El ranking se actualiza automáticamente tras la publicación de cada resultado por el administrador.",""],
       ])}
