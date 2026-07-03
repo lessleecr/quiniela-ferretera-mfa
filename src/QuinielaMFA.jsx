@@ -120,10 +120,19 @@ function SoporteChat({ user, isAdmin }) {
   const bottomRef = React.useRef(null);
 
   const loadMensajes = React.useCallback(async () => {
-    const query = isAdmin
-      ? supabase.from("soporte").select("*").order("created_at", { ascending: true })
-      : supabase.from("soporte").select("*").eq("user_email", user.email).order("created_at", { ascending: true });
-    const { data } = await query;
+    let data = [];
+    let from = 0;
+    const pageSize = 1000;
+    while (true) {
+      const query = isAdmin
+        ? supabase.from("soporte").select("*").order("created_at", { ascending: true }).range(from, from + pageSize - 1)
+        : supabase.from("soporte").select("*").eq("user_email", user.email).order("created_at", { ascending: true }).range(from, from + pageSize - 1);
+      const { data: page } = await query;
+      if (!page || page.length === 0) break;
+      data = data.concat(page);
+      if (page.length < pageSize) break;
+      from += pageSize;
+    }
     if (data) {
       setMensajes(data);
       if (!open) {
