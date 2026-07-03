@@ -1077,16 +1077,23 @@ export default function QuinielaMFA() {
         if (page.length < 1000) break;
         from2 += 1000;
       }
+      let knockoutPreds = [];
+      from2 = 0;
+      while (true) {
+        const { data: page } = await supabase.from("knockout_predicciones").select("*").range(from2, from2 + 999);
+        if (!page || page.length === 0) break;
+        knockoutPreds = knockoutPreds.concat(page);
+        if (page.length < 1000) break;
+        from2 += 1000;
+      }
       const { data: resultados } = await supabase.from("resultados").select("*").eq("published", true);
+      const { data: knockoutResultados } = await supabase.from("knockout_resultados").select("*").eq("published", true);
       if (!usuarios || !preds) return;
-      const predMap = {};
-      preds.forEach(p => {
-        if (!predMap[p.user_email]) predMap[p.user_email] = {};
-        predMap[p.user_email][String(p.match_id)] = { home: Number(p.home), away: Number(p.away) };
-      });
       const resultados2 = resultados || [];
+      const knockoutResultados2 = knockoutResultados || [];
       const standing = usuarios.map(u => {
         const userPreds = preds.filter(p => p.user_email === u.email);
+        const userKnockoutPreds = knockoutPreds.filter(p => p.user_email === u.email);
         let pts = 0;
         for (const r of resultados2) {
           const pred = userPreds.find(p => Number(p.match_id) === Number(r.match_id));
@@ -1101,8 +1108,21 @@ export default function QuinielaMFA() {
             if ((ph-pa) === (rh-ra)) pts += 1;
           }
         }
+        for (const r of knockoutResultados2) {
+          const pred = userKnockoutPreds.find(p => Number(p.match_id) === Number(r.match_id));
+          if (!pred) continue;
+          const ph = Number(pred.home), pa = Number(pred.away);
+          const rh = Number(r.home), ra = Number(r.away);
+          if (isNaN(ph) || isNaN(pa)) continue;
+          if (ph === rh && pa === ra) { pts += 5; }
+          else {
+            const cw = (ph-pa > 0 && rh-ra > 0)||(ph-pa < 0 && rh-ra < 0)||(ph-pa === 0 && rh-ra === 0);
+            if (cw) pts += 3;
+            if ((ph-pa) === (rh-ra)) pts += 1;
+          }
+        }
         const name = u.nombre && u.primer_apellido ? `${u.nombre} ${u.primer_apellido}` : u.nombre_comercial || "Usuario";
-        return { name, pts, preds: userPreds.length };
+        return { name, pts, preds: userPreds.length + userKnockoutPreds.length };
       }).sort((a,b) => b.pts - a.pts || b.preds - a.preds).slice(0, 10);
       setLiveStandings(standing);
     };
