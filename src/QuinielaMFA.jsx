@@ -355,6 +355,46 @@ function SoporteChat({ user, isAdmin }) {
   );
 }
 
+// ─── UPDATE CHECKER ────────────────────────────────────────────────────────────
+// Detecta cuando se publica una nueva versión (cambia el HTML servido desde Vercel,
+// que referencia archivos con hash distinto tras cada build) y avisa al usuario
+// con un banner para que actualice sin perder lo que estaba haciendo.
+function UpdateChecker() {
+  const [updateAvailable, setUpdateAvailable] = React.useState(false);
+  const initialHtmlRef = React.useRef(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch("/", { cache: "no-store" });
+        const html = await res.text();
+        if (initialHtmlRef.current === null) {
+          initialHtmlRef.current = html;
+          return;
+        }
+        if (!cancelled && html !== initialHtmlRef.current) {
+          setUpdateAvailable(true);
+        }
+      } catch (_) {}
+    };
+    check();
+    const interval = setInterval(check, 3 * 60 * 1000); // revisa cada 3 minutos
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
+
+  if (!updateAvailable) return null;
+
+  return (
+    <div style={{position:"fixed",top:0,left:0,right:0,zIndex:20000,background:G.green,color:"#fff",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,fontSize:13,fontWeight:700,boxShadow:"0 2px 12px rgba(0,0,0,.4)"}}>
+      <span>🔄 Hay una nueva versión de la quiniela disponible.</span>
+      <button onClick={()=>window.location.reload()} style={{background:"#fff",color:G.green,border:"none",borderRadius:6,padding:"6px 16px",fontWeight:900,cursor:"pointer",fontSize:12,textTransform:"uppercase",letterSpacing:.5}}>
+        Actualizar ahora
+      </button>
+    </div>
+  );
+}
+
 function calcPoints(pred, result) {
   if (!result || result.home === undefined || result.away === undefined || result.home === null || result.away === null) return 0;
   if (!pred || pred.home === undefined || pred.home === null || String(pred.home) === "" || pred.away === undefined || pred.away === null || String(pred.away) === "") return 0;
@@ -1143,6 +1183,7 @@ export default function QuinielaMFA() {
     if (authMode === "forgot") {
       return (
         <div style={{background:G.bg,minHeight:"100vh",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <UpdateChecker/>
           <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.4}} style={{width:"100%",maxWidth:420,padding:"0 20px"}}>
             <div style={{textAlign:"center",marginBottom:28}}>
               <div style={{width:64,height:64,background:"rgba(26,158,63,.1)",border:`2px solid ${G.green}`,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:28}}>🔑</div>
@@ -1174,6 +1215,7 @@ export default function QuinielaMFA() {
 
     return (
       <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
+        <UpdateChecker/>
         <div style={{maxWidth:1400,margin:"0 auto",padding:"24px 20px"}} className="main-padding">
           <Header subtitle="Mayoreo Ferretería y Acabados" />
           <div style={{display:"grid",gridTemplateColumns:"200px 1fr 390px",gap:16,alignItems:"stretch"}} className="landing-grid">
@@ -1349,6 +1391,7 @@ export default function QuinielaMFA() {
 
   return (
     <>
+    <UpdateChecker/>
     <div style={{background:G.bg,minHeight:"100vh",color:"#fff"}}>
       <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}} className="main-padding">
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingBottom:24}}>
